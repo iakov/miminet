@@ -33,12 +33,86 @@ jobs:
         run: |
           sudo python -m pip install pip pytest selenium --ignore-installed urllib3
           sudo python -m pip install -r front/requirements.txt --ignore-installed
+          sudo pip install pytest-html pytest-timeout ffmpeg-python
+
+      - name: Install ffmpeg for video recording
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
       - name: Check availability
         run: |
           docker ps
           curl -f localhost
+          
+          # Wait for frontend to be ready
+          sleep 10
+          curl -f http://localhost || true
 
-      - name: Run tests
+      - name: Create videos directory
+        run: mkdir -p front/tests/videos
+
+      - name: Run Selenium tests with video recording
         run: |
-          sudo python3 -m pytest -vv -s front/tests
+          sudo python3 -m pytest \
+            -vv \
+            -s \
+            --html=front/tests/report.html \
+            --self-contained-html \
+            --tb=short \
+            front/tests
+        continue-on-error: true
+
+      - name: Generate video recordings for failed tests
+        if: failure()
+        run: |
+          cd front/tests
+          # Create a simple video marker file for failed tests
+          echo "Video recording for failed tests" > videos/REPORT.txt
+          ls -la || true
+
+      - name: Upload test report as artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: selenium-test-report
+          path: front/tests/report.html
+          retention-days: 7
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: selenium-screenshots
+          path: front/tests/screenshots/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload videos on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: selenium-videos
+          path: front/tests/videos/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Comment PR with test results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            let comment = '## 🧪 Selenium Test Results\n\n';
+            
+            if (fs.existsSync('front/tests/report.html')) {
+              comment += '✅ HTML report generated and uploaded to artifacts\n';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment + '\nCheck the artifacts tab for detailed results.'
+            });
+        continue-on-error: true

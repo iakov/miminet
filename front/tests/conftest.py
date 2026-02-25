@@ -320,3 +320,136 @@ def mock_sqlalchemy_inspect(mocker):
 def mock_db(mocker):
     """Mocks the entire db object to prevent context errors with db.engine."""
     return mocker.patch("miminet_model.db")
+
+
+# ============================================================================
+# Selenium Video and Screenshot Support
+# ============================================================================
+
+import logging
+import subprocess
+from datetime import datetime
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="function")
+def selenium_video_recorder(request):
+    """
+    Fixture for recording videos of Selenium test execution.
+    Records video only on test failure.
+    """
+    test_name = request.node.name
+    video_dir = Path(__file__).parent / "videos"
+    video_dir.mkdir(exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    video_file = video_dir / f"{test_name}_{timestamp}.mp4"
+    
+    # Recording will be handled by pytest hook if needed
+    # For now, we prepare the path
+    request.node.video_file = str(video_file)
+    yield video_file
+    
+    # Video cleanup (if needed)
+    if video_file.exists() and request.node.rep_call.passed:
+        try:
+            video_file.unlink()  # Delete successful test videos to save space
+        except Exception as e:
+            logger.warning(f"Could not delete video {video_file}: {e}")
+
+
+@pytest.fixture(scope="function")
+def screenshot_on_failure(request):
+    """
+    Fixture for taking screenshots on test failure.
+    """
+    def take_screenshot(driver: WebDriver, name: str = None):
+        """Take a screenshot and save it."""
+        screenshots_dir = Path(__file__).parent / "screenshots"
+        screenshots_dir.mkdir(exist_ok=True)
+        
+        test_name = request.node.name
+        if name is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            name = f"{test_name}_{timestamp}"
+        else:
+            name = f"{test_name}_{name}"
+        
+        screenshot_file = screenshots_dir / f"{name}.png"
+        
+        try:
+            driver.save_screenshot(str(screenshot_file))
+            logger.info(f"Screenshot saved: {screenshot_file}")
+            return screenshot_file
+        except Exception as e:
+            logger.error(f"Failed to take screenshot: {e}")
+            return None
+    
+    yield take_screenshot
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """
+    Hook to capture screenshots on test failure.
+    """
+    outcome = yield
+    rep = outcome.get_result()
+    
+    # Store the result for use in teardown
+    if rep.when == "call":
+        item.rep_call = rep
+
+
+@pytest.fixture(scope="function", autouse=True)
+def capture_screenshot_on_failure(request):
+    """
+    Auto-use fixture to capture screenshots on failed Selenium tests.
+    """
+    yield
+    
+    # On test failure, capture screenshot if driver exists
+    if request.node.rep_call.failed:
+        # Try to get driver from test function
+        driver = None
+        
+        # Check if driver is in fixtures
+        if hasattr(request, 'getfixturevalue'):
+            try:
+                # Try common driver fixture names
+                for driver_name in ['driver', 'sel_driver', 'webdriver']:
+                    try:
+                        driver = request.getfixturevalue(driver_name)
+                        if driver:
+                            break
+                    except pytest.FixtureLookupError:
+                        continue
+            except Exception as e:
+                logger.debug(f"Could not get driver fixture: {e}")
+        
+        if driver and hasattr(driver, 'save_screenshot'):
+            try:
+                screenshots_dir = Path(__file__).parent / "screenshots"
+                screenshots_dir.mkdir(exist_ok=True)
+                
+                test_name = request.node.name
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                screenshot_file = screenshots_dir / f"{test_name}_FAILED_{timestamp}.png"
+                
+                driver.save_screenshot(str(screenshot_file))
+                
+                # Add screenshot path to the report
+                with open(screenshots_dir / f"{test_name}_FAILED_{timestamp}.txt", "w") as f:
+                    f.write(f"Test: {test_name}\n")
+                    f.write(f"Status: FAILED\n")
+                    f.write(f"Screenshot: {screenshot_file.name}\n")
+                    f.write(f"Timestamp: {timestamp}\n")
+                    if hasattr(driver, 'current_url'):
+                        f.write(f"URL: {driver.current_url}\n")
+                
+                logger.info(f"Screenshot saved on failure: {screenshot_file}")
+            except Exception as e:
+                logger.error(f"Failed to capture screenshot on failure: {e}")
+

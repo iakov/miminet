@@ -99,6 +99,38 @@ test-back-quick: ## Быстрые тесты backend (без Mininet)
 	bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && \
 		pytest test_pkt_parser.py test_network_schema.py -v"
 
+test-selenium: ## Запустить Selenium тесты с HTML отчетом
+	@echo "$(CYAN)Running Selenium tests with HTML report...$(RESET)"
+	mkdir -p front/tests/screenshots front/tests/videos
+	pytest front/tests \
+		--html=front/tests/report.html \
+		--self-contained-html \
+		--tb=short \
+		-v
+	@echo "$(CYAN)Report: front/tests/report.html$(RESET)"
+	@echo "$(CYAN)Screenshots: front/tests/screenshots/$(RESET)"
+
+test-selenium-debug: ## Selenium тесты с отладкой и выводом логов
+	@echo "$(CYAN)Running Selenium tests in debug mode...$(RESET)"
+	mkdir -p front/tests/screenshots
+	pytest front/tests \
+		--html=front/tests/report.html \
+		--self-contained-html \
+		-vv -s \
+		--tb=long
+
+test-selenium-report: ## Открыть HTML отчет Selenium тестов
+	@echo "$(CYAN)Opening Selenium test report...$(RESET)"
+	@if [ -f "front/tests/report.html" ]; then \
+		open front/tests/report.html || xdg-open front/tests/report.html || start front/tests/report.html; \
+	else \
+		echo "Report not found. Run 'make test-selenium' first"; \
+	fi
+
+test-screenshots: ## Показать скриншоты ошибок
+	@echo "$(CYAN)Selenium test screenshots:$(RESET)"
+	@ls -lah front/tests/screenshots/ | grep PNG || echo "No screenshots found"
+
 test-fail: ## Повторить только упавшие тесты
 	@echo "$(CYAN)Running failed tests...$(RESET)"
 	pytest front/tests --lf -v
