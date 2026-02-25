@@ -6,120 +6,48 @@
 
 ```python
 @app.route('/api/endpoint', methods=['POST'])
-@login_required  # Если требуется аутентификация
-def endpoint_name():
-    """Краткое описание endpoint.
-    
-    Returns:
-        JSON response with status code
-    """
+@login_required
+def endpoint():
     data = request.get_json()
-    
-    # Валидация
-    if not data or 'required_field' not in data:
+    if not data or 'field' not in data:
         return jsonify({'error': 'Invalid input'}), 400
-    
-    # Бизнес-логика
-    result = do_something(data, current_user)
-    
-    return jsonify(result), 200
+    return jsonify(do_something(data, current_user)), 200
 ```
 
 ### 2. SQLAlchemy Model Pattern
 
 ```python
-class ModelName(db.Model):
-    """Описание модели."""
-    
-    __tablename__ = 'table_name'
-    
+class Network(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
+    name = db.Column(db.String(100))
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    author = db.relationship('User', backref='items')
-    
     def to_dict(self):
-        """Сериализация в dict для JSON."""
-        return {
-            'id': self.id,
-            'name': self.name,
-            'created_at': self.created_at.isoformat()
-        }
+        return {'id': self.id, 'name': self.name}
 ```
 
 ### 3. Celery Task Pattern
 
 ```python
-from celery_app import app
-
 @app.task(bind=True, max_retries=3)
-def task_name(self, param1, param2):
-    """Описание Celery задачи.
-    
-    Args:
-        param1: Описание
-        param2: Описание
-    
-    Returns:
-        Result data
-    """
+def task_name(self, param):
     try:
-        # Логика задачи
-        result = do_work(param1, param2)
-        return result
-        
+        return do_work(param)
     except Exception as exc:
-        # Retry с задержкой
         raise self.retry(exc=exc, countdown=60)
 ```
 
 ### 4. Mininet Emulation Pattern
 
 ```python
-from mininet.net import Mininet
-from mininet.node import Host, OVSSwitch
-
 def emulate(network_json):
-    """Эмуляция сети в Mininet.
-    
-    Args:
-        network_json: Network schema (marshmallow validated)
-    
-    Returns:
-        tuple: (animation_json, pcap_files)
-    """
     net = Mininet()
-    
-    # 1. Создание устройств
-    hosts = {}
-    for node in network_json.nodes:
-        if node.type == 'host':
-            hosts[node.name] = net.addHost(node.name, ip=node.ip)
-    
-    # 2. Создание связей
-    for edge in network_json.edges:
-        net.addLink(
-            hosts[edge.source], 
-            hosts[edge.target],
-            bw=edge.bandwidth,
-            delay=f'{edge.delay}ms',
-            loss=edge.loss
-        )
-    
-    # 3. Запуск сети
+    hosts = {n.name: net.addHost(n.name, ip=n.ip) for n in network_json.nodes}
+    for e in network_json.edges:
+        net.addLink(hosts[e.source], hosts[e.target], bw=e.bw, delay=f'{e.delay}ms')
     net.start()
-    
-    # 4. Выполнение команд и сбор метрик
-    animation = collect_animation(net, network_json.jobs)
-    pcaps = collect_pcaps(net)
-    
-    # 5. Остановка
+    animation = collect_animation(net)
     net.stop()
-    
-    return animation, pcaps
+    return animation
 ```
 
 ---

@@ -4,70 +4,29 @@
 
 ### Логирование
 
-#### Frontend (Flask)
-
 ```bash
-# Следить за логами
-docker logs -f miminet
+docker logs -f miminet    # Flask logs
+docker logs -f celery     # Celery worker
+docker logs -f rabbitmq   # RabbitMQ
 
-# Последние 100 строк
-docker logs --tail 100 miminet
-
-# С временными метками
-docker logs -f --timestamps miminet
-```
-
-#### Backend (Celery)
-
-```bash
-# Следить за работником
-docker logs -f celery
-
-# Проверить очередь задач
-docker exec -it celery celery -A tasks inspect active
-```
-
-#### RabbitMQ
-
-```bash
-# Management UI (username: guest, password: guest)
-http://localhost:15672
-
-# Проверить очереди
+# RabbitMQ Management UI: http://localhost:15672 (guest/guest)
 docker exec -it rabbitmq rabbitmqctl list_queues
-
-# Очистить очередь
-docker exec -it rabbitmq rabbitmqctl purge_queue queue_name
 ```
 
 ### Python Debugger
 
-#### Flask
-
 ```python
-import pdb; pdb.set_trace()  # Breakpoint
-```
-
-#### Loggers
-
-```python
+import pdb; pdb.set_trace()          # Breakpoint
 import logging
-
 logger = logging.getLogger(__name__)
-logger.debug("Debug message")
-logger.info("Info message")
-logger.error("Error message")
+logger.debug|info|error("message")   # Log levels
 ```
 
-### Mininet Debug Mode
+### Mininet Debug
 
 ```python
 from mininet.log import setLogLevel
-
-setLogLevel('debug')  # Verbose вывод
-# или
-setLogLevel('info')
-setLogLevel('warning')
+setLogLevel('debug')  # or 'info', 'warning'
 ```
 
 ---
@@ -239,101 +198,11 @@ docker logs --since 10m <container-name>
 
 ---
 
-## 🎓 Обучающие материалы
-
-### Для новых разработчиков
-
-- Прочитать README.md и CLAUDE.md
-- Прочитать [00-ARCHITECTURE.md](00-ARCHITECTURE.md) для понимания системы
-- Запустить проект локально через `./start_all_containers.sh`
-- Создать тестовую сеть через UI
-- Запустить симуляцию
-- Изучить [front/src/app.py](../front/src/app.py) (Flask endpoints)
-- Изучить [back/src/emulator.py](../back/src/emulator.py) (Mininet логика)
-- Написать простой тест в [front/tests/](../front/tests/)
-- Или добавить тест backend в [back/tests/](../back/tests/)
-- Добавить новый API endpoint
-- Или исправить существующий баг
-
-### Порядок учебного чтения
-
-1. [CLAUDE.md](../CLAUDE.md) (этот файл) — быстрая навигация
-2. [00-ARCHITECTURE.md](00-ARCHITECTURE.md) — архитектура проекта
-3. [01-GETTING_STARTED.md](01-GETTING_STARTED.md) — как запустить
-4. [front/src/app.py](../front/src/app.py) — Flask endpoints
-5. [back/src/emulator.py](../back/src/emulator.py) — Mininet эмуляция
-6. [front/src/miminet_model.py](../front/src/miminet_model.py) — БД модели
-7. [03-TESTING.md](03-TESTING.md) — как писать тесты
-
----
-
-## 📚 Дополнительные ресурсы
-
-### Официальная документация
-
-- [Mininet Documentation](http://mininet.org/)
-- [Flask Documentation](https://flask.palletsprojects.com/)
-- [SQLAlchemy ORM Guide](https://docs.sqlalchemy.org/en/20/orm/)
-- [Celery Task Queue](https://docs.celeryproject.org/)
-- [RabbitMQ Tutorials](https://www.rabbitmq.com/getstarted.html)
-- [Docker Documentation](https://docs.docker.com/)
-- [PostgreSQL Manual](https://www.postgresql.org/docs/)
-
-### Релевантные проекты
-
-- [GitHub: Mininet](https://github.com/mininet/mininet)
-- [GitHub: ipmininet](https://github.com/cnp3/ipmininet)
-- [PyPI: Flask-Migrate](https://pypi.org/project/Flask-Migrate/)
-- [PyPI: SQLAlchemy](https://pypi.org/project/SQLAlchemy/)
-
-### Полезные команды
-
-```bash
-# Docker
-docker ps -a                       # Все контейнеры
-docker exec -it <name> bash        # SSH в контейнер
-docker logs -f <name>              # Логи
-docker-compose restart             # Перезапуск
-docker system prune -a             # Очистка
-
-# Database
-flask db migrate -m "message"      # Миграция
-flask db upgrade                   # Применить
-flask db downgrade                 # Откатить
-flask db history                   # История
-
-# Tests
-pytest . -v                        # Все тесты
-pytest . -k "pattern" -v           # По паттерну
-pytest --lf                        # Только фейлы
-pytest --cov=module --cov-report=html  # Coverage
-
-# Git
-git log --oneline                  # История коммитов
-git diff HEAD~1                    # Изменения с прошлого коммита
-git status                         # Статус
-```
-
 ---
 
 ## 🆘 Получение помощи
 
-### Внутренние ресурсы
-
-| Вопрос | Ресурс |
-| -------- | --------- |
-| Как создать сеть? | [02-DEVELOPMENT.md](02-DEVELOPMENT.md#add-new-api-endpoint) |
-| Как запустить симуляцию? | [01-GETTING_STARTED.md](01-GETTING_STARTED.md) |
-| Как добавить устройство? | [00-ARCHITECTURE.md](00-ARCHITECTURE.md#key-files) |
-| Как писать тесты? | [03-TESTING.md](03-TESTING.md) |
-| Как работает БД? | [04-DATABASE_AND_API.md](04-DATABASE_AND_API.md) |
-| Как отладить ошибку? | Этот файл (Debugging section) |
-
-### Внешние ресурсы
-
-- **GitHub Issues**: https://github.com/mimi-net/miminet/issues
-- **GitHub Discussions**: https://github.com/mimi-net/miminet/discussions
-- **Документация проекта**: https://github.com/mimi-net/miminet#readme
+Для вопросов и лучших практик см. [CLAUDE.md](../CLAUDE.md#-получение-помощи).
 
 ### Структура issue в GitHub
 

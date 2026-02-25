@@ -69,78 +69,16 @@ flask db downgrade base  # Откатить полностью
 
 ## Запуск тестов
 
-### Frontend тесты (Selenium)
+### Запуск тестов
 
-**Структура тестов:**
-
-```text
-front/tests/
-├── conftest.py          # Pytest fixtures
-├── utils/
-│   ├── locators.py      # Веб-элементы (XPATH, CSS)
-│   ├── networks.py      # Классы для создания тестовых сетей
-│   └── checkers.py      # Проверка корректности эмуляции
-└── test_*.py            # Тестовые сценарии
-```
-
-**Запуск тестов:**
+Для подробных инструкций см. [03-TESTING.md](03-TESTING.md).
 
 ```bash
-cd front/tests
-sh docker/run.sh  # Запуск контейнеров с браузерами
-pytest front/tests -v  # Verbose вывод
-pytest front/tests -k test_name  # Конкретный тест
-```
+# Frontend (Selenium)
+cd front/tests && pytest . -v
 
-**Пример теста:**
-
-```python
-def test_create_simple_network(driver, login):
-    """Создание простой сети с двумя хостами."""
-    # Использование классов из utils/networks.py
-    network = TwoHostsNetwork(driver)
-    network.create()
-    network.run_simulation()
-    
-    # Проверка результата
-    assert network.check_connectivity()
-```
-
-### Backend тесты (pytest)
-
-**Структура тестов:**
-
-```text
-back/tests/
-├── test_json/           # JSON конфигурации для тестов
-│   ├── simple.json
-│   └── complex.json
-└── test_*.py            # Unit тесты
-```
-
-**Запуск тестов (требует root для Mininet):**
-
-```bash
-cd back/tests
-sudo bash  # Mininet требует root
-source .venv/bin/activate
-export PYTHONPATH=$PYTHONPATH:../src
-pytest . -v
-pytest . -k test_name  # Конкретный тест
-```
-
-**Пример теста:**
-
-```python
-def test_emulation_two_hosts():
-    """Эмуляция сети с двумя хостами."""
-    with open('test_json/simple.json') as f:
-        network_json = json.load(f)
-    
-    animation, pcaps = run_miminet(json.dumps(network_json))
-    
-    assert animation != "[]"
-    assert len(pcaps) > 0
+# Backend (pytest, требует sudo)
+cd back/tests && sudo pytest . -v
 ```
 
 ---
@@ -191,58 +129,22 @@ docker logs -f rabbitmq # RabbitMQ logs
 
 ---
 
-## Полезные команды Docker
+## Полезные команды
+
+Для полного списка команд см. [CLAUDE.md](../CLAUDE.md#-ключевые-команды).
 
 ```bash
-# Контейнеры и логи
-docker ps                          # Список запущенных контейнеров
-docker ps -a                       # Все контейнеры (включая停止ленные)
-docker exec -it miminet bash       # SSH в контейнер
-docker logs -f miminet             # Следить за логами
-docker logs --tail 100 miminet     # Последние 100 строк
-
-# Управление
-docker-compose restart             # Перезагрузить контейнеры
-docker-compose stop                # Остановить
-docker-compose start               # Запустить
-docker-compose down -v             # Полностью остановить и удалить volumes
-
-# Очистка
-docker system prune -a             # Очистить неиспользуемые образы
-docker container prune             # Удалить stopped контейнеры
+# Основные
+docker ps && docker logs -f miminet
+docker-compose down -v && ./start_all_containers.sh
+flask db upgrade && pytest . -v
 ```
 
 ---
 
-## Полезные команды БД
+## Проверка работоспособности
 
-```bash
-docker exec -it miminet bash
-
-# Миграции
-flask db migrate -m "message"      # Создать миграцию
-flask db upgrade                   # Применить миграции
-flask db downgrade                 # Откатить миграцию
-flask db current                   # Текущая версия
-flask db history                   # История миграций
-
-# Работа с PostgreSQL
-psql -U postgres -h postgres miminet  # Подключиться к БД
-# SELECT * FROM users; (внутри psql)
-# \dt (вывести все таблицы)
-# \q (выход)
-```
-
----
-
-## Чек-лист для проверки
-
-Перед тем как заявить, что локальный запуск работает:
-
-- [ ] Контейнер Flask поднялся (`docker ps` shows miminet)
-- [ ] База данных мигрировала (`docker logs miminet` показывает успех)
-- [ ] Celery worker запустился (`docker logs celery` shows готовность)
-- [ ] RabbitMQ доступен для управления (`http://localhost:15672` guest/guest)
-- [ ] Приложение открывается (`http://localhost`)
+- [ ] `docker ps` показывает все контейнеры
+- [ ] `http://localhost` открывается
 - [ ] Можно создать сеть и запустить симуляцию
-- [ ] Фронтенд тесты проходят (или хотя бы запускаются)
+- [ ] Тесты запускаются: `pytest front/tests -v` и `pytest back/tests -v`

@@ -101,24 +101,17 @@ def login(driver):
     return current_user
 ```
 
-### Типичные assertions для тестов
+### Типичные assertions
 
 ```python
-# Проверка видимости элемента
-driver.find_element(By.XPATH, "//button[@class='create-network']")
-
-# Проверка текста
+# Проверка видимости и текста
 assert "Network created" in driver.page_source
-
-# Проверка атрибутов
-element = driver.find_element(By.ID, "network-name")
-assert element.get_attribute("value") == "Test Network"
 
 # Проверка количества элементов
 nodes = driver.find_elements(By.CLASS_NAME, "network-node")
 assert len(nodes) == 2  # 2 хоста
 
-# Проверка результатов эмуляции
+# Проверка анимации
 animation_data = json.loads(driver.execute_script(
     "return sessionStorage.getItem('animation')"
 ))
@@ -215,50 +208,23 @@ def test_emulation_two_hosts(tmpdir):
     assert pcaps[0].endswith('.pcap')
 ```
 
-### Fixture для общих данных
+### Backend fixtures
 
 ```python
-# conftest.py (backend)
-
 @pytest.fixture
 def simple_network():
-    """Загрузить простую конфигурацию сети."""
+    """Загрузить конфигурацию сети."""
     with open('test_json/simple.json') as f:
         return json.load(f)
-
-@pytest.fixture
-def complex_network():
-    """Загрузить сложную конфигурацию сети."""
-    with open('test_json/complex.json') as f:
-        return json.load(f)
-
-# Использование в тесте:
-def test_complex_emulation(complex_network):
-    animation, pcaps = emulate(complex_network)
-    assert len(animation) > 100  # Больше пакетов
 ```
 
-### Типичные assertions для backend тестов
+### Backend assertions
 
 ```python
-# Проверка типов
-assert isinstance(animation, list)
-assert isinstance(pcaps, list)
-
-# Проверка структуры анимации
+assert isinstance(animation, list) and len(animation) > 0
+assert isinstance(pcaps, list) and len(pcaps) > 0
 frame = animation[0]
-assert 'source' in frame
-assert 'target' in frame
-assert 'timestamp' in frame
-assert isinstance(frame['timestamp'], (int, float))
-
-# Проверка количества пакетов
-assert len(animation) >= 1  # Минимум один пакет передан
-
-# Проверка файлов
-import os
-assert os.path.exists(pcaps[0])
-assert os.path.getsize(pcaps[0]) > 0
+assert all(k in frame for k in ['source', 'target', 'timestamp'])
 ```
 
 ---
@@ -316,31 +282,22 @@ docker-compose -f docker-compose.test.yml up
 4. **selenium-tests** (frontend UI)
 5. **security-scan** (SAST, dependency check)
 
-### Пример GitHub Actions
+### GitHub Actions пример
 
 ```yaml
 name: Tests
-
 on: [push, pull_request]
-
 jobs:
   backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run backend tests
-        run: |
-          cd back/tests
-          pytest . -v
-
+      - run: pytest back/tests -v
   frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run frontend tests
-        run: |
-          cd front/tests
-          pytest . -v
+      - run: pytest front/tests -v
 ```
 
 ---
@@ -365,18 +322,6 @@ npm test -- --coverage
 
 ## Best Practices
 
-## ✅ Do's
-
-- ✅ Тесты должны быть независимы друг от друга
-- ✅ Использовать fixtures для общих данных
-- ✅ Тестировать граничные случаи (edge cases)
-- ✅ Оставлять информативные сообщения в assertion'ах
-- ✅ Очищать resources в teardown (БД, файлы, сокеты)
-
-## ❌ Don'ts
-
-- ❌ Не писать тесты без assert'ов (пустые тесты)
-- ❌ Не использовать hardcoded пути (использовать tmpdir)
-- ❌ Не тестировать реализацию, а функциональность
-- ❌ Не игнорировать флакующие тесты (intermittent failures)
-- ❌ Не забывать про timeout'ы (может зависнуть)
+✅ Тесты независимы | Используйте fixtures | Тестируйте edge cases  
+✅ Информативные assert'ы | Очищайте resources  
+❌ Не hardcoding пути | Не пустые тесты | Не игнорируйте флакующие тест
