@@ -81,17 +81,13 @@ class TestNat:
         )
         config.submit()
 
-    def configure_client_router(
-        self, config: NodeConfig, out_ip: str, out_gw: str, iface_id: str
-    ):
+    def configure_client_router(self, config: NodeConfig, out_ip: str, out_gw: str, iface_id: str):
         config.fill_link("192.168.1.2", 24, link_id=0)
         config.fill_link(out_ip, 24, link_id=1)
         config.fill_default_gw(out_gw)
         config.add_jobs(
             101,
-            {
-                Location.Network.ConfigPanel.Router.Job.NAT_LINK_SELECT.selector: iface_id
-            },
+            {Location.Network.ConfigPanel.Router.Job.NAT_LINK_SELECT.selector: iface_id},
         )
 
         config.submit()

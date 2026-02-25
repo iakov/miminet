@@ -121,9 +121,7 @@ def finish_old_session_endpoint():
 
     if code == 404:
         abort(404)
-    return make_response(
-        jsonify({"message": "Старые сессии завершены или удалены"}), code
-    )
+    return make_response(jsonify({"message": "Старые сессии завершены или удалены"}), code)
 
 
 @login_required
@@ -132,9 +130,7 @@ def session_result_endpoint():
     if status != 200:
         return make_response("Error", status)
 
-    return make_response(
-        render_template("quiz/userSessionResult.html", data=res), status
-    )
+    return make_response(render_template("quiz/userSessionResult.html", data=res), status)
 
 
 def get_result_by_session_guid_endpoint():

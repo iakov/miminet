@@ -36,14 +36,10 @@ class TestRouterCycle:
         )
 
         router2_config = network.open_node_config(2)
-        self.configure_router(
-            router2_config, ["172.16.12.2:24", "192.168.1.2:24"], "192.168.1.1"
-        )
+        self.configure_router(router2_config, ["172.16.12.2:24", "192.168.1.2:24"], "192.168.1.1")
 
         router3_config = network.open_node_config(3)
-        self.configure_router(
-            router3_config, ["192.168.1.1:24", "169.254.1.2:24"], "169.254.1.1"
-        )
+        self.configure_router(router3_config, ["192.168.1.1:24", "169.254.1.2:24"], "169.254.1.1")
 
         yield network
 

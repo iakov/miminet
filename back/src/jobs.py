@@ -160,12 +160,7 @@ def add_gre_checker(ip_start, ip_end, ip_iface, name_iface) -> bool:
 def port_forwarding_checker(iface, port, dest_addr, dest_port) -> bool:
     """Checker args for port_forwarding_tcp and port_forwarding_udp"""
 
-    return (
-        valid_ip(dest_addr)
-        and valid_port(port)
-        and valid_port(dest_port)
-        and valid_iface(iface)
-    )
+    return valid_ip(dest_addr) and valid_port(port) and valid_port(dest_port) and valid_iface(iface)
 
 
 def valid_port(port) -> bool:
@@ -273,9 +268,7 @@ def sending_udp_data_handler(job: Job, job_host: Any) -> None:
     if not udp_tcp_args_checker(arg_ip, arg_size, arg_port):
         return
 
-    job_host.cmd(
-        f"dd if=/dev/urandom bs={arg_size} count=1 | nc -uq1 {arg_ip} {arg_port}"
-    )
+    job_host.cmd(f"dd if=/dev/urandom bs={arg_size} count=1 | nc -uq1 {arg_ip} {arg_port}")
 
 
 def sending_tcp_data_handler(job: Job, job_host: Any) -> None:
@@ -286,9 +279,7 @@ def sending_tcp_data_handler(job: Job, job_host: Any) -> None:
     if not udp_tcp_args_checker(arg_ip, arg_size, arg_port):
         return
 
-    job_host.cmd(
-        f"dd if=/dev/urandom bs={arg_size} count=1 | nc -w 30 -q1 {arg_ip} {arg_port}"
-    )
+    job_host.cmd(f"dd if=/dev/urandom bs={arg_size} count=1 | nc -w 30 -q1 {arg_ip} {arg_port}")
 
 
 def traceroute_handler(job: Job, job_host: Any) -> None:
@@ -393,9 +384,7 @@ def open_tcp_server_handler(job: Job, job_host: Any) -> None:
     if not valid_port(arg_port) or not valid_ip(arg_ip):
         return
 
-    job_host.cmd(
-        f"nohup nc -k -d {arg_ip} -l {arg_port} > /tmp/tcpserver 2>&1 < /dev/null &"
-    )
+    job_host.cmd(f"nohup nc -k -d {arg_ip} -l {arg_port} > /tmp/tcpserver 2>&1 < /dev/null &")
 
 
 def open_udp_server_handler(job: Job, job_host: Any) -> None:
@@ -406,9 +395,7 @@ def open_udp_server_handler(job: Job, job_host: Any) -> None:
     if not valid_ip(arg_ip) or not valid_port(arg_port):
         return
 
-    job_host.cmd(
-        f"nohup nc -d -u {arg_ip} -l {arg_port} > /tmp/udpserver 2>&1 < /dev/null &"
-    )
+    job_host.cmd(f"nohup nc -d -u {arg_ip} -l {arg_port} > /tmp/udpserver 2>&1 < /dev/null &")
 
 
 def arp_handler(job: Job, job_host: Any) -> None:
@@ -430,9 +417,7 @@ def subinterface_with_vlan(job: Job, job_host: Any) -> None:
     arg_vlan = job.arg_4
     arg_intf_name = arg_intf[6:]
 
-    if not subinterface_vlan_checker(
-        arg_intf, arg_ip, arg_mask, arg_vlan, arg_intf_name
-    ):
+    if not subinterface_vlan_checker(arg_intf, arg_ip, arg_mask, arg_vlan, arg_intf_name):
         return
 
     job_host.cmd(
@@ -452,9 +437,7 @@ def add_ipip_interface(job: Job, job_host: Any) -> None:
     if not ipip_interface_checker(arg_ip_start, arg_ip_end, arg_ip_int, arg_name_int):
         return
 
-    job_host.cmd(
-        f"ip tunnel add {arg_name_int} mode ipip remote {arg_ip_end} local {arg_ip_start}"
-    )
+    job_host.cmd(f"ip tunnel add {arg_name_int} mode ipip remote {arg_ip_end} local {arg_ip_start}")
     job_host.cmd(f"ifconfig {arg_name_int} {arg_ip_int}")
 
 

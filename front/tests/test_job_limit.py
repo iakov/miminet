@@ -28,9 +28,7 @@ class TestJobLimit:
         for i in range(30):
             config1.add_jobs(
                 1,
-                {
-                    Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.1.2"
-                },
+                {Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.1.2"},
             )
         config1.submit()
 
@@ -51,9 +49,7 @@ class TestJobLimit:
             # Check error message quality
             assert "лимит" in error_message.lower(), "Error should mention limit"
             assert "30" in error_message, "Error should mention the limit number (30)"
-            assert (
-                "команд" in error_message.lower()
-            ), "Error should mention 'команд' (commands)"
+            assert "команд" in error_message.lower(), "Error should mention 'команд' (commands)"
 
         network.delete()
 
@@ -88,9 +84,7 @@ class TestJobLimit:
         for i in range(15):
             config_router.add_jobs(
                 1,
-                {
-                    Location.Network.ConfigPanel.Router.Job.PING_FIELD.selector: "10.0.1.2"
-                },
+                {Location.Network.ConfigPanel.Router.Job.PING_FIELD.selector: "10.0.1.2"},
             )
         config_router.submit()
 
@@ -152,15 +146,11 @@ class TestJobLimit:
         for i in range(30):
             config1.add_jobs(
                 1,
-                {
-                    Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.1.2"
-                },
+                {Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.1.2"},
             )
         config1.submit()
 
-        assert (
-            len(network.jobs) == 30
-        ), f"Expected 30 jobs initially, but got {len(network.jobs)}"
+        assert len(network.jobs) == 30, f"Expected 30 jobs initially, but got {len(network.jobs)}"
 
         # Delete one job via API
         job_id_to_delete = network.jobs[0]["id"]

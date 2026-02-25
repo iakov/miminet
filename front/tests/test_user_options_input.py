@@ -135,9 +135,7 @@ class TestOptionsFilter:
             ("-b -s 10 -c 5"),
         ],
     )
-    def test_traceroute_options_blacklist(
-        self, network: MiminetTestNetwork, options_input
-    ):
+    def test_traceroute_options_blacklist(self, network: MiminetTestNetwork, options_input):
         host1_node = network.nodes[0]
 
         config = network.open_node_config(host1_node)
@@ -166,17 +164,13 @@ class TestOptionsFilter:
             ("-b -s 10 -c 5"),
         ],
     )
-    def test_link_down_option_blacklist(
-        self, network: MiminetTestNetwork, options_input
-    ):
+    def test_link_down_option_blacklist(self, network: MiminetTestNetwork, options_input):
         switch_node = network.nodes[1]
         config = network.open_node_config(switch_node)
         with pytest.raises(Exception) as exc_info:
             config.add_jobs(
                 7,
-                {
-                    Location.Network.ConfigPanel.Switch.Job.SLEEP_FIELD.selector: options_input
-                },
+                {Location.Network.ConfigPanel.Switch.Job.SLEEP_FIELD.selector: options_input},
             )
             config.submit()
         assert "Неверно указаны опции" in str(exc_info.value)

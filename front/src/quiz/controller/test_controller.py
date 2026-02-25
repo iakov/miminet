@@ -46,9 +46,7 @@ def get_tests_by_owner_endpoint():
     user = current_user
     res = get_tests_by_owner(user)
 
-    return make_response(
-        json.dumps([obj.__dict__ for obj in res], cls=UUIDEncoder), 200
-    )
+    return make_response(json.dumps([obj.__dict__ for obj in res], cls=UUIDEncoder), 200)
 
 
 @login_required
@@ -69,9 +67,7 @@ def get_deleted_tests_by_owner_endpoint():
     user = current_user
     res = get_deleted_tests_by_owner(user)
 
-    return make_response(
-        json.dumps([obj.__dict__ for obj in res], cls=UUIDEncoder), 200
-    )
+    return make_response(json.dumps([obj.__dict__ for obj in res], cls=UUIDEncoder), 200)
 
 
 @login_required
@@ -114,9 +110,7 @@ def edit_test_endpoint():
 def get_tests_by_author_name_endpoint():
     tests = get_tests_by_author_name(request.json["author_name"])
 
-    return make_response(
-        json.dumps([obj.__dict__ for obj in tests], cls=UUIDEncoder), 200
-    )
+    return make_response(json.dumps([obj.__dict__ for obj in tests], cls=UUIDEncoder), 200)
 
 
 @login_required

@@ -46,12 +46,8 @@ class TestTcpUdp:
                     Location.Network.ConfigPanel.Host.Job.TCP_VOLUME_IN_BYTES_FIELD.selector: job_params[
                         0
                     ],
-                    Location.Network.ConfigPanel.Host.Job.TCP_IP_FIELD.selector: job_params[
-                        1
-                    ],
-                    Location.Network.ConfigPanel.Host.Job.TCP_PORT_FIELD.selector: job_params[
-                        2
-                    ],
+                    Location.Network.ConfigPanel.Host.Job.TCP_IP_FIELD.selector: job_params[1],
+                    Location.Network.ConfigPanel.Host.Job.TCP_PORT_FIELD.selector: job_params[2],
                 },
             )
         elif protocol == "udp":
@@ -61,12 +57,8 @@ class TestTcpUdp:
                     Location.Network.ConfigPanel.Host.Job.UDP_VOLUME_IN_BYTES_FIELD.selector: job_params[
                         0
                     ],
-                    Location.Network.ConfigPanel.Host.Job.UDP_IP_FIELD.selector: job_params[
-                        1
-                    ],
-                    Location.Network.ConfigPanel.Host.Job.UDP_PORT_FIELD.selector: job_params[
-                        2
-                    ],
+                    Location.Network.ConfigPanel.Host.Job.UDP_IP_FIELD.selector: job_params[1],
+                    Location.Network.ConfigPanel.Host.Job.UDP_PORT_FIELD.selector: job_params[2],
                 },
             )
         else:
@@ -89,24 +81,16 @@ class TestTcpUdp:
             server_config.add_jobs(
                 201,
                 {
-                    Location.Network.ConfigPanel.Server.Job.TCP_IP_FIELD.selector: job_params[
-                        1
-                    ],
-                    Location.Network.ConfigPanel.Server.Job.TCP_PORT_FIELD.selector: job_params[
-                        2
-                    ],
+                    Location.Network.ConfigPanel.Server.Job.TCP_IP_FIELD.selector: job_params[1],
+                    Location.Network.ConfigPanel.Server.Job.TCP_PORT_FIELD.selector: job_params[2],
                 },
             )
         elif protocol == "udp":
             server_config.add_jobs(
                 200,
                 {
-                    Location.Network.ConfigPanel.Server.Job.UDP_IP_FIELD.selector: job_params[
-                        1
-                    ],
-                    Location.Network.ConfigPanel.Server.Job.UDP_PORT_FIELD.selector: job_params[
-                        2
-                    ],
+                    Location.Network.ConfigPanel.Server.Job.UDP_IP_FIELD.selector: job_params[1],
+                    Location.Network.ConfigPanel.Server.Job.UDP_PORT_FIELD.selector: job_params[2],
                 },
             )
         else:

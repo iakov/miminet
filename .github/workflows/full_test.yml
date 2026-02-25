@@ -33,7 +33,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip poetry
           poetry install --with dev --no-root
-          sudo apt-get update
           sudo apt-get install -y ffmpeg
 
       - name: Check availability
@@ -45,11 +44,10 @@ jobs:
           sleep 10
           curl -f http://localhost || true
 
-      - name: Create videos directory
-        run: mkdir -p front/tests/videos
 
       - name: Run Selenium tests with video recording
         run: |
+          mkdir -p front/tests/videos
           poetry run pytest \
             -vv \
             -s \
@@ -69,7 +67,7 @@ jobs:
 
       - name: Upload test report as artifact
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: selenium-test-report
           path: front/tests/report.html
@@ -77,7 +75,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: selenium-screenshots
           path: front/tests/screenshots/
@@ -86,7 +84,7 @@ jobs:
 
       - name: Upload videos on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: selenium-videos
           path: front/tests/videos/

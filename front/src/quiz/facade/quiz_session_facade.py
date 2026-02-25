@@ -25,9 +25,7 @@ def start_session(section_id: str, user: User):
     db.session.add(quiz_session)
 
     if section.meta_description:
-        for category_name, question_number in json.loads(
-            section.meta_description
-        ).items():
+        for category_name, question_number in json.loads(section.meta_description).items():
             category = QuestionCategory.query.filter_by(name=category_name).first()
             if not category:
                 continue
@@ -44,9 +42,7 @@ def start_session(section_id: str, user: User):
                 session_question.quiz_session = quiz_session
                 db.session.add(session_question)
     else:
-        questions = Question.query.filter_by(
-            section_id=section_id, is_deleted=False
-        ).all()
+        questions = Question.query.filter_by(section_id=section_id, is_deleted=False).all()
 
         for question in questions:
             session_question = SessionQuestion()
@@ -108,13 +104,9 @@ def session_result(quiz_session_id: str):
     if quiz_session.finished_at is None:
         return None, 403
 
-    theory_questions = [
-        q for q in quiz_session.sessions if q.question.question_type != 0
-    ]
+    theory_questions = [q for q in quiz_session.sessions if q.question.question_type != 0]
 
-    practice_questions = [
-        q for q in quiz_session.sessions if q.question.question_type == 0
-    ]
+    practice_questions = [q for q in quiz_session.sessions if q.question.question_type == 0]
 
     theory_count = len(theory_questions)
 

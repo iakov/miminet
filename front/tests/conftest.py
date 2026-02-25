@@ -2,7 +2,7 @@ import pytest
 import requests
 import os
 import sys
-from typing import Generator
+from typing import Optional, Generator
 from requests import Session
 from contextlib import contextmanager
 from unittest.mock import MagicMock
@@ -14,15 +14,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+import logging
+from datetime import datetime
+from pathlib import Path
 
 
 class testing_setting:
     """Configuration settings for testing environment."""
 
     nginx_docker_ip = "172.18.0.2"  # nginx IP inside miminet docker network
-    selenium_hub_url = (
-        "http://localhost:4444/wd/hub"  # route for sending selenium commands
-    )
+    selenium_hub_url = "http://localhost:4444/wd/hub"  # route for sending selenium commands
     window_size = "1920,1080"
     auth_data = {
         "email": "selenium",
@@ -50,9 +51,7 @@ class MiminetTester(WebDriver):
             element (str): The element locator (e.g., "myElementId", "//button[text()='Click Me']").
             timeout (int): The maximum time in seconds to wait (default: 20).
         """
-        WebDriverWait(self, timeout).until(
-            EC.element_to_be_clickable((by, element))
-        ).click()
+        WebDriverWait(self, timeout).until(EC.element_to_be_clickable((by, element))).click()
 
     def drag_and_drop(self, source: WebElement, target: WebElement, x: int, y: int):
         """Performs a drag-and-drop action from a source element to a target element.
@@ -90,9 +89,7 @@ class MiminetTester(WebDriver):
             element (str): The element locator (e.g., "myElementId", "//button[text()='Click Me']").
             timeout (int): The maximum time in seconds to wait (default: 20).
         """
-        WebDriverWait(self, timeout).until(
-            EC.visibility_of_element_located((by, element))
-        )
+        WebDriverWait(self, timeout).until(EC.visibility_of_element_located((by, element)))
 
     def wait_until_disappear(self, by: str, element: str, timeout=20):
         """
@@ -103,9 +100,7 @@ class MiminetTester(WebDriver):
             element (str): The element locator (e.g., "myElementId", "//button[text()='Click Me']").
             timeout (int): The maximum time in seconds to wait (default: 20).
         """
-        WebDriverWait(self, timeout).until(
-            EC.invisibility_of_element_located((by, element))
-        )
+        WebDriverWait(self, timeout).until(EC.invisibility_of_element_located((by, element)))
 
     def wait_until_text(self, by: str, element: str, text: str, timeout=20):
         """
@@ -116,9 +111,7 @@ class MiminetTester(WebDriver):
             element (str): The element locator (e.g., "myElementId", "//button[text()='Click Me']").
             timeout (int): The maximum time in seconds to wait (default: 20).
         """
-        WebDriverWait(self, timeout).until(
-            EC.text_to_be_present_in_element((by, element), text)
-        )
+        WebDriverWait(self, timeout).until(EC.text_to_be_present_in_element((by, element), text))
 
     def wait_for(self, condition, timeout=20):
         """Waits for a given condition to be true.
@@ -130,9 +123,7 @@ class MiminetTester(WebDriver):
         WebDriverWait(self, timeout=timeout).until(condition)
 
     @contextmanager
-    def run_in_modal_context(
-        self, by: str, element: str
-    ) -> Generator[WebElement, None, None]:
+    def run_in_modal_context(self, by: str, element: str) -> Generator[WebElement, None, None]:
         """
         Allow to do actions in the context of modal window.
         """
@@ -182,9 +173,7 @@ class MiminetTester(WebDriver):
         """
         return map(
             lambda log: log["message"],
-            self.get_logs(
-                lambda log: log["source"] == "console-api" and log["level"] == "INFO"
-            ),
+            self.get_logs(lambda log: log["source"] == "console-api" and log["level"] == "INFO"),
         )
 
 
@@ -196,9 +185,7 @@ def chrome_driver():
     chrome_options.add_argument("--window-size=%s" % testing_setting.window_size)
     chrome_options.add_argument("--no-sandbox")
 
-    chrome_options.set_capability(
-        "goog:loggingPrefs", {"browser": "ALL"}
-    )  # Capture console logs
+    chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})  # Capture console logs
 
     tester = MiminetTester(testing_setting.selenium_hub_url, options=chrome_options)
 
@@ -326,11 +313,6 @@ def mock_db(mocker):
 # Selenium Video and Screenshot Support
 # ============================================================================
 
-import logging
-import subprocess
-from datetime import datetime
-from pathlib import Path
-
 logger = logging.getLogger(__name__)
 
 
@@ -343,15 +325,15 @@ def selenium_video_recorder(request):
     test_name = request.node.name
     video_dir = Path(__file__).parent / "videos"
     video_dir.mkdir(exist_ok=True)
-    
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     video_file = video_dir / f"{test_name}_{timestamp}.mp4"
-    
+
     # Recording will be handled by pytest hook if needed
     # For now, we prepare the path
     request.node.video_file = str(video_file)
     yield video_file
-    
+
     # Video cleanup (if needed)
     if video_file.exists() and request.node.rep_call.passed:
         try:
@@ -365,20 +347,21 @@ def screenshot_on_failure(request):
     """
     Fixture for taking screenshots on test failure.
     """
-    def take_screenshot(driver: WebDriver, name: str = None):
+
+    def take_screenshot(driver: WebDriver, name: Optional[str] = None):
         """Take a screenshot and save it."""
         screenshots_dir = Path(__file__).parent / "screenshots"
         screenshots_dir.mkdir(exist_ok=True)
-        
+
         test_name = request.node.name
         if name is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             name = f"{test_name}_{timestamp}"
         else:
             name = f"{test_name}_{name}"
-        
+
         screenshot_file = screenshots_dir / f"{name}.png"
-        
+
         try:
             driver.save_screenshot(str(screenshot_file))
             logger.info(f"Screenshot saved: {screenshot_file}")
@@ -386,7 +369,7 @@ def screenshot_on_failure(request):
         except Exception as e:
             logger.error(f"Failed to take screenshot: {e}")
             return None
-    
+
     yield take_screenshot
 
 
@@ -397,7 +380,7 @@ def pytest_runtest_makereport(item, call):
     """
     outcome = yield
     rep = outcome.get_result()
-    
+
     # Store the result for use in teardown
     if rep.when == "call":
         item.rep_call = rep
@@ -409,17 +392,17 @@ def capture_screenshot_on_failure(request):
     Auto-use fixture to capture screenshots on failed Selenium tests.
     """
     yield
-    
+
     # On test failure, capture screenshot if driver exists
     if request.node.rep_call.failed:
         # Try to get driver from test function
         driver = None
-        
+
         # Check if driver is in fixtures
-        if hasattr(request, 'getfixturevalue'):
+        if hasattr(request, "getfixturevalue"):
             try:
                 # Try common driver fixture names
-                for driver_name in ['driver', 'sel_driver', 'webdriver']:
+                for driver_name in ["driver", "sel_driver", "webdriver"]:
                     try:
                         driver = request.getfixturevalue(driver_name)
                         if driver:
@@ -428,28 +411,27 @@ def capture_screenshot_on_failure(request):
                         continue
             except Exception as e:
                 logger.debug(f"Could not get driver fixture: {e}")
-        
-        if driver and hasattr(driver, 'save_screenshot'):
+
+        if driver and hasattr(driver, "save_screenshot"):
             try:
                 screenshots_dir = Path(__file__).parent / "screenshots"
                 screenshots_dir.mkdir(exist_ok=True)
-                
+
                 test_name = request.node.name
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 screenshot_file = screenshots_dir / f"{test_name}_FAILED_{timestamp}.png"
-                
+
                 driver.save_screenshot(str(screenshot_file))
-                
+
                 # Add screenshot path to the report
                 with open(screenshots_dir / f"{test_name}_FAILED_{timestamp}.txt", "w") as f:
                     f.write(f"Test: {test_name}\n")
-                    f.write(f"Status: FAILED\n")
+                    f.write("Status: FAILED\n")
                     f.write(f"Screenshot: {screenshot_file.name}\n")
                     f.write(f"Timestamp: {timestamp}\n")
-                    if hasattr(driver, 'current_url'):
+                    if hasattr(driver, "current_url"):
                         f.write(f"URL: {driver.current_url}\n")
-                
+
                 logger.info(f"Screenshot saved on failure: {screenshot_file}")
             except Exception as e:
                 logger.error(f"Failed to capture screenshot on failure: {e}")
-

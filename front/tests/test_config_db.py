@@ -28,9 +28,7 @@ class TestConfigDB:
     def test_get_database_uri_prod_missing_creds(self, mock_env_prod, monkeypatch):
         """Verify Fail Fast behavior when credentials are missing in Prod."""
         monkeypatch.delenv("YANDEX_POSTGRES_PASSWORD")
-        with pytest.raises(
-            ValueError, match="Missing Yandex Cloud PostgreSQL credentials"
-        ):
+        with pytest.raises(ValueError, match="Missing Yandex Cloud PostgreSQL credentials"):
             get_database_uri("prod")
 
     def test_ensure_db_exists_prod_success(self, mock_env_prod, mock_psycopg2):

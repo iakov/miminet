@@ -81,9 +81,7 @@ class MiminetTopology(IPTopo):
         self.__nodes[node_id] = self.addHost(node_id, defaultRoute=route)
 
     def __handle_l1_hub(self, node_id: str):
-        self.__nodes[node_id] = self.addSwitch(
-            node_id, cls=IPSwitch, stp=False, hub=True
-        )
+        self.__nodes[node_id] = self.addSwitch(node_id, cls=IPSwitch, stp=False, hub=True)
 
     def __handle_router(self, node_id: str, config: NodeConfig):
         default_gw = config.default_gw
@@ -97,9 +95,7 @@ class MiminetTopology(IPTopo):
 
         self.__nodes[node_id] = self.addRouter(node_id, **kwargs)
 
-    def __find_interface(
-        self, edge_id: str, node_interfaces: list[NodeInterface]
-    ) -> NodeInterface:
+    def __find_interface(self, edge_id: str, node_interfaces: list[NodeInterface]) -> NodeInterface:
         # Search for matching interface among all node interfaces
         matches = [iface for iface in node_interfaces if iface.connect == edge_id]
 
@@ -110,9 +106,7 @@ class MiminetTopology(IPTopo):
             raise ValueError(f"Can't find {edge_id} in node interfaces.")
 
         else:
-            raise ValueError(
-                f"Found {len(matches)} matching interfaces in node (expected 1)."
-            )
+            raise ValueError(f"Found {len(matches)} matching interfaces in node (expected 1).")
 
     def __configure_link(self, link, iface: NodeInterface):
         """Configure IP settings for an link if valid."""
@@ -150,13 +144,9 @@ class MiminetTopology(IPTopo):
             duplicate_percentage = _to_percent(edge.data.duplicate_percentage)
 
             if source_id not in self.__nodes:
-                raise ValueError(
-                    f"Edge '{edge_id}' references unknown source node '{source_id}'."
-                )
+                raise ValueError(f"Edge '{edge_id}' references unknown source node '{source_id}'.")
             if target_id not in self.__nodes:
-                raise ValueError(
-                    f"Edge '{edge_id}' references unknown target node '{target_id}'."
-                )
+                raise ValueError(f"Edge '{edge_id}' references unknown target node '{target_id}'.")
 
             # Mininet host objects (https://mininet.org/api/classmininet_1_1node_1_1Host.html)
             src_host = self.__nodes[source_id]
@@ -249,12 +239,8 @@ class MiminetTopology(IPTopo):
         }
 
         # Create links
-        link1 = super().addLink(
-            h_source, switch_name, intfName1=interface_name_1, **link_opts_src
-        )
-        link2 = super().addLink(
-            switch_name, h_target, intfName2=interface_name_2, **link_opts_dst
-        )
+        link1 = super().addLink(h_source, switch_name, intfName1=interface_name_1, **link_opts_src)
+        link2 = super().addLink(switch_name, h_target, intfName2=interface_name_2, **link_opts_dst)
 
         return link1, link2
 

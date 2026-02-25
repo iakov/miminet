@@ -10,8 +10,7 @@ def create_check_task(network: dict, requirements: list[dict], session_question_
 
     prepared_task = prepare_task(network, requirements)
     prepared_task_json = [
-        (json.dumps(net), json.dumps(req), json.dumps(mods))
-        for net, req, mods in prepared_task
+        (json.dumps(net), json.dumps(req), json.dumps(mods)) for net, req, mods in prepared_task
     ]
 
     # send task
@@ -84,9 +83,7 @@ def get_configured_tasks(schema: Dict[str, Any], scenarios: List[Dict]) -> List[
             modification_keys: List = list(modification.keys())
 
             if len(modification_keys) != 1:
-                raise ValueError(
-                    f"Incorrect requirements modification keys: {modification_keys}."
-                )
+                raise ValueError(f"Incorrect requirements modification keys: {modification_keys}.")
 
             modification_name: str = modification_keys[0]
             modification_arg: Dict[str, str] = modification[modification_name]
@@ -139,9 +136,7 @@ def get_configured_tasks(schema: Dict[str, Any], scenarios: List[Dict]) -> List[
                     ]
 
                     if not matching_edges:
-                        raise ValueError(
-                            f"No edge found between '{from_node}' and '{to_node}'."
-                        )
+                        raise ValueError(f"No edge found between '{from_node}' and '{to_node}'.")
 
                     edge = matching_edges[0]
                     edge_id = edge["data"].get("id")
@@ -171,9 +166,7 @@ def get_configured_tasks(schema: Dict[str, Any], scenarios: List[Dict]) -> List[
                 to_host_name = modification_arg.get("to")
 
                 if from_host_name is None or to_host_name is None:
-                    raise ValueError(
-                        "'from' and 'to' must be specified for add_ping modification"
-                    )
+                    raise ValueError("'from' and 'to' must be specified for add_ping modification")
 
                 # Find the 'to' host node
                 node = next(
@@ -214,9 +207,7 @@ def get_configured_tasks(schema: Dict[str, Any], scenarios: List[Dict]) -> List[
                 )
 
             else:
-                raise ValueError(
-                    f"Unknown requirements modifier name: {modification_name}."
-                )
+                raise ValueError(f"Unknown requirements modifier name: {modification_name}.")
 
         results.append((scenario_schema, scenario_requirements, applied_modifications))
 
@@ -233,9 +224,7 @@ def clean_schema(user_schema: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("Expected 'jobs' to be a list in the network schema.")
 
     cleaned_jobs = [
-        job
-        for job in jobs
-        if isinstance(job, dict) and job.get("job_id") not in EXCLUDED_JOB_IDS
+        job for job in jobs if isinstance(job, dict) and job.get("job_id") not in EXCLUDED_JOB_IDS
     ]
 
     if len(cleaned_jobs) == len(jobs):

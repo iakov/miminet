@@ -17,9 +17,7 @@ class TestDuplicateBasic:
         yield network
         network.delete()
 
-    def test_duplicate_value(
-        self, selenium: MiminetTester, network: MiminetTestNetwork
-    ):
+    def test_duplicate_value(self, selenium: MiminetTester, network: MiminetTestNetwork):
         edge = network.edges[0]
         network.open_edge_config(edge)
 
@@ -35,9 +33,7 @@ class TestDuplicateBasic:
             Location.Network.ConfigPanel.Edge.SUBMIT_BUTTON.selector,
         ).click()
 
-        selenium.wait_for(
-            lambda _: network.edges[0]["data"].get("duplicate_percentage") == "30"
-        )
+        selenium.wait_for(lambda _: network.edges[0]["data"].get("duplicate_percentage") == "30")
 
         assert network.edges[0]["data"]["duplicate_percentage"] == "30"
 
@@ -74,20 +70,16 @@ class TestDuplicateCopyNetwork:
 
         initial_edges = network.edges
 
-        selenium.find_element(
-            By.CSS_SELECTOR, Location.Network.TopButton.COPY.selector
-        ).click()
+        selenium.find_element(By.CSS_SELECTOR, Location.Network.TopButton.COPY.selector).click()
 
         selenium.wait_until_appear(By.XPATH, Location.Network.MODAL_DIALOG.xpath)
 
-        selenium.find_element(
-            By.XPATH, Location.Network.ModalButton.GO_TO_EDITING.xpath
-        ).click()
+        selenium.find_element(By.XPATH, Location.Network.ModalButton.GO_TO_EDITING.xpath).click()
 
         copy_net = MiminetTestNetwork(selenium, selenium.current_url)
 
         assert copy_net.url != network.url
 
-        assert copy_net.edges[0]["data"].get("duplicate_percentage") == initial_edges[
-            0
-        ]["data"].get("duplicate_percentage")
+        assert copy_net.edges[0]["data"].get("duplicate_percentage") == initial_edges[0][
+            "data"
+        ].get("duplicate_percentage")

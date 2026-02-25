@@ -97,9 +97,7 @@ from quiz.entity.entity import (
 
 from quiz.controller.image_controller import image_routes
 
-app = Flask(
-    __name__, static_url_path="", static_folder="static", template_folder="templates"
-)
+app = Flask(__name__, static_url_path="", static_folder="static", template_folder="templates")
 
 # SQLAlchimy config
 load_dotenv()
@@ -136,14 +134,10 @@ def get_database_uri(mode):
         POSTGRES_PASSWORD = os.getenv("YANDEX_POSTGRES_PASSWORD")
         POSTGRES_DB_NAME = os.getenv("YANDEX_POSTGRES_DB")
         POSTGRES_SSLMODE = os.getenv("YANDEX_POSTGRES_SSLMODE", "verify-full")
-        POSTGRES_SSLROOTCERT = os.getenv(
-            "YANDEX_POSTGRES_SSLROOTCERT", "/app/.postgresql/root.crt"
-        )
+        POSTGRES_SSLROOTCERT = os.getenv("YANDEX_POSTGRES_SSLROOTCERT", "/app/.postgresql/root.crt")
 
         if not all([POSTGRES_HOST, POSTGRES_USER, POSTGRES_PASSWORD]):
-            raise ValueError(
-                "Missing Yandex Cloud PostgreSQL credentials in environment variables"
-            )
+            raise ValueError("Missing Yandex Cloud PostgreSQL credentials in environment variables")
 
         POSTGRES_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}?sslmode={POSTGRES_SSLMODE}&sslrootcert={POSTGRES_SSLROOTCERT}"
 
@@ -204,42 +198,24 @@ app.add_url_rule(
     view_func=upload_network_picture,
 )
 app.add_url_rule("/network/copy_network", methods=["POST"], view_func=copy_network)
-app.add_url_rule(
-    "/user/animation_filters", methods=["POST"], view_func=animation_filters
-)
+app.add_url_rule("/user/animation_filters", methods=["POST"], view_func=animation_filters)
 # Simulation
 app.add_url_rule("/run_simulation", methods=["POST"], view_func=run_simulation)
 app.add_url_rule("/check_simulation", methods=["GET"], view_func=check_simulation)
 
 # Emulation queue
-app.add_url_rule(
-    "/emulation_queue/size", methods=["GET"], view_func=get_emulation_queue_size
-)
-app.add_url_rule(
-    "/emulation_queue/time", methods=["GET"], view_func=get_last_emulation_time
-)
+app.add_url_rule("/emulation_queue/size", methods=["GET"], view_func=get_emulation_queue_size)
+app.add_url_rule("/emulation_queue/time", methods=["GET"], view_func=get_last_emulation_time)
 
 
 # Hosts
-app.add_url_rule(
-    "/host/save_config", methods=["GET", "POST"], view_func=save_host_config
-)
-app.add_url_rule(
-    "/host/router_save_config", methods=["GET", "POST"], view_func=save_router_config
-)
-app.add_url_rule(
-    "/host/server_save_config", methods=["GET", "POST"], view_func=save_server_config
-)
+app.add_url_rule("/host/save_config", methods=["GET", "POST"], view_func=save_host_config)
+app.add_url_rule("/host/router_save_config", methods=["GET", "POST"], view_func=save_router_config)
+app.add_url_rule("/host/server_save_config", methods=["GET", "POST"], view_func=save_server_config)
 app.add_url_rule("/host/delete_job", methods=["GET", "POST"], view_func=delete_job)
-app.add_url_rule(
-    "/host/hub_save_config", methods=["GET", "POST"], view_func=save_hub_config
-)
-app.add_url_rule(
-    "/host/switch_save_config", methods=["GET", "POST"], view_func=save_switch_config
-)
-app.add_url_rule(
-    "/edge/save_config", methods=["GET", "POST"], view_func=save_edge_config
-)
+app.add_url_rule("/host/hub_save_config", methods=["GET", "POST"], view_func=save_hub_config)
+app.add_url_rule("/host/switch_save_config", methods=["GET", "POST"], view_func=save_switch_config)
+app.add_url_rule("/edge/save_config", methods=["GET", "POST"], view_func=save_edge_config)
 
 # MimiShark
 app.add_url_rule("/host/mimishark", methods=["GET"], view_func=mimishark_page)
@@ -249,35 +225,23 @@ app.add_url_rule("/hub/mimishark", methods=["GET"], view_func=mimishark_page)
 app.add_url_rule("/switch/mimishark", methods=["GET"], view_func=mimishark_page)
 
 # Quiz
-app.add_url_rule(
-    "/quiz/test/owner", methods=["GET"], view_func=get_tests_by_owner_endpoint
-)
+app.add_url_rule("/quiz/test/owner", methods=["GET"], view_func=get_tests_by_owner_endpoint)
 app.add_url_rule("/quiz/test/all", methods=["GET"], view_func=get_all_tests_endpoint)
 app.add_url_rule("/quiz/test/get", methods=["GET"], view_func=get_test_endpoint)
 
-app.add_url_rule(
-    "/quiz/section/test/all", methods=["GET"], view_func=get_sections_by_test_endpoint
-)
+app.add_url_rule("/quiz/section/test/all", methods=["GET"], view_func=get_sections_by_test_endpoint)
 
-app.add_url_rule(
-    "/quiz/question/create", methods=["POST"], view_func=create_question_endpoint
-)
+app.add_url_rule("/quiz/question/create", methods=["POST"], view_func=create_question_endpoint)
 
-app.add_url_rule(
-    "/quiz/question/delete", methods=["DELETE"], view_func=delete_question_endpoint
-)
+app.add_url_rule("/quiz/question/delete", methods=["DELETE"], view_func=delete_question_endpoint)
 
-app.add_url_rule(
-    "/quiz/question/all", methods=["GET"], view_func=get_questions_by_section_endpoint
-)
+app.add_url_rule("/quiz/question/all", methods=["GET"], view_func=get_questions_by_section_endpoint)
 
 app.add_url_rule(
     "/quiz/session/question/json", methods=["GET"], view_func=get_session_question_json
 )
 
-app.add_url_rule(
-    "/quiz/session/start", methods=["POST"], view_func=start_session_endpoint
-)
+app.add_url_rule("/quiz/session/start", methods=["POST"], view_func=start_session_endpoint)
 app.add_url_rule(
     "/quiz/session/question",
     methods=["GET"],
@@ -295,23 +259,15 @@ app.add_url_rule(
     view_func=check_network_task_endpoint,
 )
 
-app.add_url_rule(
-    "/quiz/session/finish", methods=["PUT"], view_func=finish_session_endpoint
-)
-app.add_url_rule(
-    "/quiz/session/finishold", methods=["PUT"], view_func=finish_old_session_endpoint
-)
-app.add_url_rule(
-    "/quiz/session/result", methods=["GET"], view_func=session_result_endpoint
-)
+app.add_url_rule("/quiz/session/finish", methods=["PUT"], view_func=finish_session_endpoint)
+app.add_url_rule("/quiz/session/finishold", methods=["PUT"], view_func=finish_old_session_endpoint)
+app.add_url_rule("/quiz/session/result", methods=["GET"], view_func=session_result_endpoint)
 app.add_url_rule(
     "/quiz/user/session/result",
     methods=["GET"],
     view_func=get_result_by_session_guid_endpoint,
 )
-app.add_url_rule(
-    "/quiz/images/upload", methods=["POST"], view_func=upload_image_endpoint
-)
+app.add_url_rule("/quiz/images/upload", methods=["POST"], view_func=upload_image_endpoint)
 
 app.register_blueprint(image_routes)
 
@@ -384,9 +340,7 @@ def examples():
         "fe1fc02f-6bb4-421d-94cb-6902f826e30d",
         "993e2d62-ae6c-4b62-9ec4-6d90f768b56a",
     ]
-    networks = (
-        Network.query.filter(Network.guid.in_(guids)).order_by(Network.id.asc()).all()
-    )
+    networks = Network.query.filter(Network.guid.in_(guids)).order_by(Network.id.asc()).all()
     return render_template("examples.html", networks=networks)
 
 

@@ -46,9 +46,7 @@ def run_simulation() -> Response:
             db.session.commit()
 
         # Write log
-        simlog = SimulateLog(
-            author_id=net.author_id, network=net.network, network_guid=net.guid
-        )
+        simlog = SimulateLog(author_id=net.author_id, network=net.network, network_guid=net.guid)
 
         # Add new network
         task_guid = uuid.uuid4()

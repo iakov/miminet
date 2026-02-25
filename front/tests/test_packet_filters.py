@@ -54,9 +54,7 @@ class TestPacketFilters:
         )
 
     def _open_settings_modal(self, selenium: MiminetTester):
-        selenium.find_element(
-            By.CSS_SELECTOR, Location.Network.TopButton.OPTIONS.selector
-        ).click()
+        selenium.find_element(By.CSS_SELECTOR, Location.Network.TopButton.OPTIONS.selector).click()
         selenium.wait_until_appear(By.CSS_SELECTOR, "#netConfigModal")
         self._wait_filters_ready(selenium)
 
@@ -159,18 +157,14 @@ class TestPacketFilters:
         selenium.get(network.url)
         self._wait_filter_state_ready(selenium)
 
-        initial_state = selenium.execute_script(
-            "return packetFilterState.hideARP === true;"
-        )
+        initial_state = selenium.execute_script("return packetFilterState.hideARP === true;")
 
         self._open_settings_modal(selenium)
         arp_checkbox = self._find_filter(selenium, self.Filter.ARP)
         arp_checkbox.click()  # toggle current state
         self._close_options_modal(selenium)  # close without saving
 
-        current_state = selenium.execute_script(
-            "return packetFilterState.hideARP === true;"
-        )
+        current_state = selenium.execute_script("return packetFilterState.hideARP === true;")
         assert (
             current_state == initial_state
         ), "Filter state must not change when closing without saving"

@@ -54,9 +54,7 @@ def validate_requirements(requirements):
                                 },
                                 "different_paths": {
                                     "type": "object",
-                                    "properties": {
-                                        "points": {"type": "integer", "minimum": 1}
-                                    },
+                                    "properties": {"points": {"type": "integer", "minimum": 1}},
                                     "required": ["points"],
                                     "additionalProperties": False,
                                 },

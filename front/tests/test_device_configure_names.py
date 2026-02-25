@@ -42,9 +42,7 @@ class TestDeviceNameChange:
                 updated_node["config"]["label"] == new_device_name
             ), "Failed to change device name."
 
-    def test_device_name_change_to_long(
-        self, selenium: MiminetTester, network: MiminetTestNetwork
-    ):
+    def test_device_name_change_to_long(self, selenium: MiminetTester, network: MiminetTestNetwork):
         """Change device name to long string and checks if it has been cut"""
         for node_id, node in enumerate(network.nodes):
             config = network.open_node_config(node)

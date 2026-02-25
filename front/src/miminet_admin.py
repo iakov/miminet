@@ -170,9 +170,7 @@ class SectionView(MiminetAdminModelView):
         ),
         "test_id": QuerySelectField(
             "Раздел теста",
-            query_factory=lambda: Test.query.filter(
-                Test.created_by_id == current_user.id
-            ).all(),
+            query_factory=lambda: Test.query.filter(Test.created_by_id == current_user.id).all(),
             get_pk=lambda test: test.id,
             get_label=lambda test: (
                 test.name
@@ -341,9 +339,7 @@ class AnswerView(MiminetAdminModelView):
             query_factory=lambda: Question.query.all(),
             get_pk=lambda question: question.id,
             get_label=lambda question: (
-                question.text
-                + (" (" + User.query.get(question.created_by_id).nick)
-                + ")"
+                question.text + (" (" + User.query.get(question.created_by_id).nick) + ")"
                 if question.created_by_id
                 else ""
             ),
@@ -430,9 +426,7 @@ class SessionQuestionView(MiminetAdminModelView):
     @expose("/check-by-question/", methods=["GET", "POST"])
     def check_by_question_view(self, **kwargs):
         all_q = db.session.query(Question.id, Question.text).distinct().all()
-        choices = [
-            (q.id, q.text[:50] + "…" if len(q.text) > 50 else q.text) for q in all_q
-        ]
+        choices = [(q.id, q.text[:50] + "…" if len(q.text) > 50 else q.text) for q in all_q]
 
         form = CheckByQuestionForm(request.form)
         form.question_id.choices = choices
@@ -470,9 +464,7 @@ class SessionQuestionView(MiminetAdminModelView):
                     try:
                         network = json.loads(raw_data)
                     except json.JSONDecodeError:
-                        flash(
-                            f"Сеть для записи {sq.id} не может быть прочитана.", "error"
-                        )
+                        flash(f"Сеть для записи {sq.id} не может быть прочитана.", "error")
                         continue
 
                 try:
@@ -502,9 +494,7 @@ class CreateCheckTaskView(MiminetAdminModelView):
         if request.method == "POST" and form.validate():
             try:
                 guids = [
-                    line.strip()
-                    for line in form.guids.data.strip().splitlines()
-                    if line.strip()
+                    line.strip() for line in form.guids.data.strip().splitlines() if line.strip()
                 ]
 
                 networks = []

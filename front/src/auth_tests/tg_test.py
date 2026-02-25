@@ -44,9 +44,7 @@ def create_hash():
     data_check_arr.sort()
     data_check_string = "\n".join(data_check_arr)
     secret_key = hashlib.sha256(BOT_TOKEN["token"]["BOT_TOKEN"].encode()).digest()
-    hash_result = hmac.new(
-        secret_key, data_check_string.encode(), hashlib.sha256
-    ).hexdigest()
+    hash_result = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
     return hash_result, BOT_TOKEN
 
 
@@ -86,9 +84,7 @@ def test_tg_callback_valid_user_data(app, mocker):
     Test if tg_callback processes valid Telegram user data correctly
     """
     with app.test_request_context():
-        test_user_json = (
-            '{"id": test_id, "first_name": "test_name", "username": "test_username"}'
-        )
+        test_user_json = '{"id": test_id, "first_name": "test_name", "username": "test_username"}'
         mock_json = mocker.patch("miminet_auth.json.loads")
         mocker.patch("miminet_auth.request.args.get", return_value=test_user_json)
         mocker.patch("miminet_auth.User")
@@ -129,9 +125,7 @@ def test_tg_callback_handles_user_info_and_creates_user_in_db(app, mocker):
         mock_user_data.return_value = user_json
         mock_user.query.filter().first.return_value = None
         tg_callback()
-        mock_user.assert_called_once_with(
-            nick="test_name", tg_id="test_id", email="test_username"
-        )
+        mock_user.assert_called_once_with(nick="test_name", tg_id="test_id", email="test_username")
         mock_session.add.assert_called_once_with(mock_user.return_value)
         mock_session.commit.assert_called_once()
 
@@ -148,9 +142,7 @@ def test_tg_callback_redirects_to_home_after_login(app, mocker):
         mocker.patch("miminet_auth.check_tg_authorization")
         mock_user_filter = mock_user.query.filter().first
         response = tg_callback()
-        mock_login_user.assert_called_once_with(
-            mock_user_filter.return_value, remember=True
-        )
+        mock_login_user.assert_called_once_with(mock_user_filter.return_value, remember=True)
         assert response.status_code == 302
         assert response.location == url_for("home")
 

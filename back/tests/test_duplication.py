@@ -31,9 +31,7 @@ def assert_duplicate_and_loss_present(animation_json: str) -> None:
     for group in animation:
         for pkt in group:
             cfg = pkt.get("config", {})
-            assert (
-                "duplicate_percentage" in cfg
-            ), "duplicate_percentage missing in packet config"
+            assert "duplicate_percentage" in cfg, "duplicate_percentage missing in packet config"
             assert "loss_percentage" in cfg, "loss_percentage missing in packet config"
 
 

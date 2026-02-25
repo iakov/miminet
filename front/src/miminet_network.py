@@ -153,11 +153,7 @@ def web_network_shared():
     jnet = json.loads(net.network)
 
     # Do we simulated this network already
-    sim = (
-        Simulate.query.filter(Simulate.network_id == net.id)
-        .order_by(Simulate.id.desc())
-        .first()
-    )
+    sim = Simulate.query.filter(Simulate.network_id == net.id).order_by(Simulate.id.desc()).first()
     jnet["packets"] = "null"
 
     if sim:
@@ -237,11 +233,7 @@ def web_network():
     jnet = json.loads(net.network)
 
     # Do we simulated this network already
-    sim = (
-        Simulate.query.filter(Simulate.network_id == net.id)
-        .order_by(Simulate.id.desc())
-        .first()
-    )
+    sim = Simulate.query.filter(Simulate.network_id == net.id).order_by(Simulate.id.desc()).first()
     jnet["packets"] = "null"
 
     if sim:
@@ -448,10 +440,7 @@ def upload_network_picture():
             return make_response(jsonify(ret), 400)
 
         # Remove old picture
-        if (
-            net.preview_uri != "first_network.jpg"
-            and net.preview_uri != "switch_and_hub.png"
-        ):
+        if net.preview_uri != "first_network.jpg" and net.preview_uri != "switch_and_hub.png":
             if os.path.isfile("static/images/preview" + "/" + net.preview_uri):
                 os.unlink("static/images/preview" + "/" + net.preview_uri)
 
@@ -530,9 +519,7 @@ def get_emulation_queue_size():
     time_filter_req: str = request.args.get("time-filter", type=str).replace(" ", "+")
     time_filter: datetime.datetime = datetime.datetime.fromisoformat(time_filter_req)
     if not time_filter:
-        return make_response(
-            jsonify({"message": "Пропущен параметр 'time-filter'."}), 400
-        )
+        return make_response(jsonify({"message": "Пропущен параметр 'time-filter'."}), 400)
 
     emulated_networks_count = (
         SimulateLog.query.filter(not_(SimulateLog.ready))

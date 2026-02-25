@@ -72,9 +72,7 @@ def check_abstract_ip_equal(abstract_equal, answer, device):
 
     device_node = next((n for n in nodes if n["data"]["id"] == device), None)
     to_node = next((n for n in nodes if n["data"]["id"] == to_node_id), None)
-    compare_node = next(
-        (n for n in nodes if n["data"]["id"] == expected_equal_with), None
-    )
+    compare_node = next((n for n in nodes if n["data"]["id"] == expected_equal_with), None)
 
     if not device_node or not to_node or not compare_node:
         hints.append(
@@ -92,22 +90,16 @@ def check_abstract_ip_equal(abstract_equal, answer, device):
         if not edge:
             continue
         connected = (
-            edge["data"]["target"]
-            if edge["data"]["source"] == device
-            else edge["data"]["source"]
+            edge["data"]["target"] if edge["data"]["source"] == device else edge["data"]["source"]
         )
         if connected == to_node_id:
             device_ips_to_to_node.add(ip)
 
     if not device_ips_to_to_node:
-        hints.append(
-            f"Устройство {device} не имеет интерфейсов, направленных к {to_node_id}."
-        )
+        hints.append(f"Устройство {device} не имеет интерфейсов, направленных к {to_node_id}.")
         return 0, hints
 
-    compare_ips = {
-        intf.get("ip") for intf in compare_node.get("interface", []) if intf.get("ip")
-    }
+    compare_ips = {intf.get("ip") for intf in compare_node.get("interface", []) if intf.get("ip")}
 
     common_ips = device_ips_to_to_node.intersection(compare_ips)
     if common_ips:
@@ -187,9 +179,7 @@ def check_host(requirement, answer, device):
         points = ip_check.get("points", 1)
         target_node_id = ip_check.get("to")
 
-        target_node = next(
-            (node for node in nodes if node["data"]["id"] == target_node_id), None
-        )
+        target_node = next((node for node in nodes if node["data"]["id"] == target_node_id), None)
 
         if not target_node:
             hints.append(
@@ -200,9 +190,7 @@ def check_host(requirement, answer, device):
             edge_id = interface.get("connect")
 
             if not edge_id:
-                hints.append(
-                    f"Интерфейс на устройстве {device} не подключен к {target_node_id}."
-                )
+                hints.append(f"Интерфейс на устройстве {device} не подключен к {target_node_id}.")
                 continue
 
             connected_edge = next(
@@ -211,9 +199,7 @@ def check_host(requirement, answer, device):
             )
 
             if not connected_edge:
-                hints.append(
-                    f"Соединение для интерфейса на устройстве {device} не найдено."
-                )
+                hints.append(f"Соединение для интерфейса на устройстве {device} не найдено.")
                 continue
 
             connected_node_id = (
@@ -256,9 +242,7 @@ def check_host(requirement, answer, device):
         target = mask_check.get("to")
         expected_mask = mask_check.get("subnet_mask")
 
-        result, mask_hints = chs.check_subnet_mask(
-            answer, device, target, expected_mask
-        )
+        result, mask_hints = chs.check_subnet_mask(answer, device, target, expected_mask)
 
         if result:
             points_for_host += points
@@ -345,9 +329,7 @@ def check_task(requirements, answer):
                 total_points += points
                 hints.extend(device_hints)
             elif device.startswith("network"):
-                points, network_hints = check_network_configuration(
-                    requirements, answer
-                )
+                points, network_hints = check_network_configuration(requirements, answer)
                 total_points += points
                 hints.extend(network_hints)
 

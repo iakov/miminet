@@ -76,9 +76,7 @@ def setup_network_interface(
         vxlan_name = re.sub(r"[^a-zA-Z0-9\-_]", "", f"vx{router.name}-{vni}")[-15:]
         vxlan_name = f'"{vxlan_name}"'
 
-        router.cmd(
-            f"bridge fdb append 00:00:00:00:00:00 dev {vxlan_name} dst {target_ip}"
-        )
+        router.cmd(f"bridge fdb append 00:00:00:00:00:00 dev {vxlan_name} dst {target_ip}")
 
 
 def setup_endpoint_interface(router: "Node", intf: str, vni: int) -> None:
@@ -119,12 +117,10 @@ def teardown_vtep_bridges(net: "IPNet", nodes: list["Node"]) -> None:
                     vxlan_vnis = {elem[0] for elem in target_ips}
 
                     for vni in vxlan_vnis:
-                        vxlan_name = re.sub(
-                            r"[^a-zA-Z0-9\-_]", "", f"vx{router.name}-{vni}"
-                        )[-15:]
-                        bridge_name = re.sub(
-                            r"[^a-zA-Z0-9\-_]", "", f"br-{router.name}-{vni}"
-                        )[-15:]
+                        vxlan_name = re.sub(r"[^a-zA-Z0-9\-_]", "", f"vx{router.name}-{vni}")[-15:]
+                        bridge_name = re.sub(r"[^a-zA-Z0-9\-_]", "", f"br-{router.name}-{vni}")[
+                            -15:
+                        ]
 
                         vxlan_name = f'"{vxlan_name}"'
                         bridge_name = f'"{bridge_name}"'

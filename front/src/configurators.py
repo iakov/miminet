@@ -138,8 +138,7 @@ class JobConfigurator:
 
         # configure args using processed raw_values
         configured_args = [
-            self.__args[i].configure(value=raw_values[i])
-            for i in range(len(self.__args))
+            self.__args[i].configure(value=raw_values[i]) for i in range(len(self.__args))
         ]
 
         # insert arguments into label string
@@ -301,18 +300,14 @@ class AbstractDeviceConfigurator:
             )
 
             # Remove the old job
-            self._json_network["jobs"] = [
-                j for j in jobs_list if j["id"] != editing_job_id
-            ]
+            self._json_network["jobs"] = [j for j in jobs_list if j["id"] != editing_job_id]
             # Recalculate level after removal
             job_level = len(self._json_network["jobs"])
 
         job_conf_res["level"] = job_level
         job_conf_res["host_id"] = self._device_node["data"]["id"]
         sleep_job_list = [
-            job
-            for job in self._json_network["jobs"]
-            if job["job_id"] == self.__SLEEP_JOB_ID
+            job for job in self._json_network["jobs"] if job["job_id"] == self.__SLEEP_JOB_ID
         ]
         current_time = sum(int(j["arg_1"]) for j in sleep_job_list)
 

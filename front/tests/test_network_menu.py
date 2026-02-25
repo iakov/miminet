@@ -36,8 +36,6 @@ class TestNetworkMenu:
     def test_new_network_open(self, selenium: MiminetTester, empty_network: str):
         """Checks is it possible to open new network via home menu"""
         selenium.get(HOME_PAGE)
-        selenium.find_element(
-            By.XPATH, Location.MyNetworks.get_network_button_xpath(0)
-        ).click()
+        selenium.find_element(By.XPATH, Location.MyNetworks.get_network_button_xpath(0)).click()
 
         assert empty_network == selenium.current_url

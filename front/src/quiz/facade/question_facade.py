@@ -96,9 +96,7 @@ def create_single_question(section_id: str, question_dict, user: User):
         ]:
             setattr(practice_question, attr, question_dict.get(attr, ""))
 
-        net = Network.query.filter(
-            Network.guid == question_dict["start_configuration"]
-        ).first()
+        net = Network.query.filter(Network.guid == question_dict["start_configuration"]).first()
 
         if net is None:
             net_guid = question_dict["start_configuration"]

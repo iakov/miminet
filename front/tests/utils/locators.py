@@ -16,9 +16,7 @@ class Locator:
 class DeviceLocator(Locator):
     """Holds different types of locators for network devices."""
 
-    def __init__(
-        self, selector=None, xpath=None, text=None, device_class=None, **kwargs
-    ):
+    def __init__(self, selector=None, xpath=None, text=None, device_class=None, **kwargs):
         super().__init__(selector=selector, xpath=xpath, text=text, **kwargs)
         self.device_class = device_class
 
@@ -78,9 +76,7 @@ class Location:
 
         class ModalButton:
             # Copy
-            GO_TO_EDITING = Locator(
-                xpath='//*[@id="ModalCopy"]/div/div/div[2]/button[1]'
-            )
+            GO_TO_EDITING = Locator(xpath='//*[@id="ModalCopy"]/div/div/div[2]/button[1]')
             # Delete
             DELETE_MODAL_BUTTON = Locator("#networkDeleteButton")
             DELETE_SUBMIT_BUTTON = Locator("#networkDeleteSubmitButton")
@@ -114,9 +110,7 @@ class Location:
             class CommonDevice:
                 """Common type for ConfigPanel locators (add especially for mypy)."""
 
-                MAIN_FORM: Optional[Locator] = (
-                    None  # Config Panel form for current element
-                )
+                MAIN_FORM: Optional[Locator] = None  # Config Panel form for current element
                 NAME_FIELD: Optional[Locator] = None
                 DEFAULT_GATEWAY_FIELD: Optional[Locator] = None
                 SUBMIT_BUTTON: Optional[Locator] = None
@@ -125,18 +119,14 @@ class Location:
             class Switch(CommonDevice):
                 MAIN_FORM = Locator("#config_switch_main_form")
                 NAME_FIELD = Locator("#switch_name")
-                SUBMIT_BUTTON = Locator(
-                    "#config_switch_main_form_submit_button", text="Сохранить"
-                )
+                SUBMIT_BUTTON = Locator("#config_switch_main_form_submit_button", text="Сохранить")
                 RSTP_BUTTON = Locator("#config_button_rstp")
                 VLAN_BUTTON = Locator("#config_button_vlan")
                 JOB_SELECT = Locator("#config_switch_job_select_field")
 
                 class Job:
                     SLEEP_FIELD = Locator("#config_switch_sleep")
-                    LINK_DOWN_OPTION_FIELD = Locator(
-                        "#config_switch_link_down_iface_select_field"
-                    )
+                    LINK_DOWN_OPTION_FIELD = Locator("#config_switch_link_down_iface_select_field")
 
                 @staticmethod
                 def get_modal_dialog_selector(switch_name: str):
@@ -164,15 +154,15 @@ class Location:
                         Args:
                             id (int): Position of row in VLAN table. Starts from 0."""
                         assert id >= 0, "Row can't have index less than 0."
-                        return f'//*[@id="config_table_vlan_{switch_name}"]/table/tbody/tr[{id + 1}]'
+                        return (
+                            f'//*[@id="config_table_vlan_{switch_name}"]/table/tbody/tr[{id + 1}]'
+                        )
 
             class Host(CommonDevice):
                 MAIN_FORM = Locator("#config_main_form")
                 NAME_FIELD = Locator("#config_host_name")
                 DEFAULT_GATEWAY_FIELD = Locator("#config_host_default_gw")
-                SUBMIT_BUTTON = Locator(
-                    "#config_host_main_form_submit_button", text="Сохранить"
-                )
+                SUBMIT_BUTTON = Locator("#config_host_main_form_submit_button", text="Сохранить")
                 JOB_SELECT = Locator("#config_host_job_select_field")
 
                 class Job:
@@ -180,9 +170,7 @@ class Location:
                     PING_OPTION_FIELD = Locator(
                         "#config_host_ping_with_options_options_input_field"
                     )
-                    PING_OPTION_IP_FIELD = Locator(
-                        "#config_host_ping_with_options_ip_input_field"
-                    )
+                    PING_OPTION_IP_FIELD = Locator("#config_host_ping_with_options_ip_input_field")
                     TRACEROUTE_OPTION_FIELD = Locator(
                         "#config_host_traceroute_with_options_options_input_field"
                     )
@@ -193,16 +181,12 @@ class Location:
                         "#config_host_send_tcp_data_size_input_field"
                     )
                     TCP_IP_FIELD = Locator("#config_host_send_tcp_data_ip_input_field")
-                    TCP_PORT_FIELD = Locator(
-                        "#config_host_send_tcp_data_port_input_field"
-                    )
+                    TCP_PORT_FIELD = Locator("#config_host_send_tcp_data_port_input_field")
                     UDP_VOLUME_IN_BYTES_FIELD = Locator(
                         "#config_host_send_udp_data_size_input_field"
                     )
                     UDP_IP_FIELD = Locator("#config_host_send_udp_data_ip_input_field")
-                    UDP_PORT_FIELD = Locator(
-                        "#config_host_send_udp_data_port_input_field"
-                    )
+                    UDP_PORT_FIELD = Locator("#config_host_send_udp_data_port_input_field")
                     DHCLIENT_INTF = Locator(
                         "#config_host_add_dhclient_interface_select_iface_field"
                     )
@@ -219,9 +203,7 @@ class Location:
                 MAIN_FORM = Locator("#config_main_form")
                 NAME_FIELD = Locator("#config_router_name")
                 DEFAULT_GATEWAY_FIELD = Locator("#config_router_default_gw")
-                SUBMIT_BUTTON = Locator(
-                    "#config_router_main_form_submit_button", text="Сохранить"
-                )
+                SUBMIT_BUTTON = Locator("#config_router_main_form_submit_button", text="Сохранить")
                 JOB_SELECT = Locator("#config_router_job_select_field")
 
                 class Job:
@@ -229,39 +211,25 @@ class Location:
                     NAT_LINK_SELECT = Locator(
                         "#config_router_add_nat_masquerade_iface_select_field"
                     )
-                    ADD_ROUTE_IP_FIELD = Locator(
-                        "#config_router_add_route_ip_input_field"
-                    )
-                    ADD_ROUTE_MASK_FIELD = Locator(
-                        "#config_router_add_route_mask_input_field"
-                    )
-                    ADD_ROUTE_IP_GW_FIELD = Locator(
-                        "#config_router_add_route_gw_input_field"
-                    )
+                    ADD_ROUTE_IP_FIELD = Locator("#config_router_add_route_ip_input_field")
+                    ADD_ROUTE_MASK_FIELD = Locator("#config_router_add_route_mask_input_field")
+                    ADD_ROUTE_IP_GW_FIELD = Locator("#config_router_add_route_gw_input_field")
                     IPIP_IFACE_SELECT = Locator(
                         "#config_router_add_ipip_tunnel_iface_select_ip_field"
                     )
-                    IPIP_END_IP_FIELD = Locator(
-                        "#config_router_add_ipip_tunnel_end_ip_input_field"
-                    )
+                    IPIP_END_IP_FIELD = Locator("#config_router_add_ipip_tunnel_end_ip_input_field")
                     IPIP_IFACE_IP_FIELD = Locator(
                         "#config_router_add_ipip_tunnel_interface_ip_input_field"
                     )
                     IPIP_NAME_IFACE_FIELD = Locator(
                         "#config_router_add_ipip_tunnel_interface_name_field"
                     )
-                    GRE_IFACE_SELECT = Locator(
-                        "#config_router_add_gre_interface_select_ip_field"
-                    )
+                    GRE_IFACE_SELECT = Locator("#config_router_add_gre_interface_select_ip_field")
                     GRE_END_IP_FIELD = Locator(
                         "#config_router_add_gre_interface_end_ip_input_field"
                     )
-                    GRE_IFACE_IP_FIELD = Locator(
-                        "#config_router_add_gre_interface_ip_input_field"
-                    )
-                    GRE_NAME_IFACE_FIELD = Locator(
-                        "#config_router_add_gre_interface_name_field"
-                    )
+                    GRE_IFACE_IP_FIELD = Locator("#config_router_add_gre_interface_ip_input_field")
+                    GRE_NAME_IFACE_FIELD = Locator("#config_router_add_gre_interface_name_field")
                     PORT_FORWARDING_TCP_LINK_SELECT = Locator(
                         "#config_router_add_port_forwarding_tcp_iface_select_field"
                     )
@@ -298,33 +266,19 @@ class Location:
                 JOB_SELECT = Locator("#config_server_job_select_field")
 
                 class Job:
-                    TCP_IP_FIELD = Locator(
-                        "#config_server_start_tcp_server_ip_input_field"
-                    )
-                    TCP_PORT_FIELD = Locator(
-                        "#config_server_start_tcp_server_port_input_field"
-                    )
-                    UDP_IP_FIELD = Locator(
-                        "#config_server_start_udp_server_ip_input_field"
-                    )
-                    UDP_PORT_FIELD = Locator(
-                        "#config_server_start_udp_server_port_input_field"
-                    )
+                    TCP_IP_FIELD = Locator("#config_server_start_tcp_server_ip_input_field")
+                    TCP_PORT_FIELD = Locator("#config_server_start_tcp_server_port_input_field")
+                    UDP_IP_FIELD = Locator("#config_server_start_udp_server_ip_input_field")
+                    UDP_PORT_FIELD = Locator("#config_server_start_udp_server_port_input_field")
                     DHCP_IP_RANGE_START_FIELD = Locator(
                         "#config_server_add_dhcp_ip_range_1_input_field"
                     )
                     DHCP_IP_RANGE_END_FIELD = Locator(
                         "#config_server_add_dhcp_ip_range_2_input_field"
                     )
-                    DHCP_MASK_FIELD = Locator(
-                        "#config_server_add_dhcp_mask_input_field"
-                    )
-                    DHCP_IP_GW_FIELD = Locator(
-                        "#config_server_add_dhcp_gateway_input_field"
-                    )
-                    DHCP_INTF = Locator(
-                        "#config_server_add_dhcp_interface_select_iface_field"
-                    )
+                    DHCP_MASK_FIELD = Locator("#config_server_add_dhcp_mask_input_field")
+                    DHCP_IP_GW_FIELD = Locator("#config_server_add_dhcp_gateway_input_field")
+                    DHCP_INTF = Locator("#config_server_add_dhcp_interface_select_iface_field")
 
             class Edge(CommonDevice):
                 # New edge config structure: separate form and fields in config_edge.html

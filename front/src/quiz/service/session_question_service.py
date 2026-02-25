@@ -74,9 +74,7 @@ def get_session_question_data(session_question_id: str):
     if not session_question_id:
         return None, 400
 
-    sq = SessionQuestion.query.filter_by(
-        id=session_question_id, is_deleted=False
-    ).first()
+    sq = SessionQuestion.query.filter_by(id=session_question_id, is_deleted=False).first()
     if not sq or sq.question is None or sq.question.is_deleted:
         return None, 404
 
@@ -84,9 +82,7 @@ def get_session_question_data(session_question_id: str):
     test = section.test
 
     all_sqs = (
-        SessionQuestion.query.filter_by(
-            quiz_session_id=sq.quiz_session_id, is_deleted=False
-        )
+        SessionQuestion.query.filter_by(quiz_session_id=sq.quiz_session_id, is_deleted=False)
         .order_by(SessionQuestion.id)
         .all()
     )
@@ -103,9 +99,7 @@ def get_session_question_data(session_question_id: str):
         "is_exam": section.is_exam,
         "timer": section.timer,
         "available_from": (
-            str(section.results_available_from)
-            if section.results_available_from
-            else None
+            str(section.results_available_from) if section.results_available_from else None
         ),
         "available_answer": is_answer_available(section),
     }
@@ -126,9 +120,7 @@ def check_theory_answer(session_question, question, answer):
             if not answer or not answer.is_correct:
                 is_correct = False
 
-        correct_count = Answer.query.filter_by(
-            question_id=question.id, is_correct=True
-        ).count()
+        correct_count = Answer.query.filter_by(question_id=question.id, is_correct=True).count()
         correct = is_correct and len(answers) == correct_count
         session_question.is_correct = correct
         session_question.score = 1 if session_question.is_correct else 0
@@ -219,13 +211,9 @@ def answer_on_exam_without_session(networks_to_check, guid, output_file="results
         requirements_json,
         modifications,
     ) in networks_to_check:
-        network_data = (
-            json.loads(network_json) if isinstance(network_json, str) else network_json
-        )
+        network_data = json.loads(network_json) if isinstance(network_json, str) else network_json
         animation_data = (
-            json.loads(animation_json)
-            if isinstance(animation_json, str)
-            else animation_json
+            json.loads(animation_json) if isinstance(animation_json, str) else animation_json
         )
         requirements = (
             json.loads(requirements_json)
@@ -233,14 +221,10 @@ def answer_on_exam_without_session(networks_to_check, guid, output_file="results
             else requirements_json
         )
         modifications = (
-            json.loads(modifications)
-            if isinstance(modifications, str)
-            else modifications
+            json.loads(modifications) if isinstance(modifications, str) else modifications
         )
         network_data["packets"] = (
-            json.loads(animation_data)
-            if isinstance(animation_data, str)
-            else animation_data
+            json.loads(animation_data) if isinstance(animation_data, str) else animation_data
         )
 
         max_score = calculate_max_score(requirements)
@@ -274,9 +258,7 @@ def answer_on_exam_without_session(networks_to_check, guid, output_file="results
     return result
 
 
-def answer_on_exam_question(
-    session_question_id: str, networks_to_check, return_result=False
-):
+def answer_on_exam_question(session_question_id: str, networks_to_check, return_result=False):
     session_question = SessionQuestion.query.filter_by(id=session_question_id).first()
     if not session_question or session_question.question.question_type != 0:
         return
@@ -284,7 +266,7 @@ def answer_on_exam_question(
     logging.info(f"Сеть {session_question.network_guid}")
     logging.info(f"Проверяем следующие сети: {networks_to_check}")
 
-    total_score = total_max_score = 0
+    total_score = total_max_score = 0.0
     hints = []
 
     for (
@@ -293,13 +275,9 @@ def answer_on_exam_question(
         requirements_json,
         modifications,
     ) in networks_to_check:
-        network_data = (
-            json.loads(network_json) if isinstance(network_json, str) else network_json
-        )
+        network_data = json.loads(network_json) if isinstance(network_json, str) else network_json
         animation_data = (
-            json.loads(animation_json)
-            if isinstance(animation_json, str)
-            else animation_json
+            json.loads(animation_json) if isinstance(animation_json, str) else animation_json
         )
         requirements = (
             json.loads(requirements_json)
@@ -307,14 +285,10 @@ def answer_on_exam_question(
             else requirements_json
         )
         modifications = (
-            json.loads(modifications)
-            if isinstance(modifications, str)
-            else modifications
+            json.loads(modifications) if isinstance(modifications, str) else modifications
         )
         network_data["packets"] = (
-            json.loads(animation_data)
-            if isinstance(animation_data, str)
-            else animation_data
+            json.loads(animation_data) if isinstance(animation_data, str) else animation_data
         )
 
         max_score = calculate_max_score(requirements)
@@ -332,7 +306,7 @@ def answer_on_exam_question(
 
     total_score = max(total_score, 0)
 
-    session_question.is_correct = total_score == total_max_score
+    session_question.is_correct = total_score = total_max_score
     session_question.score = total_score
     session_question.max_score = total_max_score
 
@@ -351,9 +325,7 @@ def answer_on_session_question(session_question_id: str, answer, user: User):
 
     # practice
     if question.question_type == 0:
-        network = Network.query.filter(
-            Network.guid == session_question.network_guid
-        ).first()
+        network = Network.query.filter(Network.guid == session_question.network_guid).first()
         network = network.network
         network = json.loads(network)
 
@@ -366,21 +338,16 @@ def answer_on_session_question(session_question_id: str, answer, user: User):
 
         prepared_task = prepare_task(network, requirements)
         prepared_task_json = [
-            (json.dumps(net), json.dumps(req), json.dumps(mods))
-            for net, req, mods in prepared_task
+            (json.dumps(net), json.dumps(req), json.dumps(mods)) for net, req, mods in prepared_task
         ]
 
         networks_to_check = []
         for network_json, req_json, modifications_json in prepared_task_json:
             try:
                 network_json = (
-                    json.loads(network_json)
-                    if isinstance(network_json, str)
-                    else network_json
+                    json.loads(network_json) if isinstance(network_json, str) else network_json
                 )
-                req_json = (
-                    json.loads(req_json) if isinstance(req_json, str) else req_json
-                )
+                req_json = json.loads(req_json) if isinstance(req_json, str) else req_json
                 modifications_json = (
                     json.loads(modifications_json)
                     if isinstance(modifications_json, str)
@@ -390,9 +357,7 @@ def answer_on_session_question(session_question_id: str, answer, user: User):
                 from tasks import create_emulation_task
 
                 animation = create_emulation_task(network_json)
-                networks_to_check.append(
-                    (network_json, animation, req_json, modifications_json)
-                )
+                networks_to_check.append((network_json, animation, req_json, modifications_json))
 
             except Exception as e:
                 logging.error(f"Ошибка при создании задачи: {e}.")

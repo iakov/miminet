@@ -34,14 +34,10 @@ class TestNetworkComparator:
                 node_a["interface"], node_b["interface"], f"Node {i} interfaces"
             )
 
-            for j, (iface_a, iface_b) in enumerate(
-                zip(node_a["interface"], node_b["interface"])
-            ):
+            for j, (iface_a, iface_b) in enumerate(zip(node_a["interface"], node_b["interface"])):
                 for key in ("ip", "netmask"):
                     if key in iface_a and iface_a[key] != iface_b.get(key):
-                        raise ValueError(
-                            f"Node {i}, Interface {j}: {key.capitalize()} mismatch."
-                        )
+                        raise ValueError(f"Node {i}, Interface {j}: {key.capitalize()} mismatch.")
 
             if node_a["data"] != node_b["data"]:
                 raise ValueError(f"Node {i}: Data mismatch.")

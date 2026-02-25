@@ -40,23 +40,17 @@ class TestPingAndCopy:
         assert TestNetworkComparator.compare_edges(network.edges, self.JSON_EDGES)
         assert TestNetworkComparator.compare_jobs(network.jobs, self.JOBS)
 
-    def test_ping_network_copy(
-        self, selenium: MiminetTester, network: MiminetTestNetwork
-    ):
+    def test_ping_network_copy(self, selenium: MiminetTester, network: MiminetTestNetwork):
         selenium.get(network.url)
 
         nodes = network.nodes
         edges = network.edges
         jobs = network.jobs
 
-        selenium.find_element(
-            By.CSS_SELECTOR, Location.Network.TopButton.COPY.selector
-        ).click()
+        selenium.find_element(By.CSS_SELECTOR, Location.Network.TopButton.COPY.selector).click()
         selenium.wait_until_appear(By.XPATH, Location.Network.MODAL_DIALOG.xpath)
 
-        selenium.find_element(
-            By.XPATH, Location.Network.ModalButton.GO_TO_EDITING.xpath
-        ).click()
+        selenium.find_element(By.XPATH, Location.Network.ModalButton.GO_TO_EDITING.xpath).click()
 
         copy_network = MiminetTestNetwork(selenium, selenium.current_url)
 

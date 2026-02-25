@@ -366,14 +366,11 @@ def vk_callback():
             avatar_uri = avatar_uri + ".jpg"
 
             if "photo_100" in vk_user["response"][0]:
-                r = requests.get(
-                    vk_user["response"][0]["photo_100"], allow_redirects=True
-                )
+                r = requests.get(vk_user["response"][0]["photo_100"], allow_redirects=True)
             open("static/avatar/" + avatar_uri, "wb").write(r.content)
 
             new_user = User(
-                nick=vk_user["response"][0]["first_name"]
-                + vk_user["response"][0]["last_name"],
+                nick=vk_user["response"][0]["first_name"] + vk_user["response"][0]["last_name"],
                 avatar_uri=avatar_uri,
                 vk_id=vk_id,
                 email=vk_email,
@@ -488,9 +485,7 @@ def check_tg_authorization(auth_data, tg_json=tg_json):
     data_check_string = "\n".join(data_check_arr)
 
     secret_key = hashlib.sha256(BOT_TOKEN.encode()).digest()
-    hash_result = hmac.new(
-        secret_key, data_check_string.encode(), hashlib.sha256
-    ).hexdigest()
+    hash_result = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
 
     if hash_result != check_hash:
         raise Exception("Data is NOT from Telegram")
@@ -517,8 +512,7 @@ def tg_callback():
         return redirect(url_for("login_index"))
 
     user = User.query.filter(
-        (User.tg_id == str(user_data.get("id", "")))
-        | (User.email == user_data.get("username", ""))
+        (User.tg_id == str(user_data.get("id", ""))) | (User.email == user_data.get("username", ""))
     ).first()
 
     if user is None:

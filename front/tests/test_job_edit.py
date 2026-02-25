@@ -97,9 +97,7 @@ class TestJobEdit:
         for i in range(30):
             config1.add_jobs(
                 1,
-                {
-                    Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.5.2"
-                },
+                {Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.5.2"},
             )
         config1.submit()
 
@@ -112,9 +110,7 @@ class TestJobEdit:
 
         # Edit one of the jobs
         config1 = network.open_node_config(host1_id)
-        selenium.find_element(
-            By.CSS_SELECTOR, f"#config_host_job_edit_{first_job_id}"
-        ).click()
+        selenium.find_element(By.CSS_SELECTOR, f"#config_host_job_edit_{first_job_id}").click()
 
         time.sleep(0.3)
 
@@ -135,12 +131,9 @@ class TestJobEdit:
 
         # Verify at least one job has the new IP (jobs may be reordered)
         job_ips = [job["arg_1"] for job in network.jobs]
+        assert "192.168.5.99" in job_ips, f"Updated IP should be in jobs list: {job_ips}"
         assert (
-            "192.168.5.99" in job_ips
-        ), f"Updated IP should be in jobs list: {job_ips}"
-        assert (
-            first_job_original_ip not in job_ips
-            or job_ips.count(first_job_original_ip) < 30
+            first_job_original_ip not in job_ips or job_ips.count(first_job_original_ip) < 30
         ), "Original IP should be replaced"
 
         network.delete()
@@ -168,9 +161,7 @@ class TestJobEdit:
         for i in range(3):
             config_host.add_jobs(
                 1,
-                {
-                    Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: f"10.20.30.{10+i}"
-                },
+                {Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: f"10.20.30.{10+i}"},
             )
         config_host.submit()
 
@@ -181,9 +172,7 @@ class TestJobEdit:
 
         # Edit first job
         config_host = network.open_node_config(host_id)
-        selenium.find_element(
-            By.CSS_SELECTOR, f"#config_host_job_edit_{job_ids[0]}"
-        ).click()
+        selenium.find_element(By.CSS_SELECTOR, f"#config_host_job_edit_{job_ids[0]}").click()
         time.sleep(0.3)
 
         ping_field = selenium.find_element(
@@ -195,9 +184,7 @@ class TestJobEdit:
 
         # Edit second job
         config_host = network.open_node_config(host_id)
-        selenium.find_element(
-            By.CSS_SELECTOR, f"#config_host_job_edit_{job_ids[1]}"
-        ).click()
+        selenium.find_element(By.CSS_SELECTOR, f"#config_host_job_edit_{job_ids[1]}").click()
         time.sleep(0.3)
 
         ping_field = selenium.find_element(
@@ -212,11 +199,7 @@ class TestJobEdit:
 
         # Verify new IPs are present
         updated_ips = [job["arg_1"] for job in network.jobs]
-        assert (
-            "10.20.30.100" in updated_ips
-        ), f"First edited IP not found in {updated_ips}"
-        assert (
-            "10.20.30.101" in updated_ips
-        ), f"Second edited IP not found in {updated_ips}"
+        assert "10.20.30.100" in updated_ips, f"First edited IP not found in {updated_ips}"
+        assert "10.20.30.101" in updated_ips, f"Second edited IP not found in {updated_ips}"
 
         network.delete()

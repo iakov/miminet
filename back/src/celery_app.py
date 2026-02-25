@@ -31,8 +31,7 @@ EXCHANGE_NAME = os.getenv("exchange_name")
 DEFAULT_APP_EXCHANGE = Exchange(EXCHANGE_NAME, type=EXCHANGE_TYPE)
 
 QUEUES = [
-    Queue(name, exchange=DEFAULT_APP_EXCHANGE, routing_key=ROUTING_KEY)
-    for name in QUEUES_NAMES
+    Queue(name, exchange=DEFAULT_APP_EXCHANGE, routing_key=ROUTING_KEY) for name in QUEUES_NAMES
 ]
 
 SEND_NETWORK_RESPONSE_EXCHANGE = Exchange("network-results-exchange", type="direct")

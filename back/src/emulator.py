@@ -50,9 +50,7 @@ def emulate(
         net.start()
 
         # Jobs with high ID have priority over low ones
-        ordered_jobs = sorted(
-            network.jobs, key=lambda job: job.job_id // 100, reverse=True
-        )
+        ordered_jobs = sorted(network.jobs, key=lambda job: job.job_id // 100, reverse=True)
 
         for job in ordered_jobs:
             execute_job(job, net)

@@ -47,19 +47,22 @@ class MiminetTestNetwork:
     def nodes(self) -> list:
         """Current network nodes (may change during network usage)."""
         self.__check_page()
-        return self.__selenium.execute_script("return nodes")
+        nodes: list = self.__selenium.execute_script("return nodes")
+        return nodes
 
     @property
     def edges(self) -> list:
         """Current network edges (may change during network usage)."""
         self.__check_page()
-        return self.__selenium.execute_script("return edges")
+        edges: list = self.__selenium.execute_script("return edges")
+        return edges
 
     @property
     def jobs(self) -> list:
         """Current network jobs (may change during network usage)."""
         self.__check_page()
-        return self.__selenium.execute_script("return jobs")
+        jobs: list = self.__selenium.execute_script("return jobs")
+        return jobs
 
     def __calc_panel_offset(self, panel, x: float, y: float):
         """Calculates coordinates with offset within the Network Panel.
@@ -128,9 +131,7 @@ class MiminetTestNetwork:
         edge_id = edge["data"]["id"]
         self.__selenium.execute_script(f"ShowEdgeConfig('{edge_id}')")
 
-        self.__selenium.wait_until_appear(
-            By.CSS_SELECTOR, Location.Network.CONFIG_PANEL.selector
-        )
+        self.__selenium.wait_until_appear(By.CSS_SELECTOR, Location.Network.CONFIG_PANEL.selector)
 
     def add_node(
         self,
@@ -151,9 +152,7 @@ class MiminetTestNetwork:
         self.__check_page()
         old_nodes_len = len(self.nodes)
 
-        panel = self.__selenium.find_element(
-            By.CSS_SELECTOR, Location.Network.MAIN_PANEL.selector
-        )
+        panel = self.__selenium.find_element(By.CSS_SELECTOR, Location.Network.MAIN_PANEL.selector)
 
         x = x if x is not None else random.uniform(0, 100)
         y = y if y is not None else random.uniform(0, 100)
@@ -177,9 +176,7 @@ class MiminetTestNetwork:
         source_data_id = str(source_node["data"]["id"])
         target_data_id = str(target_node["data"]["id"])
 
-        self.__selenium.execute_script(
-            f"AddEdge('{source_data_id}', '{target_data_id}')"
-        )
+        self.__selenium.execute_script(f"AddEdge('{source_data_id}', '{target_data_id}')")
         self.__selenium.execute_script("DrawGraph()")
         self.__selenium.execute_script("PostNodesEdges()")
 
@@ -188,9 +185,7 @@ class MiminetTestNetwork:
 
     def get_nodes_by_class(self, device_class: str) -> list[dict]:
         self.__check_page()
-        filtered_nodes = list(
-            filter(lambda node: node["classes"][0] == device_class, self.nodes)
-        )
+        filtered_nodes = list(filter(lambda node: node["classes"][0] == device_class, self.nodes))
 
         assert len(filtered_nodes) != 0, f"Can't find device node for {device_class}!!!"
 
@@ -212,7 +207,7 @@ class MiminetTestNetwork:
             60,
         )
 
-        packets = self.__selenium.execute_script("return packets")
+        packets: dict = self.__selenium.execute_script("return packets")
 
         return packets
 
@@ -435,9 +430,7 @@ class NodeConfig:
 
         modal = (
             By.CSS_SELECTOR,
-            Location.Network.ConfigPanel.Switch.VlanPanel.get_modal_dialog_selector(
-                switch_name
-            ),
+            Location.Network.ConfigPanel.Switch.VlanPanel.get_modal_dialog_selector(switch_name),
         )
 
         with self.__selenium.run_in_modal_context(*modal) as dialog:
@@ -451,10 +444,8 @@ class NodeConfig:
             # Go through each row
             row_id = 0
             while True:
-                row_xpath = (
-                    Location.Network.ConfigPanel.Switch.VlanPanel.get_table_row_xpath(
-                        switch_name, row_id
-                    )
+                row_xpath = Location.Network.ConfigPanel.Switch.VlanPanel.get_table_row_xpath(
+                    switch_name, row_id
                 )
 
                 if not self.__selenium.exist_element(By.XPATH, row_xpath):
@@ -475,9 +466,7 @@ class NodeConfig:
                 if device_name not in fill_table:
                     raise Exception(f"Can't find {device_name} in VLAN table.")
 
-                connection_type_element = row_elements[2].find_element(
-                    By.TAG_NAME, "select"
-                )
+                connection_type_element = row_elements[2].find_element(By.TAG_NAME, "select")
 
                 Select(connection_type_element).select_by_value(connection_type)
 
@@ -552,16 +541,12 @@ class NodeConfig:
             self.__config_locator.MAIN_FORM
         ), f'Unable to open node config form for this element: "{self.__config_locator}".'
 
-        self.__selenium.wait_until_appear(
-            By.CSS_SELECTOR, self.__config_locator.MAIN_FORM.selector
-        )
+        self.__selenium.wait_until_appear(By.CSS_SELECTOR, self.__config_locator.MAIN_FORM.selector)
 
     def __check_config_open(self):
         """Check that the config is open and handle any errors."""
         try:
-            self.__selenium.find_element(
-                By.CSS_SELECTOR, self.__config_locator.MAIN_FORM.selector
-            )
+            self.__selenium.find_element(By.CSS_SELECTOR, self.__config_locator.MAIN_FORM.selector)
         except NoSuchElementException:
             raise Exception("Config panel isn't open during some operation.")
 
@@ -575,6 +560,4 @@ class NodeConfig:
         ]
 
         if error_msgs:
-            raise Exception(
-                f"An error occurred while managing the config panel: {error_msgs}"
-            )
+            raise Exception(f"An error occurred while managing the config panel: {error_msgs}")

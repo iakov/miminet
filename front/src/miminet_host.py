@@ -80,9 +80,7 @@ def name_check(arg: str) -> bool:
 
 def MAC_check(arg: str) -> bool:
     """Check MAC-address correctness"""
-    return bool(
-        re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", arg.lower())
-    )
+    return bool(re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", arg.lower()))
 
 
 def ascii_check(arg: str) -> bool:
@@ -200,11 +198,9 @@ host_ping_job.add_param("config_host_ping_c_1_ip").add_check(IPv4_check).set_err
 
 # ping -c 1 (with options)
 host_ping_opt_job = host.create_job(2, "ping -c 1 [0] [1]")
-host_ping_opt_job.add_param(
-    "config_host_ping_with_options_options_input_field"
-).add_check(ascii_check).add_filter(ping_options_filter).set_error_msg(
-    build_error(ErrorType.options, "ping (с опциями)")
-)
+host_ping_opt_job.add_param("config_host_ping_with_options_options_input_field").add_check(
+    ascii_check
+).add_filter(ping_options_filter).set_error_msg(build_error(ErrorType.options, "ping (с опциями)"))
 host_ping_opt_job.add_param("config_host_ping_with_options_ip_input_field").add_check(
     IPv4_check
 ).set_error_msg(build_error(ErrorType.ip, "ping (с опциями)"))
@@ -235,52 +231,48 @@ host_tcp_job.add_param("config_host_send_tcp_data_port_input_field").add_check(
 
 # traceroute -n (with options)
 traceroute_job = host.create_job(5, "traceroute -n [0] [1]")
-traceroute_job.add_param(
-    "config_host_traceroute_with_options_options_input_field"
-).add_check(ascii_check).add_filter(traceroute_options_filter).set_error_msg(
+traceroute_job.add_param("config_host_traceroute_with_options_options_input_field").add_check(
+    ascii_check
+).add_filter(traceroute_options_filter).set_error_msg(
     build_error(ErrorType.options, "traceroute -n (с опциями)")
 )
-traceroute_job.add_param(
-    "config_host_traceroute_with_options_ip_input_field"
-).add_check(IPv4_check).set_error_msg(
-    build_error(ErrorType.ip, "traceroute -n (с опциями)")
-)
+traceroute_job.add_param("config_host_traceroute_with_options_ip_input_field").add_check(
+    IPv4_check
+).set_error_msg(build_error(ErrorType.ip, "traceroute -n (с опциями)"))
 
 # Add route
 add_route_job = host.create_job(102, "ip route add [0]/[1] via [2]")
-add_route_job.add_param("config_host_add_route_ip_input_field").add_check(
-    IPv4_check
-).set_error_msg(build_error(ErrorType.ip, "Добавить маршрут"))
+add_route_job.add_param("config_host_add_route_ip_input_field").add_check(IPv4_check).set_error_msg(
+    build_error(ErrorType.ip, "Добавить маршрут")
+)
 add_route_job.add_param("config_host_add_route_mask_input_field").add_check(
     mask_check
 ).set_error_msg(build_error(ErrorType.mask, "Добавить маршрут"))
-add_route_job.add_param("config_host_add_route_gw_input_field").add_check(
-    IPv4_check
-).set_error_msg(build_error(ErrorType.ip, "Добавить маршрут"))
+add_route_job.add_param("config_host_add_route_gw_input_field").add_check(IPv4_check).set_error_msg(
+    build_error(ErrorType.ip, "Добавить маршрут")
+)
 
 # arp -s ip hw_addr
 arp_job = host.create_job(103, "arp -s [0] [1]")
-arp_job.add_param("config_host_add_arp_cache_ip_input_field").add_check(
-    IPv4_check
-).set_error_msg(build_error(ErrorType.ip, "Добавить запись в ARP-cache"))
-arp_job.add_param("config_host_add_arp_cache_mac_input_field").add_check(
-    MAC_check
-).set_error_msg('MAC-адрес для команды "Добавить запись в ARP-cache" указан неверно')
+arp_job.add_param("config_host_add_arp_cache_ip_input_field").add_check(IPv4_check).set_error_msg(
+    build_error(ErrorType.ip, "Добавить запись в ARP-cache")
+)
+arp_job.add_param("config_host_add_arp_cache_mac_input_field").add_check(MAC_check).set_error_msg(
+    'MAC-адрес для команды "Добавить запись в ARP-cache" указан неверно'
+)
 
 host_dhclient_job = host.create_job(108, "dhcp client")
-host_dhclient_job.add_param(
-    "config_host_add_dhclient_interface_select_iface_field"
-).add_check(emptiness_check).set_error_msg(
-    'Не указан интерфейс для команды "Запросить IP адрес автоматически"'
-)
+host_dhclient_job.add_param("config_host_add_dhclient_interface_select_iface_field").add_check(
+    emptiness_check
+).set_error_msg('Не указан интерфейс для команды "Запросить IP адрес автоматически"')
 
 # ~ ~ ~ ROUTER JOBS ~ ~ ~
 
 # ping
 router_ping_job = router.create_job(1, "ping -c 1 [0]")
-router_ping_job.add_param("config_router_ping_c_1_ip").add_check(
-    IPv4_check
-).set_error_msg(build_error(ErrorType.ip, "ping"))
+router_ping_job.add_param("config_router_ping_c_1_ip").add_check(IPv4_check).set_error_msg(
+    build_error(ErrorType.ip, "ping")
+)
 
 # add IP/mask
 add_ip_job = router.create_job(100, "ip addess add [0]/[1] dev [2]")
@@ -314,9 +306,7 @@ port_forwarding_tcp_job.add_param(
 )
 port_forwarding_tcp_job.add_param(
     "config_router_add_port_forwarding_tcp_dest_ip_input_field"
-).add_check(IPv4_check).set_error_msg(
-    build_error(ErrorType.ip, "Добавить Port forwarding для TCP")
-)
+).add_check(IPv4_check).set_error_msg(build_error(ErrorType.ip, "Добавить Port forwarding для TCP"))
 port_forwarding_tcp_job.add_param(
     "config_router_add_port_forwarding_tcp_dest_port_input_field"
 ).add_check(port_check).set_error_msg(
@@ -337,9 +327,7 @@ port_forwarding_udp_job.add_param(
 )
 port_forwarding_udp_job.add_param(
     "config_router_add_port_forwarding_udp_dest_ip_input_field"
-).add_check(IPv4_check).set_error_msg(
-    build_error(ErrorType.ip, "Добавить Port forwarding для UDP")
-)
+).add_check(IPv4_check).set_error_msg(build_error(ErrorType.ip, "Добавить Port forwarding для UDP"))
 port_forwarding_udp_job.add_param(
     "config_router_add_port_forwarding_udp_dest_port_input_field"
 ).add_check(port_check).set_error_msg(
@@ -377,43 +365,29 @@ vlan_job.add_param("config_router_add_subinterface_vlan_input_field").add_check(
 ipip_job = router.create_job(105, "ipip: [3] from [0] to [1] \n[3]: [2]")
 ipip_job.add_param("config_router_add_ipip_tunnel_iface_select_ip_field").add_check(
     emptiness_check
-).set_error_msg(
-    'Не выбран IP-адрес начальной точки для команды "Добавить IPIP-интерфейс"'
-)
+).set_error_msg('Не выбран IP-адрес начальной точки для команды "Добавить IPIP-интерфейс"')
 ipip_job.add_param("config_router_add_ipip_tunnel_end_ip_input_field").add_check(
     IPv4_check
 ).set_error_msg("Неверно указан IP-адрес конечной точки для команды ")
 ipip_job.add_param("config_router_add_ipip_tunnel_interface_ip_input_field").add_check(
     IPv4_check
-).set_error_msg(
-    'Неверно указан IP адрес IPIP-интерфейса для команды "Добавить IPIP-интерфейс"'
-)
+).set_error_msg('Неверно указан IP адрес IPIP-интерфейса для команды "Добавить IPIP-интерфейс"')
 ipip_job.add_param("config_router_add_ipip_tunnel_interface_name_field").add_check(
     name_check
-).set_error_msg(
-    'Неверно указано название IPIP-интерфейса для команды "Добавить IPIP-интерфейс"'
-)
+).set_error_msg('Неверно указано название IPIP-интерфейса для команды "Добавить IPIP-интерфейс"')
 
 # GRE
 gre_job = router.create_job(106, "gre: [3] from [0] to [1] \n[3]: [2]")
 gre_job.add_param("config_router_add_gre_interface_select_ip_field").add_check(
     emptiness_check
-).set_error_msg(
-    'Не выбран IP-адрес начальной точки для команды "Добавить GRE-интерфейс"'
-)
+).set_error_msg('Не выбран IP-адрес начальной точки для команды "Добавить GRE-интерфейс"')
 gre_job.add_param("config_router_add_gre_interface_end_ip_input_field").add_check(
     IPv4_check
-).set_error_msg(
-    'Неверно указан IP-адрес конечной точки для команды "Добавить GRE-интерфейс"'
-)
+).set_error_msg('Неверно указан IP-адрес конечной точки для команды "Добавить GRE-интерфейс"')
 gre_job.add_param("config_router_add_gre_interface_ip_input_field").add_check(
     IPv4_check
-).set_error_msg(
-    'Неверно указан IP адрес GRE-интерфейса для команды "Добавить GRE-интерфейс"'
-)
-gre_job.add_param("config_router_add_gre_interface_name_field").add_check(
-    name_check
-).set_error_msg(
+).set_error_msg('Неверно указан IP адрес GRE-интерфейса для команды "Добавить GRE-интерфейс"')
+gre_job.add_param("config_router_add_gre_interface_name_field").add_check(name_check).set_error_msg(
     'Неверно указано название GRE-интерфейса для команды "Добавить GRE-интерфейс"'
 )
 
@@ -446,9 +420,9 @@ sleep_job.add_param("config_switch_sleep").add_check(time_check).set_error_msg(
 
 # ping -c 1
 server_ping_job = server.create_job(1, "ping -c 1 [0]")
-server_ping_job.add_param("config_server_ping_c_1_ip").add_check(
-    IPv4_check
-).set_error_msg(build_error(ErrorType.ip, "ping"))
+server_ping_job.add_param("config_server_ping_c_1_ip").add_check(IPv4_check).set_error_msg(
+    build_error(ErrorType.ip, "ping")
+)
 
 # start UDP server
 start_udp_server = server.create_job(200, "nc -u [0] -l [1]")
@@ -488,11 +462,9 @@ start_dhcp_server.add_param("config_server_add_dhcp_mask_input_field").add_check
 start_dhcp_server.add_param("config_server_add_dhcp_gateway_input_field").add_check(
     IPv4_check
 ).set_error_msg('Неверно указан IP адрес шлюза для команды "Запустить DHCP сервер"')
-start_dhcp_server.add_param(
-    "config_server_add_dhcp_interface_select_iface_field"
-).add_check(emptiness_check).set_error_msg(
-    'Не указан интерфейс для команды "Запустить DHCP сервер"'
-)
+start_dhcp_server.add_param("config_server_add_dhcp_interface_select_iface_field").add_check(
+    emptiness_check
+).set_error_msg('Не указан интерфейс для команды "Запустить DHCP сервер"')
 
 
 # ------ request handlers ------

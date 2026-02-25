@@ -40,9 +40,7 @@ def create_mimishark_json(pcap, to_json):
                     else:
                         ascii += "."
 
-                pcap_file["ascii"] = ascii.replace('"', "doublePrime").replace(
-                    "'", "singlePrime"
-                )
+                pcap_file["ascii"] = ascii.replace('"', "doublePrime").replace("'", "singlePrime")
                 pcap_file["bytes"] = bytes_repr
 
                 # .replace('"','doublePrime').replace("'",'singlePrime').replace('\\','doubleslash')
@@ -112,9 +110,7 @@ def create_mimishark_json(pcap, to_json):
                         ascii += b
                     else:
                         ascii += "."
-                pcap_file["ascii"] = ascii.replace('"', "doublePrime").replace(
-                    "'", "singlePrime"
-                )
+                pcap_file["ascii"] = ascii.replace('"', "doublePrime").replace("'", "singlePrime")
                 pcap_file["bytes"] = bytes_repr
                 json_file.append(pcap_file)
 

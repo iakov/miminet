@@ -115,13 +115,11 @@ class PracticeAnswerResultDto:
         }
 
 
-def calculate_max_score(requirements: list) -> int:
-    def recursive_sum(data):
+def calculate_max_score(requirements: list) -> float:
+    def recursive_sum(data) -> float:
         if isinstance(data, dict):
             points = data.get("points", 0)
-            valid_points = (
-                points if isinstance(points, (int, float)) and points > 0 else 0
-            )
+            valid_points = points if isinstance(points, (int, float)) and points > 0 else 0
             return valid_points + sum(recursive_sum(value) for value in data.values())
         elif isinstance(data, list):
             return sum(recursive_sum(item) for item in data)
@@ -170,14 +168,10 @@ class PracticeQuestionDto:
         for attribute in attributes:
             setattr(self, attribute, getattr(practice_question, attribute))
 
-        session_question = SessionQuestion.query.filter_by(
-            id=session_question_id
-        ).first()
+        session_question = SessionQuestion.query.filter_by(id=session_question_id).first()
 
         if session_question.network_guid:
-            net_copy = Network.query.filter_by(
-                guid=session_question.network_guid
-            ).first()
+            net_copy = Network.query.filter_by(guid=session_question.network_guid).first()
         else:
             net = Network.query.filter(
                 Network.guid == practice_question.start_configuration
@@ -236,9 +230,7 @@ class QuestionDto:
             ).to_dict()
             return
 
-        filtered_answers = Answer.query.filter_by(
-            question_id=question.id, is_deleted=False
-        ).all()
+        filtered_answers = Answer.query.filter_by(question_id=question.id, is_deleted=False).all()
 
         if self.question_type == "variable":
             self.correct_count = sum(answer.is_correct for answer in filtered_answers)
@@ -308,9 +300,7 @@ class SectionDto:
 
         session = current_user_sessions.order_by(QuizSession.finished_at.desc()).first()
         if session:
-            self.last_correct_count = sum(
-                1 for question in session.sessions if question.is_correct
-            )
+            self.last_correct_count = sum(1 for question in session.sessions if question.is_correct)
             if session.guid:
                 self.session_guid = session.guid
 

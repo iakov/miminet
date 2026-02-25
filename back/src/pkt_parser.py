@@ -7,9 +7,7 @@ from dpkt.pcap import Reader
 from dpkt.utils import inet_to_str, mac_to_str
 
 
-def packet_uuid(
-    size: int = 8, chars: str = string.ascii_uppercase + string.digits
-) -> str:
+def packet_uuid(size: int = 8, chars: str = string.ascii_uppercase + string.digits) -> str:
     uid = "".join(random.choice(chars) for _ in range(size))
     return "pkt_" + uid
 
@@ -43,24 +41,18 @@ def udp_packet_type(pkt) -> str:
     if is_dhcp(pkt):
         dh = dpkt.dhcp.DHCP(pkt.data)
         opts = dict(dh.opts)
-        msg_type = int.from_bytes(
-            opts.get(dpkt.dhcp.DHCP_OPT_MSGTYPE, b""), byteorder="big"
-        )
+        msg_type = int.from_bytes(opts.get(dpkt.dhcp.DHCP_OPT_MSGTYPE, b""), byteorder="big")
         match msg_type:
             case dpkt.dhcp.DHCPDISCOVER:
                 return "DHCP Discover"
             case dpkt.dhcp.DHCPOFFER:
                 ip = dh.yiaddr
                 mask = bin(
-                    int.from_bytes(
-                        opts.get(dpkt.dhcp.DHCP_OPT_NETMASK, b""), byteorder="big"
-                    )
+                    int.from_bytes(opts.get(dpkt.dhcp.DHCP_OPT_NETMASK, b""), byteorder="big")
                 ).count("1")
                 return f"DHCP Offer {int_to_ip(ip)}/{mask}"
             case dpkt.dhcp.DHCPREQUEST:
-                ip = int.from_bytes(
-                    opts.get(dpkt.dhcp.DHCP_OPT_REQ_IP, b""), byteorder="big"
-                )
+                ip = int.from_bytes(opts.get(dpkt.dhcp.DHCP_OPT_REQ_IP, b""), byteorder="big")
                 return f"DHCP Request {int_to_ip(ip)}"
             case dpkt.dhcp.DHCPDECLINE:
                 return "DHCP Decline"
@@ -134,16 +126,13 @@ def arp_packet_type(pkt) -> str:
             case 1:
                 return (
                     "ARP-request\nWho has "
-                    + inet_to_str(arp.tpa)
+                    + str(inet_to_str(arp.tpa))
                     + "? Tell "
-                    + inet_to_str(arp.spa)
+                    + str(inet_to_str(arp.spa))
                 )
             case 2:
                 return (
-                    "ARP-response\n"
-                    + inet_to_str(arp.spa)
-                    + " at "
-                    + mac_to_str(arp.sha)
+                    "ARP-response\n" + str(inet_to_str(arp.spa)) + " at " + str(mac_to_str(arp.sha))
                 )
             case _:
                 return "ARP packet"
@@ -298,9 +287,7 @@ def packet_parser(
             ts = ts.replace(".", "").ljust(16, "0")
 
             pkt_type = ip_packet_type(ip)
-            pkt_type = (
-                pkt_type + "\n" + inet_to_str(ip.src) + " > " + inet_to_str(ip.dst)
-            )
+            pkt_type = pkt_type + "\n" + inet_to_str(ip.src) + " > " + inet_to_str(ip.dst)
 
             pkts.append(
                 {

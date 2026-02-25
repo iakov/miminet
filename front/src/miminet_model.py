@@ -145,9 +145,7 @@ def ensure_db_exists(
             raise
 
     # 2. Only if mode == 'dev' and connection failed
-    print(
-        f"[DEV] Target db '{target_db}' not found. Trying to create via 'postgres' db..."
-    )
+    print(f"[DEV] Target db '{target_db}' not found. Trying to create via 'postgres' db...")
 
     sys_conn_params = conn_params.copy()
     sys_conn_params["dbname"] = "postgres"  # Connect to system DB
@@ -156,9 +154,7 @@ def ensure_db_exists(
         with psycopg2.connect(**sys_conn_params) as conn:
             conn.autocommit = True
             with conn.cursor() as cur:
-                cur.execute(
-                    "SELECT 1 FROM pg_database WHERE datname = %s", (target_db,)
-                )
+                cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (target_db,))
 
                 if not cur.fetchone():
                     print(f"[DEV] Creating database {target_db}...")
@@ -243,9 +239,7 @@ def init_db(app):
             try:
                 # Some networks can be marked as non-emulated in the database, we should fix them.
                 print("[!] Fix nonemulated networks...")
-                SimulateLog.query.filter(not_(SimulateLog.ready)).update(
-                    {"ready": True}
-                )
+                SimulateLog.query.filter(not_(SimulateLog.ready)).update({"ready": True})
                 db.session.commit()
             except Exception as e:
                 print(f"[!] Error fixing nonemulated networks: {e}")

@@ -125,9 +125,7 @@ def test_yandex_callback_redirects_to_home_after_login(app, mocker):
         mocker.patch("miminet_auth.OAuth2Session")
         mock_user_filter = mock_user.query.filter_by().first
         response = yandex_callback(yandex_json)
-        mock_login_user.assert_called_once_with(
-            mock_user_filter.return_value, remember=True
-        )
+        mock_login_user.assert_called_once_with(mock_user_filter.return_value, remember=True)
         assert response.status_code == 302
         assert response.location == url_for("home")
 
@@ -184,8 +182,6 @@ def test_yandex_callback_handles_token_expired_error(app, mocker):
         mock_oauth2session.return_value.fetch_token.side_effect = TokenExpiredError()
         response = yandex_callback(yandex_json)
         mock_logger.assert_called_with("Token expired: %s", mocker.ANY)
-        mock_flash.assert_called_with(
-            "Token expired. Please log in again.", category="error"
-        )
+        mock_flash.assert_called_with("Token expired. Please log in again.", category="error")
         assert response.status_code == 302
         assert response.location == url_for("login_index")

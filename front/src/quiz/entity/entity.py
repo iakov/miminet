@@ -75,9 +75,7 @@ class TimeMixin(object):
     __table_args__ = ({"extend_existing": True},)
 
     created_on = db.Column(TIMESTAMP(timezone=True), default=func.now())
-    updated_on = db.Column(
-        TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now()
-    )
+    updated_on = db.Column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
 
 class CreatedByMixin(object):
@@ -186,9 +184,7 @@ class Question(
 
     category_id = db.Column(BigInteger, ForeignKey("question_category.id"))
 
-    __table_args__ = (
-        db.Index("question_section_id_is_deleted_ind", "section_id", "is_deleted"),
-    )
+    __table_args__ = (db.Index("question_section_id_is_deleted_ind", "section_id", "is_deleted"),)
 
 
 class QuizSession(
@@ -270,9 +266,7 @@ class PracticeQuestion(
     available_server = db.Column(BigInteger, default=0)
     requirements = db.Column(db.JSON, default={})
 
-    question = db.relationship(
-        "Question", uselist=False, back_populates="practice_question"
-    )
+    question = db.relationship("Question", uselist=False, back_populates="practice_question")
 
 
 # Table for question categories.

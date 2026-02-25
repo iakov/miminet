@@ -37,9 +37,7 @@ class TestDHCP:
         host2_config.fill_link("192.168.0.101", 24)
         host2_config.add_jobs(
             1,
-            {
-                Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.0.100"
-            },
+            {Location.Network.ConfigPanel.Host.Job.PING_FIELD.selector: "192.168.0.100"},
         )
         host2_config.submit()
 

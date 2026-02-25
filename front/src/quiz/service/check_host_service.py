@@ -65,13 +65,9 @@ def check_vlan_id(answer, device, target, expected_equal):
 
     if not device_node or not target_node:
         if not device_node:
-            hints.append(
-                f"Устройство {device} отсутствует в сети, проверка VLAN ID невозможна."
-            )
+            hints.append(f"Устройство {device} отсутствует в сети, проверка VLAN ID невозможна.")
         if not target_node:
-            hints.append(
-                f"Устройство {target} отсутствует в сети, проверка VLAN ID невозможна."
-            )
+            hints.append(f"Устройство {target} отсутствует в сети, проверка VLAN ID невозможна.")
 
         return False, hints
 
@@ -81,9 +77,7 @@ def check_vlan_id(answer, device, target, expected_equal):
             if not edge_id:
                 continue
 
-            connected_edge = next(
-                (edge for edge in edges if edge["data"]["id"] == edge_id), None
-            )
+            connected_edge = next((edge for edge in edges if edge["data"]["id"] == edge_id), None)
             if not connected_edge:
                 continue
 
@@ -93,9 +87,7 @@ def check_vlan_id(answer, device, target, expected_equal):
                 else connected_edge["data"]["source"]
             )
 
-            connected_node = next(
-                (n for n in nodes if n["data"]["id"] == connected_node_id), None
-            )
+            connected_node = next((n for n in nodes if n["data"]["id"] == connected_node_id), None)
             if connected_node and connected_node["config"]["type"] == "l2_switch":
                 return connected_node
 
@@ -106,13 +98,9 @@ def check_vlan_id(answer, device, target, expected_equal):
 
     if not device_switch or not target_switch:
         if not device_switch:
-            hints.append(
-                f"Устройство {device} не подключено к свитчу, настройка VLAN невозможна."
-            )
+            hints.append(f"Устройство {device} не подключено к свитчу, настройка VLAN невозможна.")
         if not target_switch:
-            hints.append(
-                f"Устройство {target} не подключено к свитчу, настройка VLAN невозможна."
-            )
+            hints.append(f"Устройство {target} не подключено к свитчу, настройка VLAN невозможна.")
         return False, hints
 
     def get_vlans_on_switch(switch, node_id):
@@ -120,9 +108,7 @@ def check_vlan_id(answer, device, target, expected_equal):
         for iface in switch.get("interface", []):
             if iface.get("connect") and iface["connect"] in [
                 iface.get("connect")
-                for iface in next(
-                    (n["interface"] for n in nodes if n["data"]["id"] == node_id), []
-                )
+                for iface in next((n["interface"] for n in nodes if n["data"]["id"] == node_id), [])
             ]:
                 vlan = iface.get("vlan")
                 if isinstance(vlan, list):
@@ -220,22 +206,16 @@ def check_different_paths(answer, source_device, target_device):
             f"Невозможно проверить разность путей: запрос начинается не с {source_device}."
         )
     elif request_path[-1] != target_device:
-        hints.append(
-            f"Невозможно проверить разность путей: запрос не достиг {target_device}."
-        )
+        hints.append(f"Невозможно проверить разность путей: запрос не достиг {target_device}.")
 
     if not reply_path:
         hints.append(
             f"Невозможно проверить разность путей: ответ от {target_device} к {source_device} не обнаружен."
         )
     elif reply_path[0] != target_device:
-        hints.append(
-            f"Невозможно проверить разность путей: ответ начинается не с {target_device}."
-        )
+        hints.append(f"Невозможно проверить разность путей: ответ начинается не с {target_device}.")
     elif reply_path[-1] != source_device:
-        hints.append(
-            f"Невозможно проверить разность путей: ответ не вернулся к {source_device}."
-        )
+        hints.append(f"Невозможно проверить разность путей: ответ не вернулся к {source_device}.")
 
     if hints:
         return False, hints
@@ -273,13 +253,9 @@ def check_path(answer, device, target, required_path):
         and actual_path[len(actual_path) // 2] == target
     ):
         if not (actual_path[0] == device):
-            hints.append(
-                f"Начало пути не соответствует требуемому по условию устройству {device}."
-            )
+            hints.append(f"Начало пути не соответствует требуемому по условию устройству {device}.")
         if not (actual_path[-1] == device):
-            hints.append(
-                f"Конец пути не соответствует требуемому по условию устройству {device}."
-            )
+            hints.append(f"Конец пути не соответствует требуемому по условию устройству {device}.")
         if not (actual_path[len(actual_path) // 2] == target):
             hints.append(f"Узел назначения {target} отсутствует в пути.")
 
@@ -296,9 +272,7 @@ def check_path(answer, device, target, required_path):
         return False, hints
 
 
-def check_tunnel_echo_request(
-    answer, source_device, target_device, tunnel_start, tunnel_end
-):
+def check_tunnel_echo_request(answer, source_device, target_device, tunnel_start, tunnel_end):
     packets = answer.get("packets", [])
     hints = []
 
@@ -320,11 +294,7 @@ def check_tunnel_echo_request(
             if src != current:
                 continue
 
-            if (
-                expected_type in ptype
-                or "IPIP tunnel" in ptype
-                or "GRE tunnel" in ptype
-            ):
+            if expected_type in ptype or "IPIP tunnel" in ptype or "GRE tunnel" in ptype:
                 path.append(dst)
                 current = dst
                 if current == end:
@@ -409,9 +379,7 @@ def check_tunnel_echo_request(
     return False, hints
 
 
-def check_vxlan_echo_request(
-    answer, source_device, target_device, tunnel_start, tunnel_end
-):
+def check_vxlan_echo_request(answer, source_device, target_device, tunnel_start, tunnel_end):
     packets = answer.get("packets", [])
     hints = []
 
@@ -485,24 +453,16 @@ def check_vxlan_echo_request(
         if len(req_path) == 1:
             hints.append(f"Запрос от {source_device} не стартовал.")
         else:
-            hints.append(
-                f"Запрос дошёл только до {req_path[-1]}, а не до {target_device}."
-            )
+            hints.append(f"Запрос дошёл только до {req_path[-1]}, а не до {target_device}.")
     if not req_tunnel:
-        hints.append(
-            f"Запрос не прошёл через VXLAN-туннель {tunnel_start}→{tunnel_end}."
-        )
+        hints.append(f"Запрос не прошёл через VXLAN-туннель {tunnel_start}→{tunnel_end}.")
     if not ok_rep:
         if len(rep_path) == 1:
             hints.append(f"Ответ от {target_device} не стартовал.")
         else:
-            hints.append(
-                f"Ответ дошёл только до {rep_path[-1]}, а не до {source_device}."
-            )
+            hints.append(f"Ответ дошёл только до {rep_path[-1]}, а не до {source_device}.")
     if not rep_tunnel:
-        hints.append(
-            f"Ответ не прошёл через VXLAN-туннель {tunnel_end}→{tunnel_start}."
-        )
+        hints.append(f"Ответ не прошёл через VXLAN-туннель {tunnel_end}→{tunnel_start}.")
 
     return False, hints
 
@@ -524,9 +484,7 @@ def check_echo_request(answer, source_device, target_device, direction="two-way"
         target = config["target"]
 
         if "ICMP echo-request" in packet_type:
-            if source == source_device and (
-                not request_path or request_path[-1] != target_device
-            ):
+            if source == source_device and (not request_path or request_path[-1] != target_device):
                 request_path = [source]
                 reply_path = []
             if source == request_path[-1] if request_path else False:
@@ -539,9 +497,7 @@ def check_echo_request(answer, source_device, target_device, direction="two-way"
 
     if direction == "one-way":
         valid = (
-            request_path
-            and request_path[0] == source_device
-            and request_path[-1] == target_device
+            request_path and request_path[0] == source_device and request_path[-1] == target_device
         )
     else:
         valid = (
@@ -633,9 +589,7 @@ def process_host_command(cmd, answer, device):
                 required_path = path.get("required_path")
                 path_points = path.get("points", 1)
 
-                path_result, path_hints = check_path(
-                    answer, device, target, required_path
-                )
+                path_result, path_hints = check_path(answer, device, target, required_path)
 
                 if path_result:
                     points_for_host += path_points

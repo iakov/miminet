@@ -19,9 +19,7 @@ class TestFieldsFilter:
         yield network
         network.delete()
 
-    def test_gateway_filtering(
-        self, selenium: MiminetTester, network: MiminetTestNetwork
-    ):
+    def test_gateway_filtering(self, selenium: MiminetTester, network: MiminetTestNetwork):
         """
         Checks that the Default Gateway field automatically filters commas (,)
         and letters "ю", replacing them with dot (.)
