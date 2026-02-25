@@ -63,18 +63,15 @@ jobs:
           sudo /usr/share/openvswitch/scripts/ovs-ctl start
           sudo ovs-vswitchd &
 
-      - name: Set up virtualenv
+      - name: Set up Python environment
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          python -m pip install pip wheel pytest
-          pip install -r back/requirements.txt
+          python -m pip install --upgrade pip poetry
+          poetry install --with dev --no-root
 
       - name: Test with pytest
         run: |
           sudo bash -c '
-            source venv/bin/activate
             cd back/tests
             export PYTHONPATH=$PYTHONPATH:../src
-            pytest .
+            poetry run pytest .
           '

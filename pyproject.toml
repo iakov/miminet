@@ -1,0 +1,208 @@
+[tool.poetry]
+name = "miminet"
+version = "1.0.0"
+description = "Web emulator for computer networks based on Mininet"
+authors = ["Miminet Team <team@miminet.dev>"]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/mimi-net/miminet"
+homepage = "https://miminet.ru"
+keywords = ["network", "emulation", "mininet", "education", "simulation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Flask",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Russian",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Education",
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+# Core dependencies (minimal, used by both frontend and backend)
+sqlalchemy = "2.0.43"
+celery = "5.5.3"
+kombu = "5.5.4"      # Celery dependency
+requests = "2.32.5"
+jsonschema = "4.25.1"
+
+# --- Frontend Dependencies Group ---
+[tool.poetry.group.frontend.dependencies]
+# Web framework
+flask = "3.1.2"
+flask-login = "0.6.3"
+flask-migrate = "4.1.0"
+flask-sqlalchemy = "3.1.1"
+flask-admin = "2.0.1"
+
+# Templating and validation
+jinja2 = "3.1.6"
+werkzeug = "3.1.3"
+wtforms = "3.2.1"
+
+# Database
+psycopg2-binary = "2.9.10"
+
+# Data processing
+pillow = "11.3.0"
+beautifulsoup4 = "4.13.5"
+
+# Authentication
+google-auth = "2.40.3"
+
+# --- Backend Dependencies Group ---
+[tool.poetry.group.backend.dependencies]
+# Network emulation (Git dependencies - Linux only)
+ipmininet = { git = "https://github.com/mimi-net/ipmininet.git", tag = "1.2.4", markers = "sys_platform == 'linux'" }
+
+# Packet parsing and serialization
+dpkt = "1.9.8"
+marshmallow = "3.20.1"
+marshmallow-dataclass = "8.6.1"
+
+# --- Frontend Testing & Development ---
+[tool.poetry.group.dev-frontend.dependencies]
+# Testing framework
+pytest = "8.4.2"
+pytest-html = "3.1.0"
+pytest-timeout = "2.1.0"
+pytest-mock = "3.15.1"
+
+# Browser automation
+selenium = "4.25.0"
+webdriver-manager = "4.0.2"
+
+# Code quality (frontend-focused)
+black = "24.1.1"
+flake8 = "7.0.0"
+isort = "5.13.2"
+mypy = "1.7.0"
+
+# --- Backend Testing & Development ---
+[tool.poetry.group.dev-backend.dependencies]
+# Testing with coverage
+pytest = "8.4.2"
+pytest-cov = "4.0.0"
+pytest-timeout = "2.1.0"
+pytest-mock = "3.15.1"
+pytest-xdist = "3.8.0"
+
+# Code quality
+black = "24.1.1"
+flake8 = "7.0.0"
+isort = "5.13.2"
+pylint = "3.0.0"
+mypy = "1.7.0"
+
+# --- Common Development Tools ---
+[tool.poetry.group.dev.dependencies]
+# Documentation (optional, used occasionally)
+sphinx = "7.2.6"
+sphinx-rtd-theme = "2.0.0"
+
+# --- Production Dependencies ---
+[tool.poetry.group.prod.dependencies]
+# WSGI server (alternative to uwsgi)
+gunicorn = "22.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# --- Tool Configurations ---
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | venv
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_gitignore = true
+known_first_party = ["miminet"]
+known_third_party = ["flask", "celery", "mininet"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["mininet.*", "ipmininet.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["front/tests", "back/tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "selenium: Browser automation tests",
+    "integration: Integration tests",
+    "slow: Slow-running tests",
+    "flaky: Tests that may fail intermittently",
+    "network: Network topology tests",
+    "dhcp: DHCP protocol tests",
+    "vlan: VLAN configuration tests",
+    "arp: ARP protocol tests",
+    "nat: NAT translation tests",
+    "routing: Routing tests",
+]
+timeout = 300
+log_cli = false
+log_cli_level = "INFO"
+
+[tool.coverage.run]
+source = ["front/src", "back/src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+precision = 2
+skip_covered = false
+
+[tool.pylint.messages_control]
+disable = [
+    "C0111",  # missing-docstring
+    "C0103",  # invalid-name
+    "R0913",  # too-many-arguments
+]
+
+[tool.pylint.format]
+max-line-length = 100

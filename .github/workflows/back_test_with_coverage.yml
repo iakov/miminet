@@ -65,21 +65,17 @@ jobs:
 
       - name: Set up Python environment
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          python -m pip install --upgrade pip wheel
-          pip install pytest pytest-cov pytest-timeout pytest-xdist
-          pip install -r back/requirements.txt
+          python -m pip install --upgrade pip poetry
+          poetry install --with dev --no-root
 
       - name: Run tests with coverage
         run: |
           sudo bash -c '
-            source venv/bin/activate
             cd back/tests
             export PYTHONPATH=$PYTHONPATH:../src
             
             # Run tests with coverage
-            pytest . \
+            poetry run pytest . \
               -v \
               --cov=../src \
               --cov-report=xml \

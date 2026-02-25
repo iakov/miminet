@@ -15,14 +15,13 @@ jobs:
 
     - name: Installing dependencies
       run: |
-        sudo apt-get update
-        pip install -r front/requirements.txt
+        python -m pip install --upgrade pip poetry
+        poetry install --with dev --no-root
 
     - name: Running tests
       run: |
         cd front/src
-        pip install pytest pytest_mock
-        python -m pytest -vv .
+        poetry run python -m pytest -vv .
       env:
           CLIENT_YANDEX: ${{ secrets.CLIENT_YANDEX }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

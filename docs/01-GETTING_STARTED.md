@@ -69,17 +69,71 @@ flask db downgrade base  # Откатить полностью
 
 ## Запуск тестов
 
+### Установить зависимости (локально)
+
+Если нужно запускать тесты локально (не в Docker):
+
+#### Frontend-only development (NO backend packages)
+```bash
+# Установить Poetry
+pip install poetry
+
+# Установить только frontend + фронтенд тесты (быстро!)
+make install-frontend-dev
+
+# Или вручную
+poetry install --with frontend --with dev-frontend
+```
+
+**Размер**: ~200MB (без Mininet)
+
+#### Backend development
+```bash
+# Установить backend + тесты
+make install-backend-dev
+
+# Или вручную
+poetry install --with backend --with dev-backend
+```
+
+**Размер**: ~500MB (с Mininet и ipmininet)
+
+#### Full stack (everything)
+```bash
+# Установить всё
+make install-dev
+
+# Или вручную
+poetry install --with frontend,backend,dev-frontend,dev-backend
+```
+
+**Размер**: ~700MB
+
 ### Запуск тестов
 
 Для подробных инструкций см. [03-TESTING.md](03-TESTING.md).
 
 ```bash
 # Frontend (Selenium)
-cd front/tests && pytest . -v
+poetry run pytest front/tests -v
 
-# Backend (pytest, требует sudo)
-cd back/tests && sudo pytest . -v
+# Backend (pytest, требует sudo и Linux kernel)
+cd back/tests && sudo poetry run pytest . -v
 ```
+
+### Быстрые команды
+
+```bash
+# Используйте Makefile для удобства
+make test                  # Все тесты
+make test-front            # Только фронтенд
+make test-back             # Только бэкенд
+make test-selenium         # Selenium с HTML репортом
+make install-frontend-dev  # Фронтенд для разработки
+make install-backend-dev   # Бэкенд для разработки
+```
+
+Для полного списка команд см. [DEPENDENCY_GROUPS_GUIDE.md](../DEPENDENCY_GROUPS_GUIDE.md).
 
 ---
 

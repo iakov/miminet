@@ -6,11 +6,64 @@
 CYAN := \033[0;36m
 RESET := \033[0m
 
-.PHONY: help start stop restart logs test clean db-migrate db-upgrade format lint
+.PHONY: help start stop restart logs test clean db-migrate db-upgrade format lint install install-dev install-frontend install-backend install-frontend-dev install-backend-dev shell add add-dev remove
 
 help: ## Показать эту справку
 	@echo "$(CYAN)Доступные команды:$(RESET)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
+
+# ============================================================================
+# Poetry / Управление зависимостями
+# ============================================================================
+
+install: ## Установить только core зависимости
+	@echo "$(CYAN)Installing core dependencies only...$(RESET)"
+	poetry install
+
+install-dev: ## Установить ВСЕ зависимости (фронт + бэк + девтулзы)
+	@echo "$(CYAN)Installing all dependencies (frontend + backend + dev)...$(RESET)"
+	poetry install --with frontend --with backend --with dev-frontend --with dev-backend
+
+install-frontend: ## Установить ТОЛЬКО frontend зависимости
+	@echo "$(CYAN)Installing frontend dependencies only...$(RESET)"
+	poetry install --with frontend
+
+install-backend: ## Установить ТОЛЬКО backend зависимости
+	@echo "$(CYAN)Installing backend dependencies only...$(RESET)"
+	poetry install --with backend
+
+install-frontend-dev: ## Установить frontend + фронтенд тесты/девтулзы
+	@echo "$(CYAN)Installing frontend + dev tools...$(RESET)"
+	poetry install --with frontend --with dev-frontend
+
+install-backend-dev: ## Установить backend + бэкенд тесты/девтулзы
+	@echo "$(CYAN)Installing backend + dev tools...$(RESET)"
+	poetry install --with backend --with dev-backend
+
+shell: ## Активировать Poetry shell
+	@echo "$(CYAN)Spawning Poetry shell...$(RESET)"
+	poetry shell
+
+add: ## Добавить новую зависимость (make add PKG=pytest-html)
+	@if [ -z "$(PKG)" ]; then \
+		echo "Usage: make add PKG=package-name"; \
+		exit 1; \
+	fi
+	poetry add $(PKG)
+
+add-dev: ## Добавить dev зависимость (make add-dev PKG=pytest)
+	@if [ -z "$(PKG)" ]; then \
+		echo "Usage: make add-dev PKG=package-name"; \
+		exit 1; \
+	fi
+	poetry add --group dev $(PKG)
+
+remove: ## Удалить зависимость (make remove PKG=pytest-html)
+	@if [ -z "$(PKG)" ]; then \
+		echo "Usage: make remove PKG=package-name"; \
+		exit 1; \
+	fi
+	poetry remove $(PKG)
 
 # ============================================================================
 # Управление контейнерами
@@ -55,21 +108,21 @@ logs-postgres: ## Логи PostgreSQL
 test: ## Запустить все тесты
 	@echo "$(CYAN)Running all tests...$(RESET)"
 	@echo "Frontend tests:"
-	pytest front/tests -v
+	poetry run pytest front/tests -v
 	@echo "\nBackend tests (requires sudo):"
-	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest -v"
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && poetry run pytest -v"
 
 test-front: ## Тесты frontend (Selenium)
 	@echo "$(CYAN)Running frontend tests...$(RESET)"
-	pytest front/tests -v
+	poetry run pytest front/tests -v
 
 test-back: ## Тесты backend (requires sudo)
 	@echo "$(CYAN)Running backend tests...$(RESET)"
-	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest -v"
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && poetry run pytest -v"
 
 test-back-cov: ## Тесты backend с coverage (requires sudo)
 	@echo "$(CYAN)Running backend tests with coverage...$(RESET)"
-	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest -v \
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && poetry run pytest -v \\
 		--cov=../src \
 		--cov-report=html \
 		--cov-report=term-missing \
@@ -78,7 +131,7 @@ test-back-cov: ## Тесты backend с coverage (requires sudo)
 
 test-front-cov: ## Тесты frontend с coverage
 	@echo "$(CYAN)Running frontend tests with coverage...$(RESET)"
-	pytest front/tests -v \
+	poetry run pytest front/tests -v \\
 		--cov=front/src \
 		--cov-report=html \
 		--cov-report=term-missing \
@@ -88,21 +141,21 @@ test-front-cov: ## Тесты frontend с coverage
 test-coverage: ## Тесты с coverage (all)
 	@echo "$(CYAN)Running all tests with coverage...$(RESET)"
 	@echo "Frontend:"
-	pytest front/tests --cov=front/src --cov-report=term
+	poetry run pytest front/tests --cov=front/src --cov-report=term
 	@echo "\nBackend (requires sudo):"
-	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest \
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && poetry run pytest \\
 		--cov=../src \
 		--cov-report=term-missing"
 
 test-back-quick: ## Быстрые тесты backend (без Mininet)
 	@echo "$(CYAN)Running quick backend unit tests...$(RESET)"
 	bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && \
-		pytest test_pkt_parser.py test_network_schema.py -v"
+		poetry run pytest test_pkt_parser.py test_network_schema.py -v"
 
 test-selenium: ## Запустить Selenium тесты с HTML отчетом
 	@echo "$(CYAN)Running Selenium tests with HTML report...$(RESET)"
 	mkdir -p front/tests/screenshots front/tests/videos
-	pytest front/tests \
+	poetry run pytest front/tests \\
 		--html=front/tests/report.html \
 		--self-contained-html \
 		--tb=short \
@@ -113,7 +166,7 @@ test-selenium: ## Запустить Selenium тесты с HTML отчетом
 test-selenium-debug: ## Selenium тесты с отладкой и выводом логов
 	@echo "$(CYAN)Running Selenium tests in debug mode...$(RESET)"
 	mkdir -p front/tests/screenshots
-	pytest front/tests \
+	poetry run pytest front/tests \\
 		--html=front/tests/report.html \
 		--self-contained-html \
 		-vv -s \
@@ -133,12 +186,12 @@ test-screenshots: ## Показать скриншоты ошибок
 
 test-fail: ## Повторить только упавшие тесты
 	@echo "$(CYAN)Running failed tests...$(RESET)"
-	pytest front/tests --lf -v
-	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest --lf -v"
+	poetry run pytest front/tests --lf -v
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && poetry run pytest --lf -v"
 
 test-debug: ## Тесты с выводом (show debug info)
 	@echo "$(CYAN)Running tests with debug output...$(RESET)"
-	pytest front/tests -v -s --tb=short
+	poetry run pytest front/tests -v -s --tb=short
 
 # ============================================================================
 # База данных

@@ -34,11 +34,20 @@ RUN apt-get update \
 RUN git clone https://github.com/mimi-net/mimidump.git \
     && cd mimidump && git checkout 32e6e5e && make prefix=/usr install && cd .. && rm -rf mimidump
 
+# Install Poetry
+RUN pip3 install poetry
+
 WORKDIR /app
-ADD ./requirements.txt /app/requirements.txt
-RUN pip3 install -r requirements.txt
-ADD ./ENTRYPOINT.sh /app/ENTRYPOINT.sh
-RUN chmod +x ENTRYPOINT.sh
-ADD ./src /app
+
+# Copy dependency files
+COPY pyproject.toml poetry.lock ./
+
+# Install dependencies
+RUN poetry install --no-dev --no-root --no-directory
+
+# Copy application code
+COPY ./src /app
+COPY ./ENTRYPOINT.sh /app/ENTRYPOINT.sh
+RUN chmod +x /app/ENTRYPOINT.sh
 
 ENTRYPOINT ["/app/ENTRYPOINT.sh"]

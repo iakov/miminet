@@ -1,5 +1,40 @@
 # 🛠️ Разработка
 
+## 📦 Управление зависимостями (Poetry)
+
+Проект использует **Poetry** для управления зависимостями. Это обеспечивает:
+- ✅ Единую конфигурацию для всех окружений (`pyproject.toml`)
+- ✅ Воспроизводимые сборки (`poetry.lock`)
+- ✅ Четкое разделение dev и production зависимостей
+
+### Частые команды
+
+```bash
+# Установить все зависимости (с dev)
+poetry install --with dev
+
+# Добавить новую зависимость
+poetry add requests
+
+# Добавить dev-only зависимость
+poetry add -G dev pytest
+
+# Удалить зависимость
+poetry remove requests
+
+# Обновить все
+poetry update
+
+# Показать дерево зависимостей
+poetry show --tree
+
+# Запустить команду в виртуальном окружении Poetry
+poetry run python script.py
+poetry run pytest front/tests -v
+```
+
+---
+
 ## 🎨 Паттерны кода
 
 ### 1. Flask Route Pattern
