@@ -67,10 +67,46 @@ test-back: ## Тесты backend (requires sudo)
 	@echo "$(CYAN)Running backend tests...$(RESET)"
 	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest -v"
 
-test-coverage: ## Тесты с coverage
-	@echo "$(CYAN)Running tests with coverage...$(RESET)"
-	pytest front/tests --cov=front/src --cov-report=html --cov-report=term
-	@echo "Coverage report: htmlcov/index.html"
+test-back-cov: ## Тесты backend с coverage (requires sudo)
+	@echo "$(CYAN)Running backend tests with coverage...$(RESET)"
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest -v \
+		--cov=../src \
+		--cov-report=html \
+		--cov-report=term-missing \
+		--cov-report=json"
+	@echo "$(CYAN)Coverage report: back/tests/htmlcov/index.html$(RESET)"
+
+test-front-cov: ## Тесты frontend с coverage
+	@echo "$(CYAN)Running frontend tests with coverage...$(RESET)"
+	pytest front/tests -v \
+		--cov=front/src \
+		--cov-report=html \
+		--cov-report=term-missing \
+		--cov-report=json
+	@echo "$(CYAN)Coverage report: htmlcov/index.html$(RESET)"
+
+test-coverage: ## Тесты с coverage (all)
+	@echo "$(CYAN)Running all tests with coverage...$(RESET)"
+	@echo "Frontend:"
+	pytest front/tests --cov=front/src --cov-report=term
+	@echo "\nBackend (requires sudo):"
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest \
+		--cov=../src \
+		--cov-report=term-missing"
+
+test-back-quick: ## Быстрые тесты backend (без Mininet)
+	@echo "$(CYAN)Running quick backend unit tests...$(RESET)"
+	bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && \
+		pytest test_pkt_parser.py test_network_schema.py -v"
+
+test-fail: ## Повторить только упавшие тесты
+	@echo "$(CYAN)Running failed tests...$(RESET)"
+	pytest front/tests --lf -v
+	sudo bash -c "cd back/tests && export PYTHONPATH=$$PYTHONPATH:../src && pytest --lf -v"
+
+test-debug: ## Тесты с выводом (show debug info)
+	@echo "$(CYAN)Running tests with debug output...$(RESET)"
+	pytest front/tests -v -s --tb=short
 
 # ============================================================================
 # База данных

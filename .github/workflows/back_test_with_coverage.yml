@@ -1,0 +1,121 @@
+name: Backend Tests with Coverage
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install apt packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+          ifupdown \
+          iproute2 \
+          iptables \
+          traceroute \
+          curl \
+          dnsutils \
+          netcat-openbsd \
+          openssh-client \
+          iputils-ping \
+          mininet \
+          net-tools \
+          bridge-utils \
+          tcpdump \
+          gcc \
+          make \
+          libpcap-dev \
+          libbsd-dev \
+          dnsmasq \
+          isc-dhcp-client \
+          openvswitch-switch \
+          git
+          sudo touch /etc/network/interfaces
+          sudo mkdir -p /opt/mininet_dependencies
+
+      - name: Build mimidump
+        run: |
+          git clone https://github.com/mimi-net/mimidump.git
+          cd mimidump && sudo make prefix=/usr install
+
+      - name: Disable packet transmission filters
+        run: |
+          sudo modprobe br_netfilter
+          sudo sysctl -w net.bridge.bridge-nf-call-iptables=0
+          sudo sysctl -w net.bridge.bridge-nf-call-arptables=0
+          sudo sysctl -w net.bridge.bridge-nf-call-ip6tables=0
+          sudo sysctl -p
+
+      - name: Start Open VSwitch
+        run: |
+          sudo /usr/share/openvswitch/scripts/ovs-ctl start
+          sudo ovs-vswitchd &
+
+      - name: Set up Python environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip wheel
+          pip install pytest pytest-cov pytest-timeout pytest-xdist
+          pip install -r back/requirements.txt
+
+      - name: Run tests with coverage
+        run: |
+          sudo bash -c '
+            source venv/bin/activate
+            cd back/tests
+            export PYTHONPATH=$PYTHONPATH:../src
+            
+            # Run tests with coverage
+            pytest . \
+              -v \
+              --cov=../src \
+              --cov-report=xml \
+              --cov-report=html \
+              --cov-report=term-missing \
+              --timeout=300 \
+              --junitxml=junit.xml \
+              -n auto
+          '
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./back/tests/coverage.xml
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
+
+      - name: Upload test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Backend Test Results
+          path: back/tests/junit.xml
+          reporter: java-junit
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const coverage = fs.readFileSync('back/tests/coverage.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Backend Test Coverage\n\`\`\`\n${coverage}\n\`\`\``
+            });
