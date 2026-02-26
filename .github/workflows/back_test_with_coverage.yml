@@ -7,20 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        python-version: ["3.11"]
+
 
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: Install apt packages
         run: |
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+          sudo apt-get install -y --no-install-recommends \
           ifupdown \
           iproute2 \
           iptables \
@@ -30,18 +24,16 @@ jobs:
           netcat-openbsd \
           openssh-client \
           iputils-ping \
-          mininet \
           net-tools \
           bridge-utils \
           tcpdump \
-          gcc \
-          make \
+          build-essential \
           libpcap-dev \
           libbsd-dev \
           dnsmasq \
           isc-dhcp-client \
           openvswitch-switch \
-          git
+          git-core
           sudo touch /etc/network/interfaces
           sudo mkdir -p /opt/mininet_dependencies
 
@@ -62,11 +54,11 @@ jobs:
         run: |
           sudo /usr/share/openvswitch/scripts/ovs-ctl start
           sudo ovs-vswitchd &
-
-      - name: Set up Python environment
+      - name: Prepare Python (via uv)
         run: |
-          python -m pip install --upgrade pip poetry
-          poetry install --with dev --no-root
+          python -V
+          python -m pip install -U pip uv wheel setuptools
+
 
       - name: Run tests with coverage
         run: |
@@ -75,7 +67,7 @@ jobs:
             export PYTHONPATH=$PYTHONPATH:../src
             
             # Run tests with coverage
-            poetry run pytest . \
+            uv run pytest . \
               -v \
               --cov=../src \
               --cov-report=xml \
