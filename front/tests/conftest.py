@@ -1,22 +1,22 @@
-import pytest
-import requests
+import logging
 import os
 import sys
-from typing import Optional, Generator
-from requests import Session
 from contextlib import contextmanager
-from unittest.mock import MagicMock
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Generator, Optional
+from unittest.mock import MagicMock
+
+import pytest
+import requests
+from requests import Session
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select, WebDriverWait
 
 
 class testing_setting:

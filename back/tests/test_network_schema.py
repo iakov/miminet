@@ -1,16 +1,9 @@
 """Unit tests for network_schema.py - network data structures."""
 
-import pytest
 from dataclasses import fields
 
-from network_schema import (
-    NodeData,
-    NodeConfig,
-    NodeInterface,
-    Node,
-    Link,
-    Network,
-)
+import pytest
+from network_schema import Link, Network, Node, NodeConfig, NodeData, NodeInterface
 
 
 class TestNodeData:

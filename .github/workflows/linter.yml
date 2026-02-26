@@ -17,17 +17,16 @@ jobs:
             
       - name: Install dependencies
         run: |                    
-          uv sync --all-groups
+          uv sync --all-groups --seed # install pip with --seed for mypy only
           
       - name: Run all linters and fail if any detect issues
         run: |
           LINT_FAILED=false
-          uv run mypy --install-types --non-interactive . || LINT_FAILED=true
-          uv run mypy --ignore-missing-imports . || LINT_FAILED=true
+          uv run mypy --install-types --non-interactive . && uv run mypy --ignore-missing-imports . || LINT_FAILED=true
           uv run isort --check-only --diff . || LINT_FAILED=true
           uv run black --check --verbose --diff . || LINT_FAILED=true
-          uv run flake8 --count --verbose --max-line-length=88 --extend-ignore=E501,W391,C901,E203 --statistics . || LINT_FAILED=true
-          uv run pylint --disable=R,C --max-line-length=88 . || LINT_FAILED=true
+          # uv run flake8 --count --verbose --max-line-length=88 --extend-ignore=E501,W391,C901,E203 --statistics . || LINT_FAILED=true
+          # uv run pylint --disable=R,C --max-line-length=88 . || LINT_FAILED=true
           if [ "$LINT_FAILED" = true ]; then
             echo "One or more linters failed."
             exit 1

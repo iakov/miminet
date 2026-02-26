@@ -1,15 +1,14 @@
 """Unit tests for pkt_parser.py - packet parsing utilities."""
 
-import pytest
 import dpkt
-
+import pytest
 from pkt_parser import (
-    packet_uuid,
-    is_ipv4_address,
     int_to_ip,
-    is_dhcp,
-    udp_packet_type,
     ip_packet_type,
+    is_dhcp,
+    is_ipv4_address,
+    packet_uuid,
+    udp_packet_type,
 )
 
 
