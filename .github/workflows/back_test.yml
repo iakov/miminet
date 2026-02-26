@@ -20,6 +20,8 @@ jobs:
  
       - name: Install apt package
         run: |
+          # update may fail because of external repos (yarn) – ignore errors
+          sudo apt-get update || true
           sudo apt-get install -y --no-install-recommends \
           ifupdown \
           iproute2 \
@@ -64,7 +66,12 @@ jobs:
       - name: Test with pytest
         run: |
           sudo bash -c '
-            python -m pip install --upgrade pip uv
+            python -m pip install --no-cache-dir --upgrade pip uv setuptools
+
+            # setuptools is sometimes missing inside the uv venv; pytest-html
+            # (installed by frontend group) requires pkg_resources.
+            uv env --seed
+            uv run pip install --upgrade setuptools
             uv sync --all-groups
             cd back/tests
             export PYTHONPATH=$PYTHONPATH:../src
