@@ -8,7 +8,7 @@ RUN uv sync --group frontend --group backend --group prod
 
 # Setup Python cache directory for PostgreSQL SSL
 RUN mkdir -p /app/.postgresql && \
-    wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" -O /app/.postgresql/root.crt && \
+    wget -q "https://storage.yandexcloud.net/cloud-certs/CA.pem" -O /app/.postgresql/root.crt && \
     chmod 0600 /app/.postgresql/root.crt
 
 

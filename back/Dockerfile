@@ -26,14 +26,14 @@ RUN apt-get update \
     libpcap-dev \
     libbsd-dev \
     openvswitch-switch \
- && pip3 install --upgrade pip \
+ && pip3 install --no-cache-dir --upgrade pip uv \
  && rm -rf /var/lib/apt/lists/* \
  && touch /etc/network/interfaces \
  && mkdir /opt/mininet_dependencies
 
 RUN git clone https://github.com/mimi-net/mimidump.git \
     && cd mimidump && git checkout 32e6e5e && make prefix=/usr install && cd .. && rm -rf mimidump
-RUN pip3 install uv
+
 
 WORKDIR /app
 

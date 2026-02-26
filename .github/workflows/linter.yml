@@ -17,7 +17,8 @@ jobs:
             
       - name: Install dependencies
         run: |                    
-          uv sync --all-groups --seed # install pip with --seed for mypy only
+          uv venv --seed # install pip with `--seed` for mypy only
+          uv sync --all-groups
           
       - name: Run all linters and fail if any detect issues
         run: |
