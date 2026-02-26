@@ -74,26 +74,28 @@ flask db downgrade base  # Откатить полностью
 Если нужно запускать тесты локально (не в Docker):
 
 #### Frontend-only development (NO backend packages)
+
 ```bash
-# Установить Poetry
-pip install poetry
+# Установить uv
+pip install uv
 
 # Установить только frontend + фронтенд тесты (быстро!)
 make install-frontend-dev
 
 # Или вручную
-poetry install --with frontend --with dev-frontend
+uv sync --group frontend --group dev-frontend
 ```
 
 **Размер**: ~200MB (без Mininet)
 
 #### Backend development
+
 ```bash
 # Установить backend + тесты
 make install-backend-dev
 
 # Или вручную
-poetry install --with backend --with dev-backend
+uv sync --group backend --group dev-backend
 ```
 
 **Размер**: ~500MB (с Mininet и ipmininet)
@@ -104,7 +106,7 @@ poetry install --with backend --with dev-backend
 make install-dev
 
 # Или вручную
-poetry install --with frontend,backend,dev-frontend,dev-backend
+uv sync --group frontend --group backend --group dev-frontend --group dev-backend --group dev --group prod
 ```
 
 **Размер**: ~700MB
@@ -115,10 +117,10 @@ poetry install --with frontend,backend,dev-frontend,dev-backend
 
 ```bash
 # Frontend (Selenium)
-poetry run pytest front/tests -v
+uv run pytest front/tests -v
 
 # Backend (pytest, требует sudo и Linux kernel)
-cd back/tests && sudo poetry run pytest . -v
+cd back/tests && sudo uv run pytest . -v
 ```
 
 ### Быстрые команды

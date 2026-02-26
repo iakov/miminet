@@ -66,9 +66,9 @@ jobs:
       - name: Test with pytest
         run: |
           sudo bash -c '
-            python -m pip install --upgrade pip poetry
-            poetry install --with dev --no-root
+            python -m pip install --upgrade pip uv
+            uv sync --all-groups
             cd back/tests
             export PYTHONPATH=$PYTHONPATH:../src
-            poetry run pytest .
+            uv run pytest .
           '

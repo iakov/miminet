@@ -1,14 +1,10 @@
 FROM python:3.11
-#RUN echo ${PWD} && ls -lR
+
 COPY ./src /app/src
-#RUN echo ${PWD} && ls -lR
-#COPY ../pyproject.toml ../poetry.lock /app/
-
 WORKDIR /app
-
-RUN pip install --upgrade --no-cache-dir pip poetry
-COPY --from=project_root pyproject.toml poetry.lock /app/
-RUN poetry install --no-root --no-directory --without dev
+RUN pip install --upgrade --no-cache-dir pip uv
+COPY --from=project_root pyproject.toml uv.lock /app/
+RUN uv sync --group frontend --group backend --group prod
 
 # Setup Python cache directory for PostgreSQL SSL
 RUN mkdir -p /app/.postgresql && \

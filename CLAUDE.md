@@ -27,10 +27,11 @@
 
 **Стек технологий:**
 
-- Frontend: Flask 3.1.2, SQLAlchemy 2.0, Celery 5.5
-- Backend: Mininet 2.3+, ipmininet, dpkt
+- Frontend: Flask, SQLAlchemy, Celery
+- Backend: Mininet, ipmininet, dpkt
 - Infrastructure: PostgreSQL 15, Redis 7, RabbitMQ 3, Docker, Nginx
-- **Package Management: Poetry** (dependency management & lock files)
+- Package Management: uv (dependency management & lock files)
+- Code Style: pre-commit hooks and CI lint with: black and mypy for Python code, and hadolint for Dockerfile(s)
 
 **Где начать:**
 
@@ -113,13 +114,7 @@ miminet/
 - **Frontend тесты**: [front/tests/](front/tests/)
 - **Backend тесты**: [back/tests/](back/tests/)
 - **Selenium тесты**: [front/tests/utils/](front/tests/utils/)
-
-### Для установки зависимостей (Poetry)
-
-- **⚡ Быстрая справка**: [DEPENDENCY_GROUPS_QUICK_REFERENCE.md](DEPENDENCY_GROUPS_QUICK_REFERENCE.md) (одна страница)
-- **📖 Полное руководство**: [DEPENDENCY_GROUPS_GUIDE.md](DEPENDENCY_GROUPS_GUIDE.md) (подробное объяснение)
-- **✅ Итоги**: [DEPENDENCY_GROUPS_RESTRUCTURE_COMPLETE.md](DEPENDENCY_GROUPS_RESTRUCTURE_COMPLETE.md) (что было сделано)
-- **⚙️ Конфиг**: [pyproject.toml](pyproject.toml) (конфигурация Poetry)
+- **⚙️ Конфиг**: [pyproject.toml](pyproject.toml)
 
 ---
 
@@ -134,15 +129,7 @@ miminet/
 | Как работает БД? | [04-DATABASE_AND_API.md](docs/04-DATABASE_AND_API.md) |
 | Как отладить? | [05-OPERATIONS.md](docs/05-OPERATIONS.md) |
 | Какие зависимости установить? | [DEPENDENCY_GROUPS_QUICK_REFERENCE.md](DEPENDENCY_GROUPS_QUICK_REFERENCE.md) |
-| GitHub Issues | [На GitHub](https://github.com/mimi-net/miminet/issues) |
-
----
-
-## 💡 Ключевые команды
-
-```bash
-# Запуск
-./start_all_containers.sh
+art_all_containers.sh
 docker exec -it miminet bash
 
 # Миграции БД

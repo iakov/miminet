@@ -33,17 +33,15 @@ RUN apt-get update \
 
 RUN git clone https://github.com/mimi-net/mimidump.git \
     && cd mimidump && git checkout 32e6e5e && make prefix=/usr install && cd .. && rm -rf mimidump
-
-# Install Poetry
-RUN pip3 install poetry
+RUN pip3 install uv
 
 WORKDIR /app
 
 # Copy dependency files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml uv.lock ./
 
 # Install dependencies
-RUN poetry install --no-dev --no-root --no-directory
+RUN uv sync --all-groups
 
 # Copy application code
 COPY ./src /app

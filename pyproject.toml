@@ -1,12 +1,13 @@
-[tool.poetry]
+[project]
 name = "miminet"
 version = "1.0.0"
 description = "Web emulator for computer networks based on Mininet"
-authors = ["Miminet Team <team@miminet.dev>"]
+authors = [
+    {name = "Miminet Team", email = "no-reply@example.com"},
+]
 readme = "README.md"
-license = "MIT"
-repository = "https://github.com/mimi-net/miminet"
-homepage = "https://miminet.ru"
+license = {text = "MIT"}
+requires-python = ">=3.11"
 keywords = ["network", "emulation", "mininet", "education", "simulation"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -21,98 +22,100 @@ classifiers = [
     "Topic :: Education",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-
 # Core dependencies (minimal, used by both frontend and backend)
-sqlalchemy = "2.0.43"
-celery = "5.5.3"
-kombu = "5.5.4"      # Celery dependency
-requests = "2.32.5"
-jsonschema = "4.25.1"
+dependencies = [
+    "sqlalchemy==2.0.43",
+    "celery==5.5.3",
+    "kombu==5.5.4",
+    "requests==2.32.5",
+    "jsonschema==4.25.1",
+]
 
-# --- Frontend Dependencies Group ---
-[tool.poetry.group.frontend.dependencies]
-# Web framework
-flask = "3.1.2"
-flask-login = "0.6.3"
-flask-migrate = "4.1.0"
-flask-sqlalchemy = "3.1.1"
-flask-admin = "2.0.1"
+[project.urls]
+Repository = "https://github.com/mimi-net/miminet"
+Homepage = "https://miminet.ru"
 
-# Templating and validation
-jinja2 = "3.1.6"
-werkzeug = "3.1.3"
-wtforms = "3.2.1"
+[dependency-groups]
+# Frontend dependencies
+frontend = [
+    # Web framework
+    "flask==3.1.2",
+    "flask-login==0.6.3",
+    "flask-migrate==4.1.0",
+    "flask-sqlalchemy==3.1.1",
+    "flask-admin==2.0.1",
+    # Templating and validation
+    "jinja2==3.1.6",
+    "werkzeug==3.1.3",
+    "wtforms==3.2.1",
+    # Database
+    "psycopg2-binary==2.9.10",
+    # Data processing
+    "pillow==11.3.0",
+    "beautifulsoup4==4.13.5",
+    # Authentication
+    "google-auth==2.40.3",
+]
 
-# Database
-psycopg2-binary = "2.9.10"
+# Backend dependencies
+backend = [
+    # Network emulation (Git dependencies - Linux only)
+    "ipmininet @ git+https://github.com/mimi-net/ipmininet.git@1.2.4; sys_platform=='linux'",
+    # Packet parsing and serialization
+    "dpkt==1.9.8",
+    "marshmallow==3.20.1",
+    "marshmallow-dataclass==8.6.1",
+]
 
-# Data processing
-pillow = "11.3.0"
-beautifulsoup4 = "4.13.5"
+# Frontend Testing & Development
+dev-frontend = [
+    # Testing framework
+    "pytest==8.4.2",
+    "pytest-html==3.1.0",
+    "pytest-timeout==2.1.0",
+    "pytest-mock==3.15.1",
+    # Browser automation
+    "selenium==4.25.0",
+    "webdriver-manager==4.0.2",
+    # Code quality (frontend-focused)
+    "black==24.1.1",
+    "flake8==7.0.0",
+    "isort==5.13.2",
+    "mypy==1.7.0",
+]
 
-# Authentication
-google-auth = "2.40.3"
+# Backend Testing & Development
+dev-backend = [
+    # Testing with coverage
+    "pytest==8.4.2",
+    "pytest-cov==4.0.0",
+    "pytest-timeout==2.1.0",
+    "pytest-mock==3.15.1",
+    "pytest-xdist==3.8.0",
+    # Code quality
+    "black==24.1.1",
+    "flake8==7.0.0",
+    "isort==5.13.2",
+    "pylint==3.0.0",
+    "mypy==1.7.0",
+]
 
-# --- Backend Dependencies Group ---
-[tool.poetry.group.backend.dependencies]
-# Network emulation (Git dependencies - Linux only)
-ipmininet = { git = "https://github.com/mimi-net/ipmininet.git", tag = "1.2.4", markers = "sys_platform == 'linux'" }
+# Common Development Tools
+dev = [
+    # Documentation (optional, used occasionally)
+    "sphinx==7.2.6",
+    "sphinx-rtd-theme==2.0.0",
+]
 
-# Packet parsing and serialization
-dpkt = "1.9.8"
-marshmallow = "3.20.1"
-marshmallow-dataclass = "8.6.1"
-
-# --- Frontend Testing & Development ---
-[tool.poetry.group.dev-frontend.dependencies]
-# Testing framework
-pytest = "8.4.2"
-pytest-html = "3.1.0"
-pytest-timeout = "2.1.0"
-pytest-mock = "3.15.1"
-
-# Browser automation
-selenium = "4.25.0"
-webdriver-manager = "4.0.2"
-
-# Code quality (frontend-focused)
-black = "24.1.1"
-flake8 = "7.0.0"
-isort = "5.13.2"
-mypy = "1.7.0"
-
-# --- Backend Testing & Development ---
-[tool.poetry.group.dev-backend.dependencies]
-# Testing with coverage
-pytest = "8.4.2"
-pytest-cov = "4.0.0"
-pytest-timeout = "2.1.0"
-pytest-mock = "3.15.1"
-pytest-xdist = "3.8.0"
-
-# Code quality
-black = "24.1.1"
-flake8 = "7.0.0"
-isort = "5.13.2"
-pylint = "3.0.0"
-mypy = "1.7.0"
-
-# --- Common Development Tools ---
-[tool.poetry.group.dev.dependencies]
-# Documentation (optional, used occasionally)
-sphinx = "7.2.6"
-sphinx-rtd-theme = "2.0.0"
-
-# --- Production Dependencies ---
-[tool.poetry.group.prod.dependencies]
-# WSGI server (alternative to uwsgi)
-gunicorn = "22.0.0"
+# Production dependencies
+prod = [
+    # WSGI server (alternative to uwsgi)
+    "gunicorn==22.0.0",
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 # --- Tool Configurations ---
 
