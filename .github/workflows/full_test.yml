@@ -4,10 +4,11 @@ on:
   workflow_run:
     workflows: [Linter]
     types: [completed]
+  workflow_dispatch:
 
 jobs:
   build:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -39,7 +40,7 @@ jobs:
         run: |
           docker ps
           curl -f localhost
-          
+
           # Wait for frontend to be ready
           sleep 10
           curl -f http://localhost || true
