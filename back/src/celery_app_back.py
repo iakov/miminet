@@ -13,20 +13,20 @@ from kombu import Exchange, Queue
 
 load_dotenv()
 
-app = Celery(__name__)
+app = Celery("miminet_tasks")
 
 ROUTING_KEY = "1"
 
-QUEUES_NAMES = [""]
+QUEUES_NAMES = ["default-worker-queue"]
 
-if (QUESES_NAMES_ENV := os.getenv("queue_names")) is not None:
-    QUEUES_NAMES = QUESES_NAMES_ENV.split(",")
+if (QUEUES_NAMES_ENV := os.getenv("queue_names")) is not None:
+    QUEUES_NAMES = QUEUES_NAMES_ENV.split(",")
 
 NUMBER_OF_QUEUES_FOR_NODE = len(QUEUES_NAMES)
 
 EXCHANGE_TYPE = "x-consistent-hash"
 
-EXCHANGE_NAME = os.getenv("exchange_name")
+EXCHANGE_NAME = os.getenv("exchange_name") or "miminet-default-exchange"
 
 DEFAULT_APP_EXCHANGE = Exchange(EXCHANGE_NAME, type=EXCHANGE_TYPE)
 

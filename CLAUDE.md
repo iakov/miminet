@@ -31,7 +31,8 @@
 - Backend: Mininet, ipmininet, dpkt
 - Infrastructure: PostgreSQL 15, Redis 7, RabbitMQ 3, Docker, Nginx
 - Package Management: uv (dependency management & lock files)
-- Code Style: pre-commit hooks and CI lint with: black and mypy for Python code, and hadolint for Dockerfile(s)
+- Code Style: autoformat Python code before commit. 1) `isort`, 2) reformat for length=88 (`black -l 88`)
+- Code Linters: pre-commit hooks and CI lint with: black, isort, flake8 and mypy for Python code, and hadolint for Dockerfile(s)
 
 **Где начать:**
 

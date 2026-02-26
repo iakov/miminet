@@ -1,22 +1,21 @@
-import sys
 import os
+import sys
 from datetime import datetime
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from flask import Flask, make_response, render_template
 from flask_admin import Admin
 from flask_login import current_user, login_required
 from flask_migrate import Migrate
-
 from miminet_admin import (
-    MiminetAdminIndexView,
-    TestView,
-    SectionView,
-    QuestionView,
     AnswerView,
-    QuestionCategoryView,
-    SessionQuestionView,
     CreateCheckTaskView,
+    MiminetAdminIndexView,
+    QuestionCategoryView,
+    QuestionView,
+    SectionView,
+    SessionQuestionView,
+    TestView,
 )
 from miminet_auth import (
     animation_filters,
@@ -27,28 +26,30 @@ from miminet_auth import (
     login_manager,
     logout,
     remove_test_user,
+    tg_callback,
     user_profile,
     vk_callback,
     vk_login,
-    yandex_login,
     yandex_callback,
-    tg_callback,
+    yandex_login,
 )
 from miminet_config import SECRET_KEY
 from miminet_host import (
     delete_job,
+    save_edge_config,
     save_host_config,
     save_hub_config,
     save_router_config,
     save_server_config,
     save_switch_config,
-    save_edge_config,
 )
 from miminet_model import Network, db, init_db
 from miminet_network import (
     copy_network,
     create_network,
     delete_network,
+    get_emulation_queue_size,
+    get_last_emulation_time,
     move_nodes,
     post_nodes,
     post_nodes_edges,
@@ -56,46 +57,33 @@ from miminet_network import (
     upload_network_picture,
     web_network,
     web_network_shared,
-    get_emulation_queue_size,
-    get_last_emulation_time,
 )
 from miminet_shark import mimishark_page
 from miminet_simulation import check_simulation, run_simulation
+from quiz.controller.image_controller import image_routes, upload_image_endpoint
 from quiz.controller.question_controller import (
-    get_questions_by_section_endpoint,
     create_question_endpoint,
     delete_question_endpoint,
+    get_questions_by_section_endpoint,
 )
-from quiz.controller.image_controller import upload_image_endpoint
 from quiz.controller.quiz_session_controller import (
-    start_session_endpoint,
-    get_question_by_session_question_id_endpoint,
-    finish_session_endpoint,
     answer_on_session_question_endpoint,
-    session_result_endpoint,
-    get_result_by_session_guid_endpoint,
     check_network_task_endpoint,
     finish_old_session_endpoint,
+    finish_session_endpoint,
+    get_question_by_session_question_id_endpoint,
+    get_result_by_session_guid_endpoint,
     get_session_question_json,
+    session_result_endpoint,
+    start_session_endpoint,
 )
-from quiz.controller.section_controller import (
-    get_sections_by_test_endpoint,
-)
+from quiz.controller.section_controller import get_sections_by_test_endpoint
 from quiz.controller.test_controller import (
     get_all_tests_endpoint,
-    get_tests_by_owner_endpoint,
     get_test_endpoint,
+    get_tests_by_owner_endpoint,
 )
-from quiz.entity.entity import (
-    Section,
-    Test,
-    Question,
-    Answer,
-    QuestionCategory,
-    SessionQuestion,
-)
-
-from quiz.controller.image_controller import image_routes
+from quiz.entity.entity import Answer, Question, QuestionCategory, Section, SessionQuestion, Test
 
 app = Flask(__name__, static_url_path="", static_folder="static", template_folder="templates")
 

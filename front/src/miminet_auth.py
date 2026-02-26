@@ -1,29 +1,23 @@
+import hashlib
+import hmac
 import json
 import logging
 import os
 import pathlib
-import uuid
 import time
-import hmac
-import hashlib
+import uuid
 
 import google.auth.transport.requests
 import requests
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
-from flask_login import (
-    LoginManager,
-    current_user,
-    login_required,
-    login_user,
-    logout_user,
-)
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
-from requests_oauthlib import OAuth2Session
-from oauthlib.oauth2 import TokenExpiredError
-from miminet_model import Network, User, db
 from miminet_config import make_example_net_switch_and_hub
+from miminet_model import Network, User, db
+from oauthlib.oauth2 import TokenExpiredError
 from pip._vendor import cachecontrol
+from requests_oauthlib import OAuth2Session
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 

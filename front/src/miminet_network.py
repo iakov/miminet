@@ -1,21 +1,13 @@
+import datetime
 import json
 import os
-import uuid
 import shutil
+import uuid
 
-from flask import (
-    flash,
-    jsonify,
-    make_response,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import flash, jsonify, make_response, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from miminet_config import check_image_with_pil
-from miminet_model import Network, Simulate, db, SimulateLog
-import datetime
+from miminet_model import Network, Simulate, SimulateLog, db
 from sqlalchemy import not_
 
 

@@ -1,22 +1,21 @@
+import ipaddress
 import json
 import re
-import ipaddress
 import shlex
-from typing import List, Dict
+from typing import Dict, List
 
-from flask import jsonify, make_response, request, Response
-from flask_login import current_user, login_required
-from miminet_model import Network, Simulate, db
 from configurators import (
-    HostConfigurator,
-    SwitchConfigurator,
-    HubConfigurator,
-    ServerConfigurator,
-    RouterConfigurator,
     EdgeConfigurator,
+    HostConfigurator,
+    HubConfigurator,
+    RouterConfigurator,
+    ServerConfigurator,
+    SwitchConfigurator,
     get_data,
 )
-
+from flask import Response, jsonify, make_response, request
+from flask_login import current_user, login_required
+from miminet_model import Network, Simulate, db
 
 # ------ Argument Validators ------
 # (you can add your checks here)

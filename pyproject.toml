@@ -102,6 +102,7 @@ dev-backend = [
 
 # Common Development Tools
 dev = [
+    "requests>=2.32.5",
     # Documentation (optional, used occasionally)
     "sphinx==7.2.6",
     "sphinx-rtd-theme==2.0.0",

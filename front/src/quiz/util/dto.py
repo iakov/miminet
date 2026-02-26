@@ -1,23 +1,14 @@
+import json
 import random
 import uuid
-from typing import List
-import json
-
 from datetime import datetime
+from typing import List
 from zoneinfo import ZoneInfo
 
 from flask_login import current_user
 from markupsafe import Markup
-
 from miminet_model import Network, db
-from quiz.entity.entity import (
-    Section,
-    Test,
-    Question,
-    Answer,
-    QuizSession,
-    SessionQuestion,
-)
+from quiz.entity.entity import Answer, Question, QuizSession, Section, SessionQuestion, Test
 
 
 def calculate_question_count(section: Section) -> int:

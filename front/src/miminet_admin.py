@@ -1,37 +1,19 @@
 import json
-
 from datetime import date
 
-from flask import request, flash, redirect, url_for
+from flask import flash, redirect, request, url_for
 from flask_admin import AdminIndexView, expose
+from flask_admin.actions import action
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla.fields import QuerySelectField
 from flask_admin.form import Select2Widget
 from flask_admin.model import typefmt
-from flask_admin.actions import action
 from flask_login import current_user
 from markupsafe import Markup
-from wtforms import (
-    SelectField,
-    TextAreaField,
-    BooleanField,
-    DateTimeField,
-    Form,
-    SubmitField,
-)
-
-from quiz.service.network_upload_service import (
-    create_check_task,
-    create_check_task_json,
-)
-from miminet_model import db, User, Network
-from quiz.entity.entity import (
-    Test,
-    Section,
-    Question,
-    QuestionCategory,
-    SessionQuestion,
-)
+from miminet_model import Network, User, db
+from quiz.entity.entity import Question, QuestionCategory, Section, SessionQuestion, Test
+from quiz.service.network_upload_service import create_check_task, create_check_task_json
+from wtforms import BooleanField, DateTimeField, Form, SelectField, SubmitField, TextAreaField
 
 ADMIN_ROLE_LEVEL = 1
 

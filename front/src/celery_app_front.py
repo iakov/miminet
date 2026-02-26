@@ -14,11 +14,11 @@ from kombu import Exchange, Queue
 
 load_dotenv()
 
-app = Celery(__name__)
+app = Celery("miminet_tasks")
 
 EXCHANGE_TYPE = "x-consistent-hash"
 
-SEND_NETWORK_EXCHANGE_NAME = os.getenv("exchange_name")
+SEND_NETWORK_EXCHANGE_NAME = os.getenv("exchange_name") or "miminet-default-exchange"
 
 SEND_NETWORK_EXCHANGE = Exchange(SEND_NETWORK_EXCHANGE_NAME, type=EXCHANGE_TYPE)
 

@@ -1,17 +1,11 @@
-from sqlalchemy import func
-
-from miminet_model import User, db
-from quiz.service.session_question_service import is_answer_available
-from quiz.entity.entity import (
-    Question,
-    QuizSession,
-    SessionQuestion,
-    Section,
-    QuestionCategory,
-)
-from quiz.util.dto import SessionResultDto
 import json
 import random
+
+from miminet_model import User, db
+from quiz.entity.entity import Question, QuestionCategory, QuizSession, Section, SessionQuestion
+from quiz.service.session_question_service import is_answer_available
+from quiz.util.dto import SessionResultDto
+from sqlalchemy import func
 
 
 def start_session(section_id: str, user: User):

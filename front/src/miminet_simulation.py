@@ -1,11 +1,7 @@
 import os
 import uuid
 
-from celery_app import (
-    SEND_NETWORK_EXCHANGE,
-    EXCHANGE_TYPE,
-    app,
-)
+from celery_app_front import EXCHANGE_TYPE, SEND_NETWORK_EXCHANGE, app
 from flask import jsonify, make_response, redirect, request, url_for
 from flask_login import current_user, login_required
 from miminet_model import Network, Simulate, SimulateLog, db
