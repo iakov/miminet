@@ -3,6 +3,7 @@ name: Yandex and Telegram authentication and Miminet authorization tests
 on:
   push:
   pull_request_target:
+  workflow_dispatch:
 
 jobs:
   test:
