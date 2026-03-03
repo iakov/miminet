@@ -39,11 +39,12 @@ jobs:
       - name: Check availability
         run: |
           docker ps
-          curl -f localhost
+          # report current status, but try later
+          curl -f nginx || true
 
           # Wait for frontend to be ready
           sleep 10
-          curl -f http://localhost || true
+          curl -f http://nginx
 
 
       - name: Run Selenium tests with video recording
