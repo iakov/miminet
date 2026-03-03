@@ -71,7 +71,7 @@ jobs:
 
             # setuptools is sometimes missing inside the uv venv; pytest-html
             # (installed by frontend group) requires pkg_resources.
-            uv env --seed
+            uv venv --seed
             uv run pip install --upgrade setuptools
             uv sync --all-groups
             cd back/tests
