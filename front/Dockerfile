@@ -4,7 +4,7 @@ COPY ./src /app/src
 WORKDIR /app
 RUN pip install --upgrade --no-cache-dir pip uv
 COPY --from=project_root pyproject.toml uv.lock /app/
-RUN uv sync --group frontend --group backend --group prod
+RUN uv sync --group frontend --group prod --no-install-project
 
 # Setup Python cache directory for PostgreSQL SSL
 RUN mkdir -p /app/.postgresql && \
