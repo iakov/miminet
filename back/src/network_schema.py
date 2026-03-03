@@ -130,6 +130,10 @@ class Edge:
     data: EdgeData
 
 
+# historically tests expected a class named `Link` - alias for Edge
+Link = Edge
+
+
 @dataclass
 class Job:
     """

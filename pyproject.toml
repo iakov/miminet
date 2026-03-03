@@ -65,6 +65,10 @@ backend = [
     "dpkt==1.9.8",
     "marshmallow==3.20.1",
     "marshmallow-dataclass==8.6.1",
+    # support backend tests and code using netaddr
+    "netaddr==0.8.0",
+    "psutil>=5.9.5",
+    "typeguard",
 ]
 
 # Frontend Testing & Development

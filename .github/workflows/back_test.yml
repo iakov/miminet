@@ -41,7 +41,8 @@ jobs:
           dnsmasq \
           isc-dhcp-client \
           openvswitch-switch \
-          git-core
+          git-core \
+          mininet
           sudo touch /etc/network/interfaces
           sudo mkdir -p /opt/mininet_dependencies
 
