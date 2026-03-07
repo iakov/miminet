@@ -51,6 +51,7 @@ frontend = [
     # Database
     "psycopg2-binary",
     # Data processing
+    "dotenv",
     "pillow",
     "beautifulsoup4",
     # Authentication
@@ -116,8 +117,7 @@ dev = [
 
 # Production dependencies
 prod = [
-    # WSGI server (alternative to uwsgi)
-    "gunicorn",
+    "uwsgi",
 ]
 
 [build-system]

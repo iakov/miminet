@@ -4,7 +4,7 @@
 MODE="${MODE:-prod}"
 
 echo "[!] Running in $MODE mode"
-python3 app.py "$MODE"
+python3 /app/src/app.py "$MODE"
 
 # Start the application
 nohup uwsgi --ini /app/uwsgi.ini &
