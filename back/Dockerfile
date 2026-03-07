@@ -1,8 +1,9 @@
-FROM ubuntu:22.04
+FROM debian:stable-slim
 
 RUN apt-get update \
 && apt-get install -y --no-install-recommends \
     curl \
+    ca-certificates \
     dnsutils \
     netcat-openbsd \
     openssh-client \
@@ -17,16 +18,13 @@ RUN apt-get update \
     bridge-utils \
     tcpdump \
     git\
-    python3-pip \
     dnsmasq \
     isc-dhcp-client \
-    python3-setuptools \
     gcc \
     make \
     libpcap-dev \
     libbsd-dev \
     openvswitch-switch \
- && pip3 install --no-cache-dir --upgrade pip uv \
  && rm -rf /var/lib/apt/lists/* \
  && touch /etc/network/interfaces \
  && mkdir /opt/mininet_dependencies
@@ -38,10 +36,10 @@ RUN git clone https://github.com/mimi-net/mimidump.git \
 WORKDIR /app
 
 # Copy dependency files
-COPY pyproject.toml uv.lock ./
-
+COPY --from=project_root pyproject.toml uv.lock /app/
+RUN bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
 # Install dependencies
-RUN uv sync --all-groups
+RUN $HOME/.local/bin/uv venv --seed && $HOME/.local/bin/uv sync --group backend --group prod --no-install-project
 
 # Copy application code
 COPY ./src /app

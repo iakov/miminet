@@ -21,7 +21,7 @@ metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 
 
-class User(db.Model, UserMixin):  # type:ignore[name-defined]
+class User(db.Model, UserMixin):  # type: ignore[name-defined]
     id = db.Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
 
     role = db.Column(BigInteger, default=0, nullable=True)
@@ -40,7 +40,7 @@ class User(db.Model, UserMixin):  # type:ignore[name-defined]
     config = db.Column(Text, nullable=True)
 
 
-class Network(db.Model):  # type:ignore[name-defined]
+class Network(db.Model):  # type: ignore[name-defined]
     id = db.Column(BigInteger, primary_key=True, autoincrement=True)
     author_id = db.Column(BigInteger, ForeignKey("user.id"), nullable=False)
 
@@ -59,7 +59,7 @@ class Network(db.Model):  # type:ignore[name-defined]
     is_task = db.Column(Boolean, default=False, nullable=False)
 
 
-class Simulate(db.Model):  # type:ignore[name-defined]
+class Simulate(db.Model):  # type: ignore[name-defined]
     id = db.Column(BigInteger, primary_key=True, autoincrement=True)
     network_id = db.Column(BigInteger, ForeignKey("network.id"), nullable=False)
     task_guid = db.Column(Text, nullable=True, default="")
@@ -71,7 +71,7 @@ class Simulate(db.Model):  # type:ignore[name-defined]
 # Add new record to this table when you put a new simulation
 # Set ready flag to True when simulation is over
 # simulate_end will autp-update
-class SimulateLog(db.Model):  # type:ignore[name-defined]
+class SimulateLog(db.Model):  # type: ignore[name-defined]
     id = db.Column(BigInteger, primary_key=True)
     author_id = db.Column(BigInteger, nullable=False)
     network_guid = db.Column(Text, nullable=False)

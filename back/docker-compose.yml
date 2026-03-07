@@ -4,6 +4,8 @@ services:
   miminet:
     build:
       context: .
+      additional_contexts:
+        project_root: ..
       dockerfile: ./Dockerfile
     container_name: celery
     network_mode: "host"

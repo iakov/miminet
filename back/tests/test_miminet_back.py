@@ -10,7 +10,7 @@ from src.tasks import run_miminet
 setLogLevel("info")
 
 # Directory with test files
-TEST_JSON_DIR = Path("test_json/")
+TEST_JSON_DIR = Path(__file__).resolve().parent / "test_json"
 
 # Suffixes of test files
 NETWORK_FILE_SUFFIX = "_network.json"

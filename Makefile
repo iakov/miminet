@@ -105,7 +105,7 @@ logs-postgres: ## Логи PostgreSQL
 # Тестирование
 # ============================================================================
 
-test: ## Запустить все тесты
+test: install-dev ## Запустить все тесты
 	@echo "$(CYAN)Running all tests...$(RESET)"
 	@echo "Frontend tests:"
 	uv run pytest front/tests -v

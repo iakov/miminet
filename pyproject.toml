@@ -39,22 +39,24 @@ Homepage = "https://miminet.ru"
 # Frontend dependencies
 frontend = [
     # Web framework
-    "flask==3.1.2",
-    "flask-login==0.6.3",
-    "flask-migrate==4.1.0",
-    "flask-sqlalchemy==3.1.1",
-    "flask-admin==2.0.1",
+    "flask",
+    "flask-login",
+    "flask-migrate",
+    "flask-sqlalchemy",
+    "flask-admin",
     # Templating and validation
-    "jinja2==3.1.6",
-    "werkzeug==3.1.3",
-    "wtforms==3.2.1",
+    "jinja2",
+    "werkzeug",
+    "wtforms",
     # Database
-    "psycopg2-binary==2.9.10",
+    "psycopg2-binary",
     # Data processing
-    "pillow==11.3.0",
-    "beautifulsoup4==4.13.5",
+    "pillow",
+    "beautifulsoup4",
     # Authentication
-    "google-auth==2.40.3",
+    "google-auth",
+    "google-auth-oauthlib",
+
 ]
 
 # Backend dependencies
@@ -62,11 +64,11 @@ backend = [
     # Network emulation (Git dependencies - Linux only)
     "ipmininet @ git+https://github.com/mimi-net/ipmininet.git@1.2.4; sys_platform=='linux'",
     # Packet parsing and serialization
-    "dpkt==1.9.8",
-    "marshmallow==3.20.1",
-    "marshmallow-dataclass==8.6.1",
+    "dpkt",
+    "marshmallow",
+    "marshmallow-dataclass",
     # support backend tests and code using netaddr
-    "netaddr==0.8.0",
+    "netaddr",
     "psutil>=5.9.5",
     "typeguard",
 ]
@@ -74,48 +76,48 @@ backend = [
 # Frontend Testing & Development
 dev-frontend = [
     # Testing framework
-    "pytest==8.4.2",
-    "pytest-html==3.1.0",
-    "pytest-timeout==2.1.0",
-    "pytest-mock==3.15.1",
+    "pytest",
+    "pytest-html",
+    "pytest-timeout",
+    "pytest-mock",
     # Browser automation
-    "selenium==4.25.0",
-    "webdriver-manager==4.0.2",
+    "selenium",
+    "webdriver-manager",
     # Code quality (frontend-focused)
-    "black==24.1.1",
-    "flake8==7.0.0",
-    "isort==5.13.2",
-    "mypy==1.7.0",
+    "black",
+    "flake8",
+    "isort",
+    "mypy",
 ]
 
 # Backend Testing & Development
 dev-backend = [
     # Testing with coverage
-    "pytest==8.4.2",
-    "pytest-cov==4.0.0",
-    "pytest-timeout==2.1.0",
-    "pytest-mock==3.15.1",
-    "pytest-xdist==3.8.0",
+    "pytest",
+    "pytest-cov",
+    "pytest-timeout",
+    "pytest-mock",
+    "pytest-xdist",
     # Code quality
-    "black==24.1.1",
-    "flake8==7.0.0",
-    "isort==5.13.2",
-    "pylint==3.0.0",
-    "mypy==1.7.0",
+    "black",
+    "flake8",
+    "isort",
+    "pylint",
+    "mypy",
 ]
 
 # Common Development Tools
 dev = [
     "requests>=2.32.5",
     # Documentation (optional, used occasionally)
-    "sphinx==7.2.6",
-    "sphinx-rtd-theme==2.0.0",
+    "sphinx",
+    "sphinx-rtd-theme",
 ]
 
 # Production dependencies
 prod = [
     # WSGI server (alternative to uwsgi)
-    "gunicorn==22.0.0",
+    "gunicorn",
 ]
 
 [build-system]

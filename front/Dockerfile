@@ -1,14 +1,14 @@
-FROM python:3.11
-
+FROM debian:stable-slim
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 COPY ./src /app/src
 WORKDIR /app
-RUN pip install --upgrade --no-cache-dir pip uv
 COPY --from=project_root pyproject.toml uv.lock /app/
-RUN uv sync --group frontend --group prod --no-install-project
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN $HOME/.local/bin/uv venv --seed && $HOME/.local/bin/uv sync --group frontend --group prod --no-install-project
 
 # Setup Python cache directory for PostgreSQL SSL
 RUN mkdir -p /app/.postgresql && \
-    wget -q "https://storage.yandexcloud.net/cloud-certs/CA.pem" -O /app/.postgresql/root.crt && \
+    curl -Lo /app/.postgresql/root.crt "https://storage.yandexcloud.net/cloud-certs/CA.pem" && \
     chmod 0600 /app/.postgresql/root.crt
 
 

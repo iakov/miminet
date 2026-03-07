@@ -3,7 +3,7 @@ from pathlib import Path
 
 from src.tasks import run_miminet
 
-TEST_JSON_DIR = Path("network_examples_json/")
+TEST_JSON_DIR = Path(__file__).resolve().parent / "network_examples_json"
 
 
 # ---------------- Utility functions ---------------- #

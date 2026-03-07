@@ -155,8 +155,7 @@ class TestJobLimit:
         # Delete one job via API
         job_id_to_delete = network.jobs[0]["id"]
 
-        delete_result = selenium.execute_script(
-            f"""
+        delete_result = selenium.execute_script(f"""
             return new Promise((resolve) => {{
                 $.ajax({{
                     type: 'POST',
@@ -179,8 +178,7 @@ class TestJobLimit:
                     }}
                 }});
             }});
-        """
-        )
+        """)
         assert delete_result["success"], "Failed to delete job"
         assert (
             len(network.jobs) == 29
