@@ -1051,6 +1051,7 @@ version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "celery" },
+    { name = "dotenv" },
     { name = "jsonschema" },
     { name = "kombu" },
     { name = "requests" },
@@ -1099,7 +1100,6 @@ dev-frontend = [
 ]
 frontend = [
     { name = "beautifulsoup4" },
-    { name = "dotenv" },
     { name = "flask" },
     { name = "flask-admin" },
     { name = "flask-login" },
@@ -1119,11 +1119,12 @@ prod = [
 
 [package.metadata]
 requires-dist = [
-    { name = "celery", specifier = "==5.5.3" },
-    { name = "jsonschema", specifier = "==4.25.1" },
-    { name = "kombu", specifier = "==5.5.4" },
-    { name = "requests", specifier = "==2.32.5" },
-    { name = "sqlalchemy", specifier = "==2.0.43" },
+    { name = "celery" },
+    { name = "dotenv" },
+    { name = "jsonschema" },
+    { name = "kombu" },
+    { name = "requests" },
+    { name = "sqlalchemy" },
 ]
 
 [package.metadata.requires-dev]
@@ -1167,7 +1168,6 @@ dev-frontend = [
 ]
 frontend = [
     { name = "beautifulsoup4" },
-    { name = "dotenv" },
     { name = "flask" },
     { name = "flask-admin" },
     { name = "flask-login" },

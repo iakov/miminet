@@ -4,10 +4,10 @@
 MODE="${MODE:-prod}"
 
 echo "[!] Running in $MODE mode"
-python3 /app/src/app.py "$MODE"
+python3 /app/app.py "$MODE"
 
 # Start the application
 nohup uwsgi --ini /app/uwsgi.ini &
 
 # Start celery
-exec python3 -m celery -A celery_app worker --loglevel=info --concurrency=${celery_concurrency} -Q common-results-queue,task-checking-queue
+exec python3 -m celery -A celery_app_front worker --loglevel=info --concurrency=${celery_concurrency} -Q common-results-queue,task-checking-queue

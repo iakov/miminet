@@ -61,6 +61,7 @@ services:
     container_name: nginx
     image: nginx
     restart: always
+    depends_on: [ miminet ]
     volumes:
       - ./default.conf.template:/etc/nginx/templates/default.conf.template
     ports:

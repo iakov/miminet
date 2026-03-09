@@ -75,8 +75,8 @@ start: ## Запустить все контейнеры
 
 stop: ## Остановить все контейнеры
 	@echo "$(CYAN)Stopping all containers...$(RESET)"
-	docker-compose -f front/docker-compose.yml down
-	docker-compose -f back/docker-compose.yml down
+	docker compose -f front/docker-compose.yml down
+	docker compose -f back/docker-compose.yml down
 
 restart: stop start ## Перезапустить все контейнеры
 
@@ -86,8 +86,8 @@ restart: stop start ## Перезапустить все контейнеры
 
 logs: ## Показать логи всех сервисов
 	@echo "$(CYAN)Showing logs (Ctrl+C to stop)...$(RESET)"
-	docker-compose -f front/docker-compose.yml logs -f & \
-	docker-compose -f back/docker-compose.yml logs -f
+	docker compose -f front/docker-compose.yml logs -f & \
+	docker compose -f back/docker-compose.yml logs -f
 
 logs-front: ## Логи frontend
 	docker logs -f miminet
@@ -274,8 +274,8 @@ clean: ## Очистить временные файлы
 clean-all: clean ## Очистить всё (включая Docker volumes)
 	@echo "$(CYAN)⚠️  WARNING: This will remove Docker volumes! Press Ctrl+C to cancel...$(RESET)"
 	@sleep 5
-	docker-compose -f front/docker-compose.yml down -v
-	docker-compose -f back/docker-compose.yml down -v
+	docker compose -f front/docker-compose.yml down -v
+	docker compose -f back/docker-compose.yml down -v
 	@echo "$(CYAN)Deep cleanup complete$(RESET)"
 
 # ============================================================================
@@ -321,8 +321,8 @@ check: lint test ## Проверить код и запустить тесты
 
 ps: ## Показать статус контейнеров
 	@echo "$(CYAN)Container status:$(RESET)"
-	docker-compose -f front/docker-compose.yml ps
-	docker-compose -f back/docker-compose.yml ps
+	docker compose -f front/docker-compose.yml ps
+	docker compose -f back/docker-compose.yml ps
 
 images: ## Показать образы
 	@echo "$(CYAN)Docker images:$(RESET)"
@@ -330,13 +330,13 @@ images: ## Показать образы
 
 build: ## Собрать Docker образы
 	@echo "$(CYAN)Building Docker images...$(RESET)"
-	docker-compose -f front/docker-compose.yml build
-	docker-compose -f back/docker-compose.yml build
+	docker compose -f front/docker-compose.yml build
+	docker compose -f back/docker-compose.yml build
 
 pull: ## Обновить базовые образы
 	@echo "$(CYAN)Pulling latest images...$(RESET)"
-	docker-compose -f front/docker-compose.yml pull
-	docker-compose -f back/docker-compose.yml pull
+	docker compose -f front/docker-compose.yml pull
+	docker compose -f back/docker-compose.yml pull
 
 prune: ## Удалить неиспользуемые Docker ресурсы
 	@echo "$(CYAN)Pruning Docker resources...$(RESET)"
@@ -410,12 +410,12 @@ ci: lint test ## Запустить CI проверки локально
 
 prod-start: ## Запустить в production режиме
 	@echo "$(CYAN)Starting in production mode...$(RESET)"
-	docker-compose -f front/docker-compose-prod.yml up -d
-	docker-compose -f back/docker-compose.yml up -d
+	docker compose -f front/docker-compose-prod.yml up -d
+	docker compose -f back/docker-compose.yml up -d
 
 prod-stop: ## Остановить production
-	docker-compose -f front/docker-compose-prod.yml down
-	docker-compose -f back/docker-compose.yml down
+	docker compose -f front/docker-compose-prod.yml down
+	docker compose -f back/docker-compose.yml down
 
 prod-logs: ## Логи production
-	docker-compose -f front/docker-compose-prod.yml logs -f
+	docker compose -f front/docker-compose-prod.yml logs -f

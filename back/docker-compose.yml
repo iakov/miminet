@@ -15,6 +15,6 @@ services:
     environment:
       - celery_concurrency=${celery_concurrency}
       - queue_names=${queue_names}
-    command: celery -A app.celery worker --loglevel=info
+#    command: celery -A app.celery worker --loglevel=info
     privileged: true
 

@@ -24,11 +24,13 @@ classifiers = [
 
 # Core dependencies (minimal, used by both frontend and backend)
 dependencies = [
-    "sqlalchemy==2.0.43",
-    "celery==5.5.3",
-    "kombu==5.5.4",
-    "requests==2.32.5",
-    "jsonschema==4.25.1",
+    "dotenv",
+    "dpkt",
+    "sqlalchemy",
+    "celery",
+    "kombu",
+    "requests",
+    "jsonschema",
 ]
 
 [project.urls]
@@ -51,7 +53,6 @@ frontend = [
     # Database
     "psycopg2-binary",
     # Data processing
-    "dotenv",
     "pillow",
     "beautifulsoup4",
     # Authentication
@@ -65,7 +66,6 @@ backend = [
     # Network emulation (Git dependencies - Linux only)
     "ipmininet @ git+https://github.com/mimi-net/ipmininet.git@1.2.4; sys_platform=='linux'",
     # Packet parsing and serialization
-    "dpkt",
     "marshmallow",
     "marshmallow-dataclass",
     # support backend tests and code using netaddr

@@ -1,8 +1,44 @@
+FROM debian:stable-slim AS builder 
+RUN --mount=type=cache,target=/var/lib/apt/lists --mount=type=cache,sharing=locked,target=/var/cache/apt \
+  rm -f /var/lib/apt/lists/lock /var/cache/apt/archives/lock /var/lib/dpkg/lock-frontend \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    mininet \
+    kmod \
+    git\
+    gcc \
+    make \
+    libpcap-dev \
+    libbsd-dev \
+    python3-dev
+
+RUN --mount=type=cache,target=/var/mimidump \
+    git -C /var/mimidump/src status || { rm -rf /var/mimidump/src ; git clone --single-branch --depth=1 https://github.com/mimi-net/mimidump.git /var/mimidump/src ; } \
+    && cd /var/mimidump/src && make prefix=/usr install
+
+RUN --mount=type=cache,target=/var/lib/astral \
+    mkdir -p /var/lib/astral \
+    && curl -LsSf https://astral.sh/uv/install.sh > /var/lib/astral/install_uv.sh \
+    && sh /var/lib/astral/install_uv.sh
+
+
+COPY ./src /app
+WORKDIR /app
+
+# Copy dependency files
+COPY --from=project_root pyproject.toml uv.lock /app/
+# Install dependencies
+RUN --mount=type=cache,sharing=locked,target=/root/.cache/uv \
+    $HOME/.local/bin/uv venv --seed \
+    && $HOME/.local/bin/uv sync --group backend --group prod --no-install-project
+
 FROM debian:stable-slim
 
-RUN apt-get update \
-&& apt-get install -y --no-install-recommends \
-    curl \
+RUN --mount=type=cache,sharing=locked,target=/var/lib/apt/lists --mount=type=cache,sharing=locked,target=/var/cache/apt \
+  apt-get update \
+  && apt-get install -y --no-install-recommends \
     ca-certificates \
     dnsutils \
     netcat-openbsd \
@@ -17,33 +53,21 @@ RUN apt-get update \
     kmod \
     bridge-utils \
     tcpdump \
-    git\
     dnsmasq \
     isc-dhcp-client \
-    gcc \
-    make \
-    libpcap-dev \
-    libbsd-dev \
     openvswitch-switch \
- && rm -rf /var/lib/apt/lists/* \
  && touch /etc/network/interfaces \
  && mkdir /opt/mininet_dependencies
 
-RUN git clone https://github.com/mimi-net/mimidump.git \
-    && cd mimidump && git checkout 32e6e5e && make prefix=/usr install && cd .. && rm -rf mimidump
-
+# Copy application code
+COPY --from=builder /app /app
+COPY --from=builder /usr/bin/mimidump /bin/mimidump
+COPY --from=builder /root/.local/bin/uv /bin/uv
+COPY ./ENTRYPOINT.sh /app/ENTRYPOINT.sh
 
 WORKDIR /app
 
-# Copy dependency files
-COPY --from=project_root pyproject.toml uv.lock /app/
-RUN bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
-# Install dependencies
-RUN $HOME/.local/bin/uv venv --seed && $HOME/.local/bin/uv sync --group backend --group prod --no-install-project
+RUN --mount=type=cache,sharing=locked,target=/root/.cache/uv \
+    /bin/uv sync --group backend --group prod --no-install-project
 
-# Copy application code
-COPY ./src /app
-COPY ./ENTRYPOINT.sh /app/ENTRYPOINT.sh
-RUN chmod +x /app/ENTRYPOINT.sh
-
-ENTRYPOINT ["/app/ENTRYPOINT.sh"]
+ENTRYPOINT ["/bin/uv", "run", "--no-sync", "/app/ENTRYPOINT.sh"]
