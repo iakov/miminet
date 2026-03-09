@@ -18,35 +18,25 @@ jobs:
       - name: Set up Docker BuildX
         uses: docker/setup-buildx-action@v3
 
-      - name: Start frontend
+      - name: Start containers 
         run: |
-          cd front/
-          sed -i 's/MODE=prod/MODE=dev/' .env
-          docker compose up -d
-
-      - name: Start selenium
-        run: |
-          cd front/tests/docker
-          docker compose up -d
-
+          sed -i 's/MODE=prod/MODE=dev/' front/.env
+          docker compose -f front/docker-compose.yml up -d --wait &
+          docker compose -f front/tests/docker/docker-compose.yml up -d --wait &
+          wait
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip uv
           uv venv --seed
-          uv sync --all-groups --no-install-project
-          sudo apt-get install -y ffmpeg
+          uv sync --group=dev-frontend --group=frontend --no-install-project
+          sudo apt-get install -y --no-install-recommends ffmpeg
 
       - name: Check availability
         run: |
           docker ps
-          # report current status, but try later
-          curl -f nginx || true
-
-          # Wait for frontend to be ready
-          sleep 10
-          curl -f http://nginx
-
+          docker compose -f front/docker-compose.yml ps
+          docker compose -f front/tests/docker/docker-compose.yml ps
 
       - name: Run Selenium tests with video recording
         run: |
@@ -66,7 +56,6 @@ jobs:
           cd front/tests
           # Create a simple video marker file for failed tests
           echo "Video recording for failed tests" > videos/REPORT.txt
-          ls -la || true
 
       - name: Upload test report as artifact
         if: always()

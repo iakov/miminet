@@ -1052,6 +1052,7 @@ source = { editable = "." }
 dependencies = [
     { name = "celery" },
     { name = "dotenv" },
+    { name = "dpkt" },
     { name = "jsonschema" },
     { name = "kombu" },
     { name = "requests" },
@@ -1060,7 +1061,6 @@ dependencies = [
 
 [package.dev-dependencies]
 backend = [
-    { name = "dpkt" },
     { name = "ipmininet", marker = "sys_platform == 'linux'" },
     { name = "marshmallow" },
     { name = "marshmallow-dataclass" },
@@ -1121,6 +1121,7 @@ prod = [
 requires-dist = [
     { name = "celery" },
     { name = "dotenv" },
+    { name = "dpkt" },
     { name = "jsonschema" },
     { name = "kombu" },
     { name = "requests" },
@@ -1129,7 +1130,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 backend = [
-    { name = "dpkt" },
     { name = "ipmininet", marker = "sys_platform == 'linux'", git = "https://github.com/mimi-net/ipmininet.git?rev=1.2.4" },
     { name = "marshmallow" },
     { name = "marshmallow-dataclass" },

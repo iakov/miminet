@@ -8,6 +8,7 @@ services:
         project_root: ..
       dockerfile: ./Dockerfile
     container_name: miminet
+    hostname: miminet-front
     restart: always
     networks:
       miminet_network:
@@ -30,6 +31,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "uv", "run", "--no-sync", "python", "-m", "celery", "inspect", "ping", "-d", "celery@miminet-front"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
   rabbitmq:
     image: rabbitmq:latest
     hostname: rabbitmq
@@ -69,6 +77,13 @@ services:
     networks:
       miminet_network:
         ipv4_address: 172.18.0.2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
   postgres:
     image: postgres:18
     container_name: postgres
