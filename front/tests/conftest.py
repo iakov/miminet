@@ -23,7 +23,7 @@ class testing_setting:
     """Configuration settings for testing environment."""
 
     nginx_docker_ip = "172.18.0.2"  # nginx IP inside miminet docker network
-    selenium_hub_url = "http://localhost:4444/wd/hub"  # route for sending selenium commands
+    selenium_hub_url = "http://selenium-hub:4444/wd/hub"  # route for sending selenium commands
     window_size = "1920,1080"
     auth_data = {
         "email": "selenium",
