@@ -1,6 +1,10 @@
 name: Pytest
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  workflow_run:
+    workflows: [Linter]
+    types: [completed]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -9,6 +13,7 @@ concurrency:
 jobs:
 
   build:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
