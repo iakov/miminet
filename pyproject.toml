@@ -66,7 +66,7 @@ frontend = [
 
 # Backend dependencies
 backend = [
-    "ipmininet",
+    "ipmininet>=1.2.4; sys_platform == 'linux'",
     "marshmallow",
     "marshmallow-dataclass",
     "netaddr",
@@ -75,16 +75,16 @@ backend = [
 
 # Frontend Testing & Development
 dev-frontend = [
-    {include-group = "dev"},
-    {include-group = "frontend"},
+    { include-group = "dev" },
+    { include-group = "frontend" },
     "selenium",
     "webdriver-manager",
 ]
 
 # Backend Testing & Development
 dev-backend = [
-    {include-group = "dev"},
-    {include-group = "backend"},
+    { include-group = "dev" },
+    { include-group = "backend" },
     "pytest-xdist",
 ]
 
@@ -94,13 +94,17 @@ dev = [
     "sphinx",
     "sphinx-rtd-theme",
     "pytest",
+    "pytest-cov",
     "pytest-html",
     "pytest-timeout",
     "pytest-mock",
+    "mypy",
+    "types-requests", #for mypy typing
     "black",
     "flake8",
     "isort",
     "pip",
+    "pre-commit",
 ]
 
 # Production dependencies
@@ -109,12 +113,15 @@ prod = [
 ]
 
 [tool.uv.sources]
-"ipmininet" = [ {git = "https://github.com/mimi-net/ipmininet.git", tag="1.2.4", marker = "sys_platform == 'linux'" } ]
+"ipmininet" = [ {git = "https://github.com/mimi-net/ipmininet.git", tag="1.2.4" , marker = "sys_platform == 'linux'"}, ]
 
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+#[tool.uv.extra-build-dependencies]
+#ipmininet = ["setuptools<82", "pip"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["miminet"]
@@ -161,6 +168,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["front/tests", "back/tests"]
+pythonpath = ["src"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"

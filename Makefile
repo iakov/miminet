@@ -77,6 +77,7 @@ stop: ## Остановить все контейнеры
 	@echo "$(CYAN)Stopping all containers...$(RESET)"
 	docker compose -f front/docker-compose.yml down
 	docker compose -f back/docker-compose.yml down
+	docker compose -f front/tests/docker/docker-compose.yml down
 
 restart: stop start ## Перезапустить все контейнеры
 
@@ -299,19 +300,16 @@ rabbit-ui: ## Открыть RabbitMQ Management UI
 # ============================================================================
 
 dev-setup: ## Настроить окружение для разработки
-	@echo "$(CYAN)Setting up development environment...$(RESET)"
-	pip install -r front/requirements.txt
-	pip install -r back/requirements.txt
-	pip install black isort flake8 pytest pytest-cov
+	@echo "$(CYAN)Setting up development environment with uv...$(RESET)"
+	uv sync --group dev --group prod
 	@echo "$(CYAN)Installing pre-commit hooks...$(RESET)"
-	pip install pre-commit
+	uv run pip install pre-commit
 	pre-commit install
 	@echo "$(CYAN)Development setup complete$(RESET)"
 
 install-deps: ## Установить зависимости
-	@echo "$(CYAN)Installing dependencies...$(RESET)"
-	pip install -r front/requirements.txt
-	pip install -r back/requirements.txt
+	@echo "$(CYAN)Installing dependencies with uv...$(RESET)"
+	uv sync --group dev --group prod
 
 check: lint test ## Проверить код и запустить тесты
 

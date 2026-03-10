@@ -21,11 +21,12 @@ front/tests/
 ### Установка зависимостей
 
 ```bash
-cd front
-pip install -r requirements.txt
+# Через uv (рекомендуется)
+uv sync --group frontend --group dev-frontend
+
 # Или через Docker
 docker exec -it miminet bash
-pip install selenium pytest
+uv sync --group frontend --group dev-frontend
 ```
 
 ### Запуск тестов
@@ -147,12 +148,8 @@ back/tests/
 sudo bash
 cd back/tests
 
-# Создать виртуальное окружение
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Установить зависимости
-pip install -r ../requirements.txt
+# Установить зависимости через uv
+uv sync --group backend --group dev-backend
 
 # Установить переменную PYTHONPATH
 export PYTHONPATH=$PYTHONPATH:../src
@@ -307,8 +304,8 @@ jobs:
 ### Для Python (backend)
 
 ```bash
-pip install pytest-cov
-pytest back/tests --cov=back/src --cov-report=html
+# pytest-cov уже включен в dev зависимости
+uv run pytest back/tests --cov=back/src --cov-report=html
 # Открыть htmlcov/index.html в браузере
 ```
 
