@@ -1,0 +1,35 @@
+name: Update uv.lock
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/pyproject.toml"
+
+jobs:
+  update-lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # for create-pull-request
+          token: ${{ secrets.GITHUB_TOKEN }} 
+
+      - name: Install uv        
+        uses: astral-sh/setup-uv@v7        
+
+      - name: Update uv.lock file
+        run: |
+          uv lock --upgrade
+          echo "::set-output name=has_changes::$(git diff --exit-code uv.lock && echo false || echo true)"
+        id: changes
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "Update uv.lock"
+          title: "Python dependency auto-update (uv.lock)"
+          body:

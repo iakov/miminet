@@ -1,12 +1,14 @@
 name: Yandex and Telegram authentication and Miminet authorization tests
 
 on:
-  push:
-  pull_request_target:
+  workflow_run:
+    workflows: [Linter]
+    types: [completed]
   workflow_dispatch:
 
 jobs:
   test:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     environment: test_env
     
