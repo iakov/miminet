@@ -1,5 +1,9 @@
 .*
 !.python-version
+!/.gitignore
+!/.claudeignore
+!/.github
+!/.claude
 celery_restart.sh
 restart_front.sh
 mimidump/
