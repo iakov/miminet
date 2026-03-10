@@ -37,6 +37,9 @@ dependencies = [
 Repository = "https://github.com/mimi-net/miminet"
 Homepage = "https://miminet.ru"
 
+[tool.uv]
+default-groups = ["dev"]
+
 [dependency-groups]
 # Frontend dependencies
 frontend = [
@@ -63,62 +66,51 @@ frontend = [
 
 # Backend dependencies
 backend = [
-    # Network emulation (Git dependencies - Linux only)
-    "ipmininet @ git+https://github.com/mimi-net/ipmininet.git@1.2.4; sys_platform=='linux'",
-    # Packet parsing and serialization
+    "ipmininet",
     "marshmallow",
     "marshmallow-dataclass",
-    # support backend tests and code using netaddr
     "netaddr",
-    "psutil>=5.9.5",
-    "typeguard",
+    "psutil",
 ]
 
 # Frontend Testing & Development
 dev-frontend = [
-    # Testing framework
-    "pytest",
-    "pytest-html",
-    "pytest-timeout",
-    "pytest-mock",
-    # Browser automation
+    {include-group = "dev"},
+    {include-group = "frontend"},
     "selenium",
     "webdriver-manager",
-    # Code quality (frontend-focused)
-    "black",
-    "flake8",
-    "isort",
-    "mypy",
 ]
 
 # Backend Testing & Development
 dev-backend = [
-    # Testing with coverage
-    "pytest",
-    "pytest-cov",
-    "pytest-timeout",
-    "pytest-mock",
+    {include-group = "dev"},
+    {include-group = "backend"},
     "pytest-xdist",
-    # Code quality
-    "black",
-    "flake8",
-    "isort",
-    "pylint",
-    "mypy",
 ]
 
 # Common Development Tools
 dev = [
-    "requests>=2.32.5",
-    # Documentation (optional, used occasionally)
+    "requests",
     "sphinx",
     "sphinx-rtd-theme",
+    "pytest",
+    "pytest-html",
+    "pytest-timeout",
+    "pytest-mock",
+    "black",
+    "flake8",
+    "isort",
+    "pip",
 ]
 
 # Production dependencies
 prod = [
     "uwsgi",
 ]
+
+[tool.uv.sources]
+"ipmininet" = [ {git = "https://github.com/mimi-net/ipmininet.git", tag="1.2.4", marker = "sys_platform == 'linux'" } ]
+
 
 [build-system]
 requires = ["hatchling"]
