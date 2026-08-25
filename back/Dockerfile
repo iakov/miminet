@@ -1,5 +1,7 @@
 FROM ubuntu:24.04
 
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
 RUN apt-get update \
 && apt-get install -y --no-install-recommends \
     curl \
@@ -26,7 +28,7 @@ RUN apt-get update \
     libpcap-dev \
     libbsd-dev \
     openvswitch-switch \
- && pip3 install --upgrade pip \
+ && pip3 install --upgrade --ignore-installed pip \
  && rm -rf /var/lib/apt/lists/* \
  && touch /etc/network/interfaces \
  && mkdir /opt/mininet_dependencies
