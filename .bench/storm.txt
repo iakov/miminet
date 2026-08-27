@@ -1,0 +1,400 @@
+14:07:33.431234 wlp59s0 Out IP6 fe80::aca2:46ff:fe35:d9a1 > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:33.431255 wlp59s0 Out IP6 fe80::aca2:46ff:fe35:d9a1 > ff02::2: ICMP6, router solicitation, length 16
+14:07:33.434153 wlp59s0 Out IP6 fe80::aca2:46ff:fe35:d9a1 > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:33.918172 wlp59s0 Out IP6 fe80::aca2:46ff:fe35:d9a1 > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:34.070198 wlp59s0 Out IP6 fe80::aca2:46ff:fe35:d9a1 > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:37.270145 wlp59s0 Out IP6 fe80::aca2:46ff:fe35:d9a1 > ff02::2: ICMP6, router solicitation, length 16
+14:07:43.232145 mimiswsw1-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.232157 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.261151 mimiswsw2-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.261167 mimiswsw2-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.281207 mimiswsw4-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.281219 mimiswsw4-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.309168 mimiswsw5-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.309184 mimiswsw5-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.317207 mimiswsw1-eth1 Out IP6 :: > ff02::1:ffc8:f70d: ICMP6, neighbor solicitation, who has fe80::b877:61ff:fec8:f70d, length 32
+14:07:43.333146 l2sw1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.333150 mimiswsw3-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.333162 mimiswsw3-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.333163 l2sw1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.357219 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.357223 mimiswsw1-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.366198 mimiswsw2-eth1 M   IP6 :: > ff02::1:ff79:2b2f: ICMP6, neighbor solicitation, who has fe80::a474:a0ff:fe79:2b2f, length 32
+14:07:43.372215 mimiswsw1-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.372219 l2sw1_1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.378176 l1hub1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.378182 mimiswsw2-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.389349 mimiswsw4-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.393179 mimiswsw2-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.393183 l1hub1_1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.398171 mimiswsw1-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.399144 l1hub1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.399146 mimiswsw3-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.400153 l2sw1_1 Out IP6 :: > ff02::1:ff3b:8f3d: ICMP6, neighbor solicitation, who has fe80::405:edff:fe3b:8f3d, length 32
+14:07:43.400160 mimiswsw1-eth2 M   IP6 :: > ff02::1:ff3b:8f3d: ICMP6, neighbor solicitation, who has fe80::405:edff:fe3b:8f3d, length 32
+14:07:43.414146 mimiswsw3-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.414149 l1hub1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.418187 l1hub1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.418192 mimiswsw4-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.433183 mimiswsw4-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.433187 l1hub1_3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.440165 l2sw1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.440169 mimiswsw5-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.449176 mimiswsw1-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.455160 mimiswsw5-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.455164 l2sw1_3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.459150 mimiswsw2-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.465166 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.469153 mimiswsw4-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.474239 mimiswsw2-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.479293 mimiswsw5-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.484152 mimiswsw4-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.488172 mimiswsw1-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.494162 mimiswsw5-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.591612 l1hub1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.591617 mimiswsw3-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.604159 l1hub1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.604163 l1hub1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.604167 l1hub1_2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.604169 l1hub1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.604200 mimiswsw4-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.604201 mimiswsw3-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.604202 mimiswsw2-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.605210 l1hub1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.605225 l1hub1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.605227 l1hub1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.605229 l1hub1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.605232 mimiswsw4-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.605239 mimiswsw3-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.605240 mimiswsw2-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.638179 mimiswsw5-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.638183 l2sw1_3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.657189 l1hub1 Out IP6 :: > ff02::1:ff4b:b1cd: ICMP6, neighbor solicitation, who has fe80::242f:71ff:fe4b:b1cd, length 32
+14:07:43.657194 l1hub1_3 Out IP6 :: > ff02::1:ff4b:b1cd: ICMP6, neighbor solicitation, who has fe80::242f:71ff:fe4b:b1cd, length 32
+14:07:43.657197 l1hub1_2 Out IP6 :: > ff02::1:ff4b:b1cd: ICMP6, neighbor solicitation, who has fe80::242f:71ff:fe4b:b1cd, length 32
+14:07:43.657199 l1hub1_1 Out IP6 :: > ff02::1:ff4b:b1cd: ICMP6, neighbor solicitation, who has fe80::242f:71ff:fe4b:b1cd, length 32
+14:07:43.657203 mimiswsw4-eth2 M   IP6 :: > ff02::1:ff4b:b1cd: ICMP6, neighbor solicitation, who has fe80::242f:71ff:fe4b:b1cd, length 32
+14:07:43.657212 mimiswsw3-eth2 M   IP6 :: > ff02::1:ff4b:b1cd: ICMP6, neighbor solicitation, who has fe80::242f:71ff:fe4b:b1cd, length 32
+14:07:43.657213 mimiswsw2-eth2 M   IP6 :: > ff02::1:ff4b:b1cd: ICMP6, neighbor solicitation, who has fe80::242f:71ff:fe4b:b1cd, length 32
+14:07:43.662197 l1hub1_1 Out IP6 :: > ff02::1:ff44:4e09: ICMP6, neighbor solicitation, who has fe80::cce3:2dff:fe44:4e09, length 32
+14:07:43.662202 mimiswsw2-eth2 M   IP6 :: > ff02::1:ff44:4e09: ICMP6, neighbor solicitation, who has fe80::cce3:2dff:fe44:4e09, length 32
+14:07:43.665145 l2sw1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.665279 l2sw1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.665282 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.665285 l2sw1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.665288 mimiswsw3-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.665294 mimiswsw1-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.665296 mimiswsw5-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.677157 l2sw1 Out IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.677195 mimiswsw4-eth2 Out IP6 :: > ff02::1:ff84:7896: ICMP6, neighbor solicitation, who has fe80::b8f4:70ff:fe84:7896, length 32
+14:07:43.677200 l1hub1_3 M   IP6 :: > ff02::1:ff84:7896: ICMP6, neighbor solicitation, who has fe80::b8f4:70ff:fe84:7896, length 32
+14:07:43.677207 l1hub1_2 Out IP6 :: > ff02::1:ff84:7896: ICMP6, neighbor solicitation, who has fe80::b8f4:70ff:fe84:7896, length 32
+14:07:43.677210 l1hub1_1 Out IP6 :: > ff02::1:ff84:7896: ICMP6, neighbor solicitation, who has fe80::b8f4:70ff:fe84:7896, length 32
+14:07:43.677213 l1hub1 M   IP6 :: > ff02::1:ff84:7896: ICMP6, neighbor solicitation, who has fe80::b8f4:70ff:fe84:7896, length 32
+14:07:43.677224 mimiswsw3-eth2 M   IP6 :: > ff02::1:ff84:7896: ICMP6, neighbor solicitation, who has fe80::b8f4:70ff:fe84:7896, length 32
+14:07:43.677226 mimiswsw2-eth2 M   IP6 :: > ff02::1:ff84:7896: ICMP6, neighbor solicitation, who has fe80::b8f4:70ff:fe84:7896, length 32
+14:07:43.677279 l2sw1_2 Out IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.677282 l2sw1_1 Out IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.677284 l2sw1_3 Out IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.677287 mimiswsw3-eth1 M   IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.677291 mimiswsw1-eth2 M   IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.677296 mimiswsw1 M   IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.677298 mimiswsw5-eth2 M   IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.680149 mimiswsw1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.680165 mimiswsw1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.690139 mimiswsw1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.692142 mimiswsw2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.692299 mimiswsw1-eth1 Out IP6 :: > ff02::1:ff0c:a945: ICMP6, neighbor solicitation, who has fe80::509c:e0ff:fe0c:a945, length 32
+14:07:43.693145 mimiswsw2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695171 mimiswsw1-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695173 mimiswsw1-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.695174 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695175 l2sw1_1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695176 mimiswsw1-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.695187 l2sw1_1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.695284 l2sw1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695286 l2sw1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695289 l2sw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695294 mimiswsw3-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695296 mimiswsw5-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.695306 l2sw1_2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.695307 l2sw1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.695308 l2sw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.695309 mimiswsw3-eth1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.695310 mimiswsw5-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705142 mimiswsw3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705150 mimiswsw3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.705164 mimiswsw1-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705169 l2sw1_1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705175 mimiswsw1-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705180 l2sw1_2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705184 l2sw1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705186 l2sw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705187 mimiswsw3-eth1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705190 mimiswsw3 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.705191 mimiswsw5-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707154 mimiswsw2-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707158 mimiswsw2-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707161 l1hub1_1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707167 l1hub1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707170 l1hub1_2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707173 l1hub1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707178 mimiswsw4-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707179 mimiswsw3-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.707182 mimiswsw3 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.708166 mimiswsw2-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708168 mimiswsw2-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708170 l1hub1_1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708193 l1hub1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708195 l1hub1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708197 l1hub1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708212 mimiswsw4-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708214 mimiswsw3-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.708221 mimiswsw3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.717149 mimiswsw4 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.717254 mimiswsw4-eth1 Out IP6 :: > ff02::1:ffed:8229: ICMP6, neighbor solicitation, who has fe80::9018:37ff:feed:8229, length 32
+14:07:43.720163 mimiswsw3-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720171 mimiswsw3-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720173 mimiswsw3-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720175 mimiswsw3-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720178 l1hub1_2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720186 l1hub1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720191 l1hub1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720194 l1hub1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720196 l2sw1_2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720212 l2sw1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720217 l1hub1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720234 l1hub1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720236 l1hub1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720237 l1hub1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720246 mimiswsw4-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720249 mimiswsw4 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720250 mimiswsw2-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720254 mimiswsw2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720255 mimiswsw4-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720262 mimiswsw4 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720265 mimiswsw2-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720272 mimiswsw2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720286 mimiswsw3-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720288 l1hub1_2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720290 l1hub1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720292 l1hub1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720293 l1hub1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720294 mimiswsw4-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720296 mimiswsw4 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720296 mimiswsw2-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720298 mimiswsw2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720415 l2sw1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720419 l2sw1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720423 l2sw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720424 mimiswsw1-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720430 mimiswsw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720432 mimiswsw5-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.720444 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720446 l2sw1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720447 l2sw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720454 mimiswsw1-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720455 mimiswsw4 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720466 mimiswsw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.720468 mimiswsw5-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.722190 mimiswsw3-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.722193 l2sw1_2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.722273 l2sw1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.722275 l2sw1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.722278 l2sw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.722279 mimiswsw1-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.722284 mimiswsw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.722285 mimiswsw5-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.723225 mimiswsw3-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.723227 l2sw1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.723277 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.723279 l2sw1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.723281 l2sw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.723287 mimiswsw1-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.723299 mimiswsw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.723302 mimiswsw5-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.730182 mimiswsw5 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.731192 mimiswsw5 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.732161 mimiswsw4-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732162 mimiswsw4-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732165 l1hub1_3 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732171 l1hub1_2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732174 l1hub1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732177 l1hub1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732179 mimiswsw3-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732182 mimiswsw3 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732183 mimiswsw2-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.732185 mimiswsw2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.735260 mimiswsw2-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.735260 mimiswsw4-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.735267 mimiswsw4-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735274 mimiswsw2-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735300 mimiswsw4-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.735300 mimiswsw2-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.735430 mimiswsw1-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.735468 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735475 mimiswsw4-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735478 l1hub1_3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735479 mimiswsw4-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735508 l1hub1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735511 l1hub1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735514 l1hub1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735524 mimiswsw3-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735532 mimiswsw3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735535 mimiswsw2-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.735540 mimiswsw2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.737288 mimiswsw1-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.738305 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.745197 mimiswsw5-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745201 mimiswsw5-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745203 l2sw1_3 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745298 l2sw1_2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745301 l2sw1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745303 l2sw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745304 mimiswsw3-eth1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745309 mimiswsw3 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745310 mimiswsw1-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.745314 mimiswsw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.746210 mimiswsw5-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746212 mimiswsw5-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746213 l2sw1_3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746277 l2sw1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746279 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746280 l2sw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746286 mimiswsw3-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746305 mimiswsw3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746308 mimiswsw1-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.746312 mimiswsw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.747186 mimiswsw3-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747189 l2sw1_2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747189 mimiswsw2-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747314 l2sw1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747316 l2sw1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747319 l2sw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747320 mimiswsw1-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747323 mimiswsw1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747324 mimiswsw5-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.747326 mimiswsw5 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.750560 mimiswsw2-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750580 mimiswsw3-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750586 l2sw1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750807 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750812 l2sw1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750816 l2sw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750830 mimiswsw1-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750874 mimiswsw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750880 mimiswsw5-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.750890 mimiswsw5 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.757211 mimiswsw3-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757215 l1hub1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757223 l1hub1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757226 l1hub1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757228 l1hub1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757238 mimiswsw4-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757242 mimiswsw4 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757245 mimiswsw2-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.757248 mimiswsw2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.758149 mimiswsw4-eth1 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.758154 mimiswsw4 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.760318 mimiswsw1-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760346 mimiswsw3-eth2 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760348 l1hub1_2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760354 l1hub1_3 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760356 l1hub1_1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760358 l1hub1 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760360 mimiswsw4-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760362 mimiswsw4 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760363 mimiswsw2-eth2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.760365 mimiswsw2 M   IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.761309 mimiswsw3-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761312 l1hub1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761316 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761336 l1hub1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761339 l1hub1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761341 l1hub1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761349 mimiswsw4-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761356 mimiswsw4 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761359 mimiswsw2-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.761366 mimiswsw2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.762199 mimiswsw5 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.762326 mimiswsw1-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.762329 mimiswsw5-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.765896 mimiswsw5-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.765923 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.772249 mimiswsw4-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.772252 mimiswsw2-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28
+14:07:43.773158 mimiswsw4-eth2 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773161 l1hub1_3 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773167 l1hub1_2 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773169 l1hub1_1 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773171 l1hub1 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773179 mimiswsw3-eth2 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773182 mimiswsw3 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773185 mimiswsw2-eth2 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.773187 mimiswsw2 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.775367 mimiswsw4-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.775369 mimiswsw2-eth1 Out IP 0.0.0.0 > 224.0.0.22: igmp v3 report, 1 group record(s)
+14:07:43.776362 mimiswsw4-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.776374 mimiswsw2-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777208 mimiswsw5-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777210 mimiswsw5-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777211 l2sw1_3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777220 l2sw1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777223 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777225 l2sw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777230 mimiswsw3-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777236 mimiswsw3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777239 mimiswsw1-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.777241 mimiswsw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.788190 mimiswsw3-eth1 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788190 mimiswsw2-eth1 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788195 l2sw1_2 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788314 l2sw1_1 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788318 l2sw1_3 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788322 l2sw1 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788331 mimiswsw1-eth2 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788338 mimiswsw1 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788342 mimiswsw5-eth2 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.788346 mimiswsw5 M   IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.790172 mimiswsw5-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.790200 mimiswsw5 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.790215 mimiswsw1-eth2 Out IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790217 l2sw1_1 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790309 l2sw1_2 Out IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790312 l2sw1_3 Out IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790315 l2sw1 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790321 mimiswsw3-eth1 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790326 mimiswsw3 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790330 mimiswsw5-eth2 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.790332 mimiswsw5 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.792240 mimiswsw3-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792244 mimiswsw1-eth1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792246 l1hub1_2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792252 l1hub1_3 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792255 l1hub1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792257 l1hub1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792267 mimiswsw4-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792270 mimiswsw4 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792273 mimiswsw2-eth2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.792276 mimiswsw2 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.798532 mimiswsw1-eth1 B   ARP, Request who-has 10.0.0.3 tell 10.0.0.1, length 28
+14:07:43.798537 mimiswsw1 B   ARP, Request who-has 10.0.0.3 tell 10.0.0.1, length 28
+14:07:43.799192 mimiswsw5 Out IP6 :: > ff02::1:ff98:d161: ICMP6, neighbor solicitation, who has fe80::cfb:dbff:fe98:d161, length 32
+14:07:43.803347 mimiswsw1-eth1 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.803353 mimiswsw5-eth1 Out IP6 :: > ff02::1:ff00:3: ICMP6, neighbor solicitation, who has fe80::200:ff:fe00:3, length 32
+14:07:43.805202 mimiswsw5-eth2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.805206 l2sw1_3 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.805329 mimiswsw3-eth2 Out IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805330 l2sw1_2 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.805331 l1hub1_2 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805333 l2sw1_1 Out IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.805336 mimiswsw5-eth1 Out IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805328 l2sw1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.805338 l1hub1_3 Out IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805341 l1hub1_1 Out IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805331 l1hub1 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805332 mimiswsw3-eth1 M   IP6 :: > ff02::16: HBH ICMP6, multicast listener report v2, 2 group record(s), length 48
+14:07:43.805340 mimiswsw4-eth2 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805340 mimiswsw4 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805343 mimiswsw2-eth2 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32
+14:07:43.805343 mimiswsw2 M   IP6 :: > ff02::1:ff6d:7ff4: ICMP6, neighbor solicitation, who has fe80::a0fb:43ff:fe6d:7ff4, length 32

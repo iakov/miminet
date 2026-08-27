@@ -1,0 +1,585 @@
+{
+  "mode": "boxed",
+  "networks": {
+    "first_and_last_ip_address": [
+      {
+        "wall": 11.148398180957884,
+        "phases": {
+          "net_start": 0.1551054100273177,
+          "vlan_vtep_setup": 0.004543493967503309,
+          "disable_ipv6": 0.0269306399859488,
+          "readiness_wait": 7.526192348450422e-05,
+          "check_files": 2.0942999981343746e-05,
+          "settle_wait": 0.50456391798798,
+          "stop_teardown": 0.03852476109750569,
+          "clean_services": 0.004782848991453648,
+          "stop_super": 0.2824513189261779
+        },
+        "jobs": {
+          "host_1:2:ping -c 1 -b 192.168.1.255": 10.002256504958495,
+          "host_1:1:ping -c 1 192.168.1.50": 0.12328149401582778
+        },
+        "parse_time": 0.00528935098554939,
+        "peak_rss": 112812032,
+        "cpu_time": 0.37,
+        "ovs_rss_baseline": 14794752,
+        "ovs_rss_after": 58662912,
+        "pcap_sizes": {
+          "capture_l2sw1_3_out.pcapng": 484,
+          "capture_iface_27378811_out.pcapng": 198,
+          "capture_iface_62272758.pcapng": 656,
+          "capture_l2sw1_3.pcapng": 656,
+          "capture_l2sw1_1.pcapng": 656,
+          "capture_l2sw1_1_out.pcapng": 370,
+          "capture_l2sw1_2.pcapng": 370,
+          "capture_iface_78340542_out.pcapng": 310,
+          "capture_iface_27378811.pcapng": 370,
+          "capture_iface_62272758_out.pcapng": 196,
+          "capture_iface_78340542.pcapng": 656,
+          "capture_l2sw1_2_out.pcapng": 196
+        },
+        "n_nodes": 4,
+        "n_edges": 3,
+        "n_jobs": 2
+      }
+    ],
+    "icmp_host_unreachable": [
+      {
+        "wall": 3.9939072070410475,
+        "phases": {
+          "net_start": 0.0728338569169864,
+          "vlan_vtep_setup": 1.7446931451559067e-05,
+          "disable_ipv6": 0.016845052014105022,
+          "readiness_wait": 6.460596341639757e-05,
+          "check_files": 1.6291975043714046e-05,
+          "settle_wait": 0.5038847139803693,
+          "stop_teardown": 0.019570269039832056,
+          "clean_services": 0.005938961054198444,
+          "stop_super": 0.2357822839403525
+        },
+        "jobs": {
+          "host_1:4:send -s 1000 -p tcp 172.16.12.22:5555": 3.1353840479860082
+        },
+        "parse_time": 0.0029308439698070288,
+        "peak_rss": 90435584,
+        "cpu_time": 0.12999999999999998,
+        "ovs_rss_baseline": 58662912,
+        "ovs_rss_after": 58662912,
+        "pcap_sizes": {
+          "capture_iface_12847125_out.pcapng": 24,
+          "capture_iface_26401212_out.pcapng": 198,
+          "capture_iface_78746555.pcapng": 972,
+          "capture_iface_78746555_out.pcapng": 352,
+          "capture_iface_83666615_out.pcapng": 82,
+          "capture_iface_26401212.pcapng": 198,
+          "capture_iface_12847125.pcapng": 198,
+          "capture_iface_83666615.pcapng": 410
+        },
+        "n_nodes": 3,
+        "n_edges": 2,
+        "n_jobs": 1
+      }
+    ],
+    "icmp_unavailable": [
+      {
+        "wall": 0.7444755689939484,
+        "phases": {
+          "net_start": 0.04923647199757397,
+          "vlan_vtep_setup": 2.6870984584093094e-05,
+          "disable_ipv6": 0.009619412943720818,
+          "readiness_wait": 5.2558956667780876e-05,
+          "check_files": 9.691109880805016e-06,
+          "settle_wait": 0.5038615160156041,
+          "stop_teardown": 0.0035934799816459417,
+          "clean_services": 0.0010453310096636415,
+          "stop_super": 0.11251486500259489
+        },
+        "jobs": {
+          "host_1:4:send -s 1000 -p tcp 8.8.4.4:5555": 0.06326049799099565
+        },
+        "parse_time": 0.0009099550079554319,
+        "peak_rss": 68567040,
+        "cpu_time": 0.030000000000000027,
+        "ovs_rss_baseline": 58662912,
+        "ovs_rss_after": 58662912,
+        "pcap_sizes": {
+          "capture_iface_54356261_out.pcapng": 24,
+          "capture_iface_54356261.pcapng": 24,
+          "capture_iface_27118645_out.pcapng": 24,
+          "capture_iface_27118645.pcapng": 24
+        },
+        "n_nodes": 2,
+        "n_edges": 1,
+        "n_jobs": 1
+      }
+    ],
+    "ipip_tunnel": [
+      {
+        "wall": 11.201322037028149,
+        "phases": {
+          "net_start": 0.13875710288994014,
+          "vlan_vtep_setup": 3.306404687464237e-05,
+          "disable_ipv6": 0.030824610963463783,
+          "readiness_wait": 7.321406155824661e-05,
+          "check_files": 2.6280991733074188e-05,
+          "settle_wait": 0.5055890310322866,
+          "stop_teardown": 0.016075246036052704,
+          "clean_services": 0.0028110319981351495,
+          "stop_super": 0.48694737802725285
+        },
+        "jobs": {
+          "router_1:105:ipip: tun0 from 212.220.12.1 to 212.220.12.5 \ntun0: 1.1.1.1": 0.003488588030450046,
+          "router_1:102:ip route add 10.0.0.0/24 via 1.1.1.1": 0.0020307189552113414,
+          "router_3:105:ipip: tun0 from 212.220.12.5 to 212.220.12.1 \ntun0: 2.2.2.2": 0.0034577960614115,
+          "router_3:102:ip route add 192.168.1.0/24 via 2.2.2.2": 0.0020301119657233357,
+          "host_1:1:ping -c 1 10.0.0.2": 10.002365526044741
+        },
+        "parse_time": 0.0063309569377452135,
+        "peak_rss": 135270400,
+        "cpu_time": 0.45000000000000007,
+        "ovs_rss_baseline": 58662912,
+        "ovs_rss_after": 58662912,
+        "pcap_sizes": {
+          "capture_iface_82284025_out.pcapng": 82,
+          "capture_iface_60663141.pcapng": 254,
+          "capture_iface_52355412.pcapng": 24,
+          "capture_iface_31731256_out.pcapng": 196,
+          "capture_iface_24716477.pcapng": 24,
+          "capture_iface_67864584_out.pcapng": 24,
+          "capture_iface_67864584.pcapng": 24,
+          "capture_iface_60663141_out.pcapng": 196,
+          "capture_iface_31731256.pcapng": 254,
+          "capture_iface_82284025.pcapng": 254,
+          "capture_iface_34532004.pcapng": 254,
+          "capture_iface_40054476.pcapng": 24,
+          "capture_iface_52355412_out.pcapng": 24,
+          "capture_iface_40054476_out.pcapng": 24,
+          "capture_iface_24716477_out.pcapng": 24,
+          "capture_iface_34532004_out.pcapng": 82
+        },
+        "n_nodes": 5,
+        "n_edges": 4,
+        "n_jobs": 5
+      }
+    ],
+    "multicast_udp": [
+      {
+        "wall": 2.1356769300764427,
+        "phases": {
+          "net_start": 0.17275764897931367,
+          "vlan_vtep_setup": 0.004297430976293981,
+          "disable_ipv6": 0.035384565009735525,
+          "readiness_wait": 9.085703641176224e-05,
+          "check_files": 2.7645030058920383e-05,
+          "settle_wait": 0.5053720120340586,
+          "stop_teardown": 0.023236323962919414,
+          "clean_services": 0.0028287600725889206,
+          "stop_super": 0.3834703670581803
+        },
+        "jobs": {
+          "host_4:3:send -s 2000 -p udp 224.16.12.1:12345": 1.002677342039533
+        },
+        "parse_time": 0.005189834046177566,
+        "peak_rss": 134975488,
+        "cpu_time": 0.10000000000000009,
+        "ovs_rss_baseline": 58662912,
+        "ovs_rss_after": 58662912,
+        "pcap_sizes": {
+          "capture_l2sw1_3_out.pcapng": 2132,
+          "capture_iface_61332616.pcapng": 2132,
+          "capture_iface_57218521.pcapng": 2132,
+          "capture_l2sw1_3.pcapng": 2132,
+          "capture_l2sw1_4.pcapng": 2132,
+          "capture_l2sw1_1.pcapng": 2132,
+          "capture_l2sw1_1_out.pcapng": 24,
+          "capture_l2sw1_4_out.pcapng": 2132,
+          "capture_iface_56228373.pcapng": 2132,
+          "capture_l2sw1_2.pcapng": 2132,
+          "capture_iface_28868282.pcapng": 2132,
+          "capture_iface_57218521_out.pcapng": 24,
+          "capture_iface_61332616_out.pcapng": 2132,
+          "capture_iface_56228373_out.pcapng": 24,
+          "capture_l2sw1_2_out.pcapng": 2132,
+          "capture_iface_28868282_out.pcapng": 24
+        },
+        "n_nodes": 5,
+        "n_edges": 4,
+        "n_jobs": 1
+      }
+    ],
+    "nat_2": [
+      {
+        "wall": 2.0796699679922312,
+        "phases": {
+          "net_start": 0.16081109398510307,
+          "vlan_vtep_setup": 5.080900155007839e-05,
+          "disable_ipv6": 0.03754789801314473,
+          "readiness_wait": 9.744497947394848e-05,
+          "check_files": 3.3251941204071045e-05,
+          "settle_wait": 0.9092878049705178,
+          "stop_teardown": 0.01695468300022185,
+          "clean_services": 0.003500628052279353,
+          "stop_super": 0.5992423429852352
+        },
+        "jobs": {
+          "router_2:101:add nat -o iface_57510705 -j masquerad": 0.002286678063683212,
+          "router_1:101:add nat -o iface_85686184 -j masquerad": 0.001861697994172573,
+          "host_1:1:ping -c 1 10.0.0.1": 0.18415593495592475,
+          "host_2:1:ping -c 1 10.0.0.1": 0.15636622800957412
+        },
+        "parse_time": 0.006888003088533878,
+        "peak_rss": 157368320,
+        "cpu_time": 0.12999999999999984,
+        "ovs_rss_baseline": 58662912,
+        "ovs_rss_after": 58662912,
+        "pcap_sizes": {
+          "capture_iface_44732175.pcapng": 368,
+          "capture_iface_1535761_out.pcapng": 196,
+          "capture_iface_832047.pcapng": 596,
+          "capture_iface_02042_out.pcapng": 196,
+          "capture_iface_3203577.pcapng": 368,
+          "capture_iface_704342856_out.pcapng": 196,
+          "capture_iface_85686184_out.pcapng": 196,
+          "capture_iface_2076423.pcapng": 368,
+          "capture_iface_02042.pcapng": 368,
+          "capture_iface_57510705.pcapng": 368,
+          "capture_iface_3203577_out.pcapng": 196,
+          "capture_iface_704342856.pcapng": 368,
+          "capture_iface_71873576.pcapng": 596,
+          "capture_iface_71873576_out.pcapng": 310,
+          "capture_iface_2076423_out.pcapng": 196,
+          "capture_iface_57510705_out.pcapng": 196,
+          "capture_iface_44732175_out.pcapng": 196,
+          "capture_iface_1535761.pcapng": 368,
+          "capture_iface_832047_out.pcapng": 310,
+          "capture_iface_85686184.pcapng": 368
+        },
+        "n_nodes": 6,
+        "n_edges": 5,
+        "n_jobs": 4
+      }
+    ],
+    "ring_of_3_routers": [
+      {
+        "wall": 1.5870527470251545,
+        "phases": {
+          "net_start": 0.12481527298223227,
+          "vlan_vtep_setup": 2.815108746290207e-05,
+          "disable_ipv6": 0.028106032987125218,
+          "readiness_wait": 7.546599954366684e-05,
+          "check_files": 2.7375994250178337e-05,
+          "settle_wait": 0.7067702380008996,
+          "stop_teardown": 0.01926130207721144,
+          "clean_services": 0.0036464359145611525,
+          "stop_super": 0.4548647250048816
+        },
+        "jobs": {
+          "host_1:2:ping -c 1 -t 5 12.34.45.67": 0.24393594195134938
+        },
+        "parse_time": 0.005078452057205141,
+        "peak_rss": 132259840,
+        "cpu_time": 0.09000000000000008,
+        "ovs_rss_baseline": 58662912,
+        "ovs_rss_after": 58662912,
+        "pcap_sizes": {
+          "capture_iface_0056373.pcapng": 368,
+          "capture_iface_0330582_out.pcapng": 82,
+          "capture_iface_84644284_out.pcapng": 338,
+          "capture_iface_2404838.pcapng": 396,
+          "capture_iface_548368.pcapng": 396,
+          "capture_iface_650234_out.pcapng": 196,
+          "capture_iface_650234.pcapng": 396,
+          "capture_iface_84644284.pcapng": 396,
+          "capture_iface_8242582_out.pcapng": 224,
+          "capture_iface_0056373_out.pcapng": 310,
+          "capture_iface_0330582.pcapng": 396,
+          "capture_iface_548368_out.pcapng": 82,
+          "capture_iface_475856_out.pcapng": 82,
+          "capture_iface_2404838_out.pcapng": 338,
+          "capture_iface_8242582.pcapng": 396,
+          "capture_iface_475856.pcapng": 368
+        },
+        "n_nodes": 4,
+        "n_edges": 4,
+        "n_jobs": 1
+      }
+    ],
+    "router": [
+      {
+        "wall": 1.443760755006224,
+        "phases": {
+          "net_start": 0.18961515207774937,
+          "vlan_vtep_setup": 0.008703651023097336,
+          "disable_ipv6": 0.03978761506732553,
+          "readiness_wait": 7.338798604905605e-05,
+          "check_files": 2.6986002922058105e-05,
+          "settle_wait": 0.5047134699998423,
+          "stop_teardown": 0.026249101967550814,
+          "clean_services": 0.0023165809689089656,
+          "stop_super": 0.4213904110947624
+        },
+        "jobs": {
+          "host_1:1:ping -c 1 10.0.1.2": 0.24528013810049742
+        },
+        "parse_time": 0.005309205036610365,
+        "peak_rss": 135225344,
+        "cpu_time": 0.08000000000000007,
+        "ovs_rss_baseline": 58662912,
+        "ovs_rss_after": 58793984,
+        "pcap_sizes": {
+          "capture_l2sw2_2.pcapng": 368,
+          "capture_iface_3062667.pcapng": 368,
+          "capture_l2sw1_1.pcapng": 368,
+          "capture_l2sw1_1_out.pcapng": 196,
+          "capture_iface_7033245.pcapng": 368,
+          "capture_iface_7033245_out.pcapng": 196,
+          "capture_l2sw1_2.pcapng": 368,
+          "capture_l2sw2_1_out.pcapng": 196,
+          "capture_iface_10710187_out.pcapng": 196,
+          "capture_l2sw2_1.pcapng": 368,
+          "capture_iface_3062667_out.pcapng": 196,
+          "capture_iface_232227.pcapng": 368,
+          "capture_iface_10710187.pcapng": 368,
+          "capture_l2sw2_2_out.pcapng": 196,
+          "capture_l2sw1_2_out.pcapng": 196,
+          "capture_iface_232227_out.pcapng": 196
+        },
+        "n_nodes": 5,
+        "n_edges": 4,
+        "n_jobs": 1
+      }
+    ],
+    "stp": [
+      {
+        "wall": 7.116257801069878,
+        "phases": {
+          "net_start": 0.22999114193953574,
+          "vlan_vtep_setup": 0.013731273007579148,
+          "disable_ipv6": 0.048113150987774134,
+          "readiness_wait": 5.661373525043018,
+          "check_files": 6.269488949328661e-05,
+          "settle_wait": 0.5060965799493715,
+          "stop_teardown": 0.045590347959659994,
+          "clean_services": 0.0036752299638465047,
+          "stop_super": 0.4718773829517886
+        },
+        "jobs": {
+          "host_1:1:ping -c 1 192.168.1.2": 0.12425884301774204
+        },
+        "parse_time": 0.010931934928521514,
+        "peak_rss": 156127232,
+        "cpu_time": 0.32999999999999996,
+        "ovs_rss_baseline": 58793984,
+        "ovs_rss_after": 59097088,
+        "pcap_sizes": {
+          "capture_l2sw1_3_out.pcapng": 300,
+          "capture_l2sw2_2.pcapng": 783,
+          "capture_l2sw1_3.pcapng": 576,
+          "capture_l2sw1_4.pcapng": 645,
+          "capture_l2sw1_1.pcapng": 231,
+          "capture_l2sw1_1_out.pcapng": 231,
+          "capture_iface_37163725_out.pcapng": 24,
+          "capture_l2sw1_4_out.pcapng": 300,
+          "capture_l2sw3_2.pcapng": 645,
+          "capture_iface_47414478_out.pcapng": 24,
+          "capture_iface_37163725.pcapng": 162,
+          "capture_l2sw1_2.pcapng": 231,
+          "capture_l2sw2_1_out.pcapng": 369,
+          "capture_l2sw3_1_out.pcapng": 438,
+          "capture_l2sw2_1.pcapng": 576,
+          "capture_l2sw2_2_out.pcapng": 438,
+          "capture_l2sw3_1.pcapng": 783,
+          "capture_l2sw3_2_out.pcapng": 438,
+          "capture_iface_47414478.pcapng": 162,
+          "capture_l2sw1_2_out.pcapng": 231
+        },
+        "n_nodes": 5,
+        "n_edges": 5,
+        "n_jobs": 1
+      }
+    ],
+    "switch_and_hub": [
+      {
+        "wall": 2.0356268290197477,
+        "phases": {
+          "net_start": 0.21336907404474914,
+          "vlan_vtep_setup": 0.004013244993984699,
+          "disable_ipv6": 0.048876671004109085,
+          "readiness_wait": 0.0003060250310227275,
+          "check_files": 7.90959456935525e-05,
+          "settle_wait": 1.1126279939198866,
+          "stop_teardown": 0.025684347026981413,
+          "clean_services": 0.005605392972938716,
+          "stop_super": 0.4905049130320549
+        },
+        "jobs": {
+          "host_1:1:ping -c 1 10.0.0.3": 0.12437545391730964
+        },
+        "parse_time": 0.009578885044902563,
+        "peak_rss": 157192192,
+        "cpu_time": 0.1499999999999999,
+        "ovs_rss_baseline": 59097088,
+        "ovs_rss_after": 59097088,
+        "pcap_sizes": {
+          "capture_l2sw1_3_out.pcapng": 196,
+          "capture_l1hub1_2.pcapng": 140,
+          "capture_iface_2264405.pcapng": 140,
+          "capture_l1hub1_2_out.pcapng": 82,
+          "capture_iface_6631183.pcapng": 368,
+          "capture_l2sw1_3.pcapng": 368,
+          "capture_l2sw1_1.pcapng": 426,
+          "capture_l2sw1_1_out.pcapng": 254,
+          "capture_iface_57306012_out.pcapng": 196,
+          "capture_l1hub1_3_out.pcapng": 140,
+          "capture_l1hub1_1_out.pcapng": 82,
+          "capture_l2sw1_2.pcapng": 140,
+          "capture_iface_6631183_out.pcapng": 196,
+          "capture_iface_6176562_out.pcapng": 24,
+          "capture_iface_2264405_out.pcapng": 82,
+          "capture_l1hub1_1.pcapng": 140,
+          "capture_l1hub1_3.pcapng": 140,
+          "capture_iface_6176562.pcapng": 140,
+          "capture_iface_57306012.pcapng": 426,
+          "capture_l2sw1_2_out.pcapng": 82
+        },
+        "n_nodes": 6,
+        "n_edges": 5,
+        "n_jobs": 1
+      }
+    ],
+    "tcp_connection_setup_1": [
+      {
+        "wall": 1.7333766970550641,
+        "phases": {
+          "net_start": 0.04058018897194415,
+          "vlan_vtep_setup": 1.2513017281889915e-05,
+          "disable_ipv6": 0.009186154929921031,
+          "readiness_wait": 5.6391931138932705e-05,
+          "check_files": 1.4159013517200947e-05,
+          "settle_wait": 0.5033995819976553,
+          "stop_teardown": 0.005812303978018463,
+          "clean_services": 0.002545066992752254,
+          "stop_super": 0.07451194000896066
+        },
+        "jobs": {
+          "server_1:201:nc 192.168.1.100 -l 5555": 0.0008449170272797346,
+          "host_1:4:send -s 1000 -p tcp 192.168.1.100:5555": 1.0939643880119547
+        },
+        "parse_time": 0.0018222859362140298,
+        "peak_rss": 71741440,
+        "cpu_time": 0.04999999999999982,
+        "ovs_rss_baseline": 59097088,
+        "ovs_rss_after": 59097088,
+        "pcap_sizes": {
+          "capture_iface_31383756_out.pcapng": 336,
+          "capture_iface_18684825.pcapng": 1812,
+          "capture_iface_31383756.pcapng": 1812,
+          "capture_iface_18684825_out.pcapng": 1500
+        },
+        "n_nodes": 2,
+        "n_edges": 1,
+        "n_jobs": 2
+      }
+    ],
+    "vlan": [
+      {
+        "wall": 2.1532441850285977,
+        "phases": {
+          "net_start": 0.22168621490709484,
+          "vlan_vtep_setup": 0.17003599600866437,
+          "disable_ipv6": 0.05225720698945224,
+          "readiness_wait": 8.699495811015368e-05,
+          "check_files": 3.4507946111261845e-05,
+          "settle_wait": 0.7098404200514778,
+          "stop_teardown": 0.13069905899465084,
+          "clean_services": 0.0027856110827997327,
+          "stop_super": 0.48814731393940747
+        },
+        "jobs": {
+          "host_1:1:ping -c 1 10.0.0.2": 0.18364331300836056,
+          "host_2:1:ping -c 1 10.0.0.2": 0.1855878729838878
+        },
+        "parse_time": 0.007999403984285891,
+        "peak_rss": 160284672,
+        "cpu_time": 0.13000000000000034,
+        "ovs_rss_baseline": 59097088,
+        "ovs_rss_after": 59170816,
+        "pcap_sizes": {
+          "capture_l2sw1_3_out.pcapng": 196,
+          "capture_l2sw2_2.pcapng": 368,
+          "capture_iface_40853277_out.pcapng": 196,
+          "capture_l2sw2_3.pcapng": 368,
+          "capture_l2sw1_3.pcapng": 368,
+          "capture_l2sw1_1.pcapng": 508,
+          "capture_l2sw1_1_out.pcapng": 384,
+          "capture_iface_81283760_out.pcapng": 196,
+          "capture_iface_78141057_out.pcapng": 196,
+          "capture_l2sw1_2.pcapng": 368,
+          "capture_l2sw2_1_out.pcapng": 266,
+          "capture_l2sw2_1.pcapng": 626,
+          "capture_l2sw2_3_out.pcapng": 196,
+          "capture_iface_40853277.pcapng": 368,
+          "capture_l2sw2_2_out.pcapng": 196,
+          "capture_iface_81333435.pcapng": 368,
+          "capture_iface_78141057.pcapng": 368,
+          "capture_iface_81333435_out.pcapng": 82,
+          "capture_iface_81283760.pcapng": 368,
+          "capture_l2sw1_2_out.pcapng": 196
+        },
+        "n_nodes": 6,
+        "n_edges": 5,
+        "n_jobs": 2
+      }
+    ],
+    "vxlan": [
+      {
+        "wall": 2.341213584993966,
+        "phases": {
+          "net_start": 0.16032591497059911,
+          "vlan_vtep_setup": 0.0638257690006867,
+          "disable_ipv6": 0.037928661913610995,
+          "readiness_wait": 0.008100157952867448,
+          "check_files": 5.4922071285545826e-05,
+          "settle_wait": 0.9095025579445064,
+          "stop_teardown": 0.20437704597134143,
+          "clean_services": 0.003087972989305854,
+          "stop_super": 0.5757691090693697
+        },
+        "jobs": {
+          "host_1:1:ping -c 1 192.168.1.2": 0.1842631489271298,
+          "host_2:1:ping -c 1 192.168.1.2": 0.18564006499946117
+        },
+        "parse_time": 0.007889288943260908,
+        "peak_rss": 157519872,
+        "cpu_time": 0.1499999999999998,
+        "ovs_rss_baseline": 59170816,
+        "ovs_rss_after": 59170816,
+        "pcap_sizes": {
+          "capture_iface_64175116.pcapng": 368,
+          "capture_iface_13818414.pcapng": 2188,
+          "capture_iface_57688254.pcapng": 2188,
+          "capture_iface_16050474_out.pcapng": 196,
+          "capture_iface_04672555.pcapng": 368,
+          "capture_iface_64175116_out.pcapng": 196,
+          "capture_iface_04670040_out.pcapng": 196,
+          "capture_iface_02067447.pcapng": 368,
+          "capture_iface_16050474.pcapng": 368,
+          "capture_iface_53522355_out.pcapng": 196,
+          "capture_iface_14567101.pcapng": 368,
+          "capture_iface_20347788.pcapng": 368,
+          "capture_iface_14567101_out.pcapng": 196,
+          "capture_iface_53522355.pcapng": 368,
+          "capture_iface_20347788_out.pcapng": 196,
+          "capture_iface_04672555_out.pcapng": 196,
+          "capture_iface_57688254_out.pcapng": 1106,
+          "capture_iface_13818414_out.pcapng": 1106,
+          "capture_iface_04670040.pcapng": 368,
+          "capture_iface_02067447_out.pcapng": 196
+        },
+        "n_nodes": 6,
+        "n_edges": 5,
+        "n_jobs": 2
+      }
+    ]
+  }
+}

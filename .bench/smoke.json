@@ -1,0 +1,37 @@
+{
+  "mode": "boxed",
+  "networks": {
+    "tcp_connection_setup_1": [
+      {
+        "wall": 5.278888261003885,
+        "phases": {
+          "net_start": 2.0838901069946587,
+          "vlan_vtep_setup": 1.9596016500145197e-05,
+          "readiness_wait": 3.655895125120878e-05,
+          "check_files": 3.0377006623893976e-05,
+          "stop_teardown": 2.0090243539889343,
+          "clean_services": 0.003836799005512148,
+          "stop_super": 0.08255862799705938
+        },
+        "jobs": {
+          "server_1:201:nc 192.168.1.100 -l 5555": 0.0008636810234747827,
+          "host_1:4:send -s 1000 -p tcp 192.168.1.100:5555": 1.0946849290048704
+        },
+        "parse_time": 0.0030570660019293427,
+        "peak_rss": 70328320,
+        "cpu_time": 0.12000000000000005,
+        "ovs_rss_baseline": 14794752,
+        "ovs_rss_after": 14794752,
+        "pcap_sizes": {
+          "capture_iface_43603830.pcapng": 1812,
+          "capture_iface_24112138_out.pcapng": 1500,
+          "capture_iface_24112138.pcapng": 1812,
+          "capture_iface_43603830_out.pcapng": 336
+        },
+        "n_nodes": 2,
+        "n_edges": 1,
+        "n_jobs": 2
+      }
+    ]
+  }
+}

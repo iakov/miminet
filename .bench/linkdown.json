@@ -1,0 +1,51 @@
+{
+  "mode": "boxed",
+  "networks": {
+    "link_down": [
+      {
+        "wall": 7.241300021007191,
+        "phases": {
+          "net_start": 1.71909228595905,
+          "vlan_vtep_setup": 0.01613386900862679,
+          "readiness_wait": 0.00010653003118932247,
+          "check_files": 4.9271038733422756e-05,
+          "stop_teardown": 2.0571356380241923,
+          "clean_services": 0.0029968880116939545,
+          "stop_super": 0.32595978799508885
+        },
+        "jobs": {
+          "l2sw2:6:link down host_2": 0.00403331097913906,
+          "host_1:1:ping -c 1 192.168.0.2": 3.111652666993905
+        },
+        "parse_time": 0.0036687259562313557,
+        "peak_rss": 112078848,
+        "cpu_time": 0.31999999999999995,
+        "ovs_rss_baseline": 14794752,
+        "ovs_rss_after": 58961920,
+        "pcap_sizes": {
+          "capture_l2sw2_2.pcapng": 24,
+          "capture_iface_60266344.pcapng": 198,
+          "capture_l2sw1_1.pcapng": 198,
+          "capture_l2sw1_1_out.pcapng": 24,
+          "capture_iface_65503551_out.pcapng": 24,
+          "capture_iface_60266344_out.pcapng": 198,
+          "capture_l2sw1_2.pcapng": 198,
+          "capture_l2sw2_1_out.pcapng": 24,
+          "capture_l2sw2_1.pcapng": 198,
+          "capture_l2sw2_2_out.pcapng": 24,
+          "capture_iface_65503551.pcapng": 24,
+          "capture_l2sw1_2_out.pcapng": 198
+        },
+        "n_nodes": 4,
+        "n_edges": 3,
+        "n_jobs": 2
+      },
+      {
+        "error": "TimeoutError('Network did not become ready within 90.0s: capture files missing')"
+      },
+      {
+        "error": "TimeoutError('Network did not become ready within 90.0s: capture files missing')"
+      }
+    ]
+  }
+}
