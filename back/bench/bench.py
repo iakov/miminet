@@ -4,9 +4,8 @@
 Drives the real emulation path (MiminetTopology -> MiminetNetwork ->
 jobs -> create_animation) and records, per network JSON:
 
-  * wall-clock per phase: net.start(), vlan/vtep setup, readiness wait,
-    each job, net.stop() (teardown / clean_services / super.stop()),
-    pcap parse (create_animation)
+  * wall-clock per phase: net.start(), each job, net.stop(), pcap parse
+    (create_animation)
   * process-tree peak RSS + CPU time (user+sys) of this process and all
     children (hosts, mimidump, routers)
   * ovs-vswitchd RSS delta (baseline before run, after run)
@@ -118,7 +117,6 @@ def run_once(network, name: str = "network"):
 
     topo = MiminetTopology(network)
     net = MiminetNetwork(topo, network)
-    net.timing = True
 
     sampler = Sampler()
     sampler.start()
@@ -137,7 +135,9 @@ def run_once(network, name: str = "network"):
             job_times[f"{job.host_id}:{job.job_id}:{job.print_cmd}"] = (
                 time.monotonic() - t0
             )
+        t0 = time.monotonic()
         net.stop()
+        stop_time = time.monotonic() - t0
     except Exception:
         cleanup_emulation()
         raise
@@ -158,7 +158,7 @@ def run_once(network, name: str = "network"):
 
     return {
         "wall": wall,
-        "phases": dict(net.phase_times),
+        "stop_time": stop_time,
         "settle_hit_cap": net.settle_hit_cap,
         "jobs": job_times,
         "parse_time": parse_time,

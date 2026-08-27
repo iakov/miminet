@@ -92,14 +92,15 @@ the floor must be ≥ ~1.2 s.
 - Quiet-detection needs genuinely quiet counters, which the continuous IPv6
   flood (see §4) prevents. With `MIMINET_DISABLE_IPV6=1` the flood is gone and
   `__settle()` polls this emulation's own OVS ports (psutil `net_io_counters`,
-  no subprocess), breaking after `MIMINET_SETTLE_QUIET_POLLS` quiet polls
-  (default 3 × 0.1 s) once elapsed ≥ `MIMINET_SETTLE_MIN` (default 1.2 s).
+  no subprocess), breaking after 3 quiet polls (3 × 0.1 s) once elapsed ≥
+  `MIMINET_SETTLE_MIN` (default 1.2 s), capped at 2.0 s.
 - Floor 1.2 s is required by the latest async tails (0.6–1.1 s); 27/27 with
   the full suite. Without disable-ipv6 the flood keeps counters busy and the
   settle degrades to the 2.0 s cap (= old behavior, no regression).
-- Knobs: `MIMINET_SETTLE_MIN`, `MIMINET_SETTLE_MAX`, `MIMINET_SETTLE_POLL`,
-  `MIMINET_SETTLE_QUIET_POLLS`, `MIMINET_STOP_SLEEP` (old fixed override).
-  `settle_wait` / `settle_hit_cap` exposed to the benchmark.
+- Knobs: `MIMINET_SETTLE_MIN` (floor), `MIMINET_STOP_SLEEP` (old fixed
+  override). Max/poll/quiet are hardcoded (2.0 s / 0.1 s / 3). The benchmark
+  measures `net.stop()` externally as `stop_time` and reads
+  `settle_hit_cap` to tell early breaks from cap-bound ones.
 
 ## IPv6 multicast flood — root cause + fix (`MIMINET_DISABLE_IPV6`)
 - Every emulated interface carries a *continuous* IPv6 flood: MLDv2 multicast

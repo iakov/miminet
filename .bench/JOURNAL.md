@@ -76,3 +76,19 @@ Findings live in `.bench/BENCH_FINDINGS.md`; raw data in `.bench/*.json`.
 - Upstream ipmininet: gate DAD on use_v6 + start captures only when the
   interface is up.
 - Concurrency sweep (Batch 2) now that net_start is cheap.
+
+### 2026-08-27 — session 4: upstream PRs + bench rework
+- Product work upstreamed as two PRs on mimi-net/miminet, both built on the
+  updated #452 head (`f42dfac`): `fix(back): stop IPv6 multicast flood`
+  (`MIMINET_DISABLE_IPV6`, **default on**) + `perf(back): adaptive pre-teardown
+  settle` (1.2 s floor, 2.0 s cap). Trimmed to keep the PR diff minimal
+  (~114 lines): `__disable_ipv6` / `__own_observable_interfaces` / `__settle`
+  docstrings shortened; knobs reduced to `MIMINET_SETTLE_MIN` +
+  `MIMINET_STOP_SLEEP` (MAX/POLL/QUIET_POLLS hardcoded 2.0/0.1/3); the
+  `timing`/`phase_times` instrumentation was **removed from the product** —
+  it belonged to the harness only.
+- Bench reworked to match: `bench.py` no longer sets `net.timing` / reads
+  `phase_times`; it times `net.stop()` externally as `stop_time` and still
+  records `settle_hit_cap`. This branch (`wip/bench-emulation`) is the only
+  place `BACK_ENGINE` override + harness live; the trimmed product
+  `lib-back-env.sh` dropped the override for CI parity.
