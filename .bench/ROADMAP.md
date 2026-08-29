@@ -19,10 +19,30 @@ Root cause chain:
   job's first packet can race the attach.
 
 Actioned upstream (2026-08-29):
-- `mimi-net/mimidump#11` — emit a readiness sentinel once both captors are live.
-- `mimi-net/ipmininet#14` — expose `NetworkCapture.wait_until_capturing(intf, timeout)`.
+- `mimi-net/mimidump#11` — **DONE** (PR #12 merged): `READY` line to stderr once
+  both captors enter the capture loop. `mimidump#10` merged: capture limit
+  100->1000 (kernel buffer).
+- `mimi-net/ipmininet#14` — **DONE** (closed by `ipmininet#16`, merged): add
+  `NetworkCapture.wait_until_capturing(intf, timeout)` (READY stderr signal,
+  pcap-file-existence fallback for tcpdump/older mimidump). Note: the file
+  fallback in #16 makes the API ~equivalent to today until the READY path is
+  authoritative — if that proves to blur the guarantee, a strict READY-only
+  mode is the follow-up.
 - Then: miminet `__wait_until_ready` polls it (SSOT), `__restart_captures`
   becomes a safety net; NO retry-on-mismatch code was added to miminet.
+
+Work mode (2026-08-29): no PRs to upstream — all work on fork branches
+(iakov/miminet) with fork-to-fork PRs for full CI; fork `main` mirrors
+upstream/main (+ 2 local CI commits: workflow_dispatch, uv.lock autoupdate).
+Drafted:
+- `infra/py312-ipmininet` (fork PR #1 -> fork main): ubuntu:24.04 base +
+  PEP 668, front ARG 3.12, `.python-version` 3.12, ipmininet pin **@363d342**
+  (= ipmininet master HEAD = target of the unpublished 1.2.6 draft; upgrade to
+  the tag when published). `27/27` verify on the new base = merge gate.
+- `perf/capture-readiness` (fork PR #2, draft, stacked on #1): `__wait_until_ready`
+  -> `capture.wait_until_capturing(iface)`.
+- mimidump rebuild: back image pins pre-READY `971ff5236`; the READY path needs
+  a rebuild from current mimidump main.
 
 ## 2. ipmininet 1.2.5 -> master analysis (transferability)
 
@@ -52,8 +72,12 @@ as SSOT), miminet consumes it.
 
 ## 4. Deferred directions (status)
 
-- [ ] ubuntu:24.04 + Python 3.12 + ipmininet `1.2.6` (draft tag; blocked) — seed
-      `pr/infra`; delivers `net_start` 2s->0.2s + capture-start reliability.
+- [~] ubuntu:24.04 + Python 3.12 + ipmininet @363d342 (= 1.2.6 draft target) —
+      **drafted** as `infra/py312-ipmininet` (fork PR #1); pending: 27/27 on the
+      new base, then swap the pin to the `1.2.6` tag once published. Delivers
+      `net_start` 2s->0.2s + capture-start reliability + `wait_until_capturing`.
+- [~] S2 — gate job start on capture liveness: **drafted** as
+      `perf/capture-readiness` (fork PR #2), stacked on the migration.
 - [ ] Parallel isolated back suite (xdist + unshare) — pilot: stp/vxlan/link_down
       in parallel; worker count by memory ceiling (bench: 4x heaviest ~1 GiB).
 - [ ] CI split: `full_test` off every PR (master + workflow_dispatch + nightly).
