@@ -47,12 +47,14 @@ commits), force-push, delete merged branch + worktree. Merge order when PRs
 touch shared files: A → D → C → E.
 
 ## CI facts
-- Linter = flake8 + black + mypy (matrix back/front), run via
-  `uv run --frozen` (uv workspace is now the dependency SSOT; per-node
+- Linter = **ruff check + ruff format --check + mypy** (matrix back/front),
+  run via `uv run --frozen` (uv workspace is the dependency SSOT; per-node
   `requirements.txt` deleted).
 - `Pytest` = back tests as root, `back/ovs-init.sh`, `uv sync --frozen
   --project back`, `PYTHONPATH=../src pytest .` from `back/tests`
-  (pytest-timeout 900s).
+  (pytest-timeout 900s). **Sharded across 3 matrix runners** (#477): each job
+  runs a serial slice of `test_*.py` (round-robin `NR % 3 == shard-1`), with an
+  empty-slice guard and per-shard `test-logs-shard-<n>` artifacts.
 - `Full test` + `auth test` are the flake signal; do not gate merges on them.
 - Full test now also runs nightly (`schedule: cron '0 2 * * *'`, merged from
   PR A).
@@ -78,17 +80,21 @@ touch shared files: A → D → C → E.
   even with `uv sync --project back` or from a member dir. Root `uv sync
   --frozen` installs all members + all dev groups; `--project back` installs
   back runtime + back dev group only.
-- Linter tooling: ruff (lint+format) and `ty` (type checker) eventually
-  replace black/flake8/mypy; deferred until verifiable in CI.
-- **Back test parallelism — DEFERRED (proven negative).** ipmininet's
-  py-unshare/run-tests-parallel (xdist `--dist=loadscope`, per-worker
-  `unshare --mount --pid --net` isolation, `--timeout-method=thread`) breaks
-  OVS emulation: ovs-vswitchd runs in the host netns while each worker builds
-  its network in a private netns, so OVS bridges forward nothing → empty
+- Linter tooling: **ruff (lint+format) merged (#476)** replacing black/flake8;
+  mypy kept (type gate). `ty` swap deferred — `ty check .` = 190 diagnostics
+  vs mypy 0 (mypy skips untyped function bodies); the `[tool.ty]` config is now
+  schema-valid so the swap can be evaluated when someone wants the stricter
+  checks.
+- **Back test parallelism — SHARDING MERGED (#477), unshare proven negative.**
+  ipmininet's py-unshare/run-tests-parallel (xdist `--dist=loadscope`,
+  per-worker `unshare --mount --pid --net` isolation, `--timeout-method=thread`)
+  breaks OVS emulation: ovs-vswitchd runs in the host netns while each worker
+  builds its network in a private netns, so OVS bridges forward nothing → empty
   captures. Proven with 4 workers AND a single worker (isolation, not
-  contention). Alternatives to explore if revisited: CI matrix sharding
-  (N jobs, serial slices) or OVS-per-worker-netns. Work preserved on fork
-  branch `ci/back-parallel-suite`; PR #475 closed deferred.
+  contention). **Matrix sharding instead: N independent runners, serial slices
+  by file, no unshare → emulation tests pass** (shard1 21/21 incl. the flakey
+  `port_forwarding_tcp` on re-run; shard2 18/18; shard3 3/3). Work preserved on
+  fork branch `ci/back-parallel-suite`; PR #475 closed deferred.
 
 ## Session outcomes (2026-09-01)
 - Merged upstream: #472 nightly flake signal (A), #474 uv workspace (D),
@@ -98,27 +104,72 @@ touch shared files: A → D → C → E.
 - Docs are **fork-only by decision**: AGENTS.md + runbook stay on
   `docs/agent-guardrails`, never merged upstream.
 
-## Next batch plan & decisions (2026-09-01)
-1. **Linter full swap → ruff + ty** (upstream PR, two SEPARATE commits, never
-   squashed so reflog/blame/rev-list can isolate the sweep): commit A = pure
-   tooling (linter.yml: flake8→`ruff check`, mypy→`ty`, black→`ruff format
-   --check`; drop black/flake8/mypy/isort pins; `uv lock`); commit B = one
-   labeled autofix-sweep commit (`ruff check --fix .` + `ruff format .` + manual
-   `ty` fixes). Ordering A-then-B so the intermediate commit is not gated by the
-   old (black/flake8) checkers; CI runs on PR head anyway. Gate first locally:
-   `ruff check .` / `ruff format --check .` / `ty check .`; type-error churn →
-   defer.
-2. **Back-test parallelism revival** via CI matrix sharding (N serial slices,
-   no `unshare`). Rebase onto new main after the linter PR (both touch
-   `.github/workflows`). Sharded job must be green incl. emulation tests, else
-   record a second negative and stay deferred.
-3. **dependabot × uv.lock**: validate open upstream pip PRs (#461-style) with
-   `uv lock --check` on the diff; un-defer if valid, else recommend
-   dependabot-ignore for `pip@/` and document.
-4. **Fork branch cleanup**: delete stale candidates after verifying no open PR /
-   unmerged work (`pip2poetry`, `perf/capture-readiness`,
-   `park/dev-workflow-guardrail`, `infra/py312-ipmininet`, `pr/rootless-dev`,
-   `iakov/garbage-1`, `backup/pip2poetry-2026-08-22`, `discovery`, `wip/*`,
-   `pr/infra`). Keep `main`, `docs/agent-guardrails`, `ci/back-parallel-suite`,
-   `wip/bench-emulation` (its worktree lives outside the project dir — untouchable
-   under the boundaries rule).
+## Batch 2 outcomes (2026-09-01)
+1. **Linter switch → ruff (check + format), mypy kept (#476, merged).**
+   Two separated commits as planned: A = tooling (linter.yml flake8→`ruff
+   check`, black→`ruff format --check`; dropped `black`/`flake8` pins + lock;
+   fixed `[tool.ty]` to a schema-valid block), B = `ruff format` sweep (21
+   files). **`ty` swap DEFERRED (proven):** `ty check .` = 190 diagnostics
+   across ~50 files vs `mypy --ignore-missing-imports` = 0 — mypy's default
+   skips untyped function bodies, ty checks them; a full swap is type-churn,
+   not mechanical. CI tripped once on flake8-only flags (`--count`,
+   `--statistics`) — removed. Review noted one real coverage gap: flake8 caught
+   `W605` (invalid escape), ruff's `select=["E4","E7","E9","F"]` does not
+   (non-blocking, repo clean today).
+2. **Back-test parallelism revival — POSITIVE via matrix sharding (#477,
+   merged).** 3-runner matrix, serial slices by file (round-robin
+   `NR % 3 == shard-1`), no unshare/xdist. Shard 1 = 21 emulation tests passed
+   (20/21 then 21/21 on re-run — `port_forwarding_tcp` flaked once with
+   RST+ACK instead of a full handshake, a timing flake, passed on re-run),
+   shard 2 = 18/18, shard 3 = 3/3. **Emulation works on separate runners →
+   matrix sharding is OVS-safe** (the unshare approach failed outright). This
+   un-deferrals the parallelism question; speedup is modest (4 test files) but
+   the mechanism is proven. Hardening added from review: empty-slice guard
+   (`[ -n "$slice" ] || exit 1` — prevents silent full-suite re-run if the file
+   count changes) and per-shard artifact names (`test-logs-shard-<n>`).
+3. **dependabot × uv.lock:** open PR #461 validated — it bumps
+   `front/requirements.txt`, which no longer exists on `main` (removed in the
+   uv migration). **Stale, closed as obsolete.** The live question (can the
+   pip@`/` dependabot produce valid workspace-lock PRs?) stays **open** until
+   the next monthly cycle.
+4. **Fork branch cleanup — done.** Deleted 6 origin + 11 local stale branches
+   (all abandoned experiments, zero PRs, confirmed ahead-commits were
+   superseded work: poetry draft, pre-uv CI experiments). Kept `main`,
+   `docs/agent-guardrails`, `ci/back-parallel-suite`, `wip/bench-emulation`
+   (its worktree is outside the project dir — untouchable).
+
+## Review-agent gate — evaluation (2026-09-01)
+Ran the senior-reviewer subagent on #476 and #477. Verdicts: APPROVE + APPROVE
+(both with non-blocking nits; no must-fix on either).
+
+What it actually caught (ranked by value):
+- **#477 empty-slice guard** — a REAL latent bug I shipped: an empty slice
+  would make `pytest $slice` silently run the entire suite (full-duplicate
+  coverage). I tested the round-robin math but never thought about the
+  empty-slice case. This alone justifies the gate.
+- **#477 artifact-name collision** — per-shard logs overwrite each other
+  (last-wins) so a failed shard's log could be lost. Debuggability fix.
+- **#476 W605 coverage gap** — flake8 caught invalid escapes, the ruff select
+  set doesn't. Genuine (minor) lint-coverage regression I missed.
+- **#476 AST-identity of the format sweep** — independent proof that the
+  21-file reformat changed nothing semantically. High-confidence verification
+  of the riskiest part of a formatter switch.
+- **#476 lock coherence** — confirmed only black/flake8 + reachable transitives
+  dropped, and that `pathspec`/`click`/`mypy-extensions` must stay (other
+  tools' deps).
+
+What it did NOT add: it re-verified several things I had already tested
+(ruff/mypy gate, slice partitioning, ty TOML schema). Overlap is partly the
+point (independent re-check) but the prompt could push harder toward
+"find what the author missed" to cut redundancy.
+
+Cost: one subagent run per PR (minutes, no blocking questions). Net: 2 real
+bugs + 2 verification wins across 2 small PRs → **keep the gate**, tune prompts
+toward adversarial/edge-case hunting (empty inputs, name collisions, coverage
+gaps) rather than re-verifying happy paths.
+
+## Standing guardrail update
+- Linter/formatter migrations must keep the tooling commit separate from the
+  mass autofix commit (reflog/blame/rev-list isolation). This pattern held:
+  the `--count/--statistics` CI failure was fixed by `--fixup`+autosquash
+  into commit A, keeping A/B clean.

@@ -70,6 +70,12 @@ follow these.
   **review-agent gate** (senior Python + networking reviewer; must-fix resolved
   or the PR is deferred; respect reasonable trade-offs) → rewrite history into a
   clean signed commit chain → re-green → rebase-merge upstream.
+- **Review-agent prompting:** verified value (2 real latent bugs across 2 small
+  PRs: an empty-slice silent-full-suite case, an artifact-name collision; plus
+  a lint-coverage gap). Prompt the reviewer to hunt **edge cases and coverage
+  gaps the author did not check** (empty inputs, name/id collisions, tool-behavior
+  deltas, AST-identity of mass reformats) rather than re-verifying happy paths
+  the author already tested.
 - Sign every commit with the SSH signing key
   (`-c commit.gpgsign=true -c gpg.format=ssh
    -c user.signingkey=/home/me/.ssh/id_signing_github.pub`),
