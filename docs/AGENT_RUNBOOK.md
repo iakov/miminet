@@ -166,6 +166,42 @@ touch shared files: A → D → C → E.
    review found: `select` gains `"W605"` (invalid-escape detection). Repo is
    already clean under it. One-line config change.
 
+## Batch 4 outcomes (2026-09-01) — ubuntu 26.04 UN-DEFERRED (#457 fixed)
+Root-caused + fixed the #457 deferral; the 26.04 base bump is now green.
+
+- **Root cause (debugged in a 26.04 container via the local harness):** iproute2
+  **6.19** colorizes `ip` output whenever stdout is a TTY; mininet spawns every
+  host/switch shell on a **pseudo-tty**; ipmininet parses `ip address show`
+  output as plain text (`_addresses_of`/`_parse_addresses`, `ipmininet/link.py`),
+  so ANSI-wrapped addresses raise `AddressValueError: Only decimal digits
+  permitted in '\x1b[1;35m10'...` → interface IPs never set → **empty captures**.
+  NOT OVS 3.7.1, NOT the interpreter (3.14), NOT bridge-nf/iptables (FORWARD
+  ACCEPT, br_netfilter absent — hypothesis killed by experiment). mininet native
+  `mn --topo single,2 --test pingall` passed on 26.04 for BOTH lxbr and ovsk →
+  raw datapaths fine; only the ip-parsing path broke.
+- **Fix (2 PRs):** #480 `ENV NO_COLOR=1` in `back/Dockerfile` + the robust
+  single-point `os.environ.setdefault("NO_COLOR","1")` in `back/src/emulator.py`
+  (covers image + CI runner + local runs; mininet node shells inherit
+  os.environ). `TERM=dumb` does NOT disable ip color; `NO_COLOR=1` does
+  (verified on a pty). iproute2 6.1 (24.04) never colorizes → NO_COLOR is a
+  no-op there. #481 the one-line base bump `FROM ubuntu:24.04 → 26.04`.
+- **Gates (local rootless-podman harness — the ONLY thing that builds+runs the
+  image; CI Pytest runs on the runner and never exercises the Dockerfile):**
+  26.04 + NO_COLOR = **42 passed** (was 20 failed/22 passed); 24.04 + NO_COLOR =
+  **42 passed** (no regression). Review gate #480 caught the CI/local gap
+  (runner isn't the image) → prompted the emulator.py env fix; #481 reviewer
+  verified uv.lock has cp314 wheels for back's whole closure (psycopg2-binary
+  cp312-only is front-only).
+- **Test/debug infra notes:** pytest.ini `log_file=back_test.log` (repo path) is
+  read-only under the harness — always pass `-o log_file=/tmp/back_test.log`.
+  Hand-rolled `ip netns exec` fails under rootless podman (mount of /sys not
+  permitted) — use mininet itself for datapath probes. `podman machine stop`
+  REWRITES `~/.config/containers/storage.conf` to root paths (breaks rootless
+  podman; restore to `[storage] driver="overlay"` w/o graphroot/runroot).
+  The `ipmininet` podman machine (bench worktree) auto-restarts via Podman
+  Desktop and starves the host CPU (~67% one core) — slows container gates
+  dramatically; stop it before timing-sensitive runs.
+
 ## Review-agent gate — evaluation (2026-09-01)
 Ran the senior-reviewer subagent on #476 and #477. Verdicts: APPROVE + APPROVE
 (both with non-blocking nits; no must-fix on either).
