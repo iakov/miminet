@@ -138,6 +138,34 @@ touch shared files: A → D → C → E.
    `docs/agent-guardrails`, `ci/back-parallel-suite`, `wip/bench-emulation`
    (its worktree is outside the project dir — untouchable).
 
+## Batch 3 outcomes (2026-09-01)
+1. **`port_forwarding_tcp` flake — ROOT-CAUSED + FIXED (#479).** The
+   intermittently-failing `port_forwarding_tcp` (client gets RST+ACK instead of
+   a full handshake) is a **bind race**: job 201 backgrounds `nc -k -d ... -l
+   8000 &` (fire-and-forget), job 109 installs iptables DNAT, job 4 sends
+   immediately. On a loaded CI runner the SYN beats the bind → kernel RST.
+   `run_miminet`'s retry only retries "not meaningful" captures, so SYN+RST is
+   accepted. Fix in `back/src/emulator.py`: after server-start jobs
+   (`SERVER_SETTLE_JOBS = {200, 201, 203}` = open_udp_server, open_tcp_server,
+   dhcp_server) the emulator settles `SERVER_SETTLE_SECONDS` (default 0.5s,
+   `MIMINET_SERVER_SETTLE` env override — mirrors `MIMINET_SETTLE_MIN`). Review
+   nit caught: **202 is `block_tcp_udp_port` (iptables, synchronous), not a
+   listener** — removed so the set matches intent. Also helps UDP (unbound port
+   → ICMP port-unreachable, datagram lost). Verification: full suite 42/42
+   local, settle log fired ("server job 201 started; settling 0.50s"), tcp+udp
+   clean. Un-reproducible locally (15/15 clean pre-fix) → the local harness can't
+   reproduce CI-load timing; gate = mechanism + no-regression + CI.
+2. **dependabot #457 (ubuntu 26.04) — GATED + DEFERRED, closed.** Same
+   rootless-podman harness (`back-test.sh test`, image `miminet-back:test`):
+   ubuntu 24.04 = **42/42 pass**; 26.04 = **20 fail (empty captures
+   `assert [] == [...]`)**; 26.04 + pinned 3.12 venv = still 20 fail → the
+   breakage is 26.04 userspace networking (OVS 3.3.9→3.7.1, iproute2
+   6.1.0→6.19.0), **not** the Python interpreter (3.12 vs 3.13). Closed #457
+   with the evidence table; dependabot may re-open it next cycle.
+3. **W605 restored (#478, merged).** Closes the real lint-coverage gap the #476
+   review found: `select` gains `"W605"` (invalid-escape detection). Repo is
+   already clean under it. One-line config change.
+
 ## Review-agent gate — evaluation (2026-09-01)
 Ran the senior-reviewer subagent on #476 and #477. Verdicts: APPROVE + APPROVE
 (both with non-blocking nits; no must-fix on either).
@@ -167,6 +195,15 @@ Cost: one subagent run per PR (minutes, no blocking questions). Net: 2 real
 bugs + 2 verification wins across 2 small PRs → **keep the gate**, tune prompts
 toward adversarial/edge-case hunting (empty inputs, name collisions, coverage
 gaps) rather than re-verifying happy paths.
+
+Batch 3 follow-up: ran the gate on #478 (PASS, one-line W605) and #479 (PASS).
+On #479 it verified the job-id → handler mapping against `jobs.py`/test JSON
+(the risky part) and caught a real intent bug I'd shipped: **202 in
+`SERVER_SETTLE_JOBS` is `block_tcp_udp_port` (synchronous iptables), not a
+listener** — removed. It also flagged the fixed 0.5s vs adaptive-bind trade-off
+(as a nit; env override is the escape hatch). Confirms the "hunt edge cases the
+author didn't check" prompt tuning works — the catch was exactly the
+id→semantics mapping, not the happy path.
 
 ## Standing guardrail update
 - Linter/formatter migrations must keep the tooling commit separate from the
