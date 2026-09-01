@@ -95,3 +95,30 @@ touch shared files: A → D → C → E.
   #473 bench harness (E). Deferred: #475 back-test parallelism (C).
 - Fork PRs #1/#2 closed superseded. Fork `main` synced to new upstream + 2
   fork-local commits (re-signed after each rebase).
+- Docs are **fork-only by decision**: AGENTS.md + runbook stay on
+  `docs/agent-guardrails`, never merged upstream.
+
+## Next batch plan & decisions (2026-09-01)
+1. **Linter full swap → ruff + ty** (upstream PR, two SEPARATE commits, never
+   squashed so reflog/blame/rev-list can isolate the sweep): commit A = pure
+   tooling (linter.yml: flake8→`ruff check`, mypy→`ty`, black→`ruff format
+   --check`; drop black/flake8/mypy/isort pins; `uv lock`); commit B = one
+   labeled autofix-sweep commit (`ruff check --fix .` + `ruff format .` + manual
+   `ty` fixes). Ordering A-then-B so the intermediate commit is not gated by the
+   old (black/flake8) checkers; CI runs on PR head anyway. Gate first locally:
+   `ruff check .` / `ruff format --check .` / `ty check .`; type-error churn →
+   defer.
+2. **Back-test parallelism revival** via CI matrix sharding (N serial slices,
+   no `unshare`). Rebase onto new main after the linter PR (both touch
+   `.github/workflows`). Sharded job must be green incl. emulation tests, else
+   record a second negative and stay deferred.
+3. **dependabot × uv.lock**: validate open upstream pip PRs (#461-style) with
+   `uv lock --check` on the diff; un-defer if valid, else recommend
+   dependabot-ignore for `pip@/` and document.
+4. **Fork branch cleanup**: delete stale candidates after verifying no open PR /
+   unmerged work (`pip2poetry`, `perf/capture-readiness`,
+   `park/dev-workflow-guardrail`, `infra/py312-ipmininet`, `pr/rootless-dev`,
+   `iakov/garbage-1`, `backup/pip2poetry-2026-08-22`, `discovery`, `wip/*`,
+   `pr/infra`). Keep `main`, `docs/agent-guardrails`, `ci/back-parallel-suite`,
+   `wip/bench-emulation` (its worktree lives outside the project dir — untouchable
+   under the boundaries rule).

@@ -85,6 +85,12 @@ follow these.
 - Review-gate approval cannot be given by the PR author on their own PR (GitHub
   rejects self-approval). Record the review-agent verdict as a PR comment, then
   `gh pr merge --rebase --admin` (author has ADMIN on upstream).
+- **Linter/formatter migrations:** separate the tooling commit (workflow +
+  dep pins + lock) from the mass autofix commit (`ruff check --fix` /
+  `ruff format` sweep). Never squash them together — keeping them separate lets
+  reflog/blame/`rev-list` isolate the sweep (revert it, or find which commit
+  touched a line). Commit tooling first, autofix second, so no intermediate
+  commit is judged by the OLD checkers.
 
 ## 5. Security rules
 - Never commit or log secrets/tokens. Never commit `back/Vagrantfile.txt`,
