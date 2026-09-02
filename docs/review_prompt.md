@@ -108,7 +108,11 @@ raw Selenium click landing on nothing; retry covering only empty captures.
   name collisions/overwrites, `if-no-files-found: ignore` + byte-size only,
   missing failure-path log capture, and any path whose failure mode is a silent
   no-op rather than a loud error. Ask: "what would have happened if this step
-  did nothing?"
+  did nothing?" Concretely: for any step that writes file X, ask whether X is
+  already opened by another writer this run (config `log_file`, a second tee) —
+  two writers to one path = corruption (#484); and PROVE artifact globs match
+  by downloading the artifact — a glob rooted in a dot-dir (`.tmp/...`) uploads
+  nothing unless `include-hidden-files: true` (#484).
 
 **(e) Author-framing inheritance**
 Evidence: #483 "backend died" misdiagnosis; successive fixes inheriting a wrong
@@ -167,6 +171,17 @@ These caught real latent bugs; every future prompt keeps them:
 
 ## 6. Changelog (why each prompt line exists)
 
+- **v1.1 (2026-09-02)** — evidence from PR #484's own gate (approved AFTER two
+  review rounds; both round-1 must-fixes were author misses the prompt surfaced):
+  (i) **file double-writer**: adding `tee <file>` where a config (`pytest.ini
+  log_file`) already opens the same path with mode 'w' corrupts the log — prompt
+  check for any "write to file X" step: "is X already written by another
+  process/config in this run?" (class d); (ii) **hidden-dir artifact no-op**:
+  `upload-artifact` globs rooted in a dot-directory (`.tmp/...`) silently upload
+  NOTHING because `include-hidden-files` defaults false — prompt check: "prove
+  the artifact glob actually matches (download + inspect), and set
+  `include-hidden-files: true` for dot-rooted paths" (class d). Both are now
+  prompt lines under (d).
 - **v1 (2026-09-02)** — first canonical version, distilled from full-repo
   history mining. Evidence episodes behind the classes: grid-readiness race +
   misdiagnosis (#483 amend e7fa2f8→742d79a) → (a)/(e); accepted silent-CI
