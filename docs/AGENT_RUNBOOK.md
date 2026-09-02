@@ -246,3 +246,53 @@ id→semantics mapping, not the happy path.
   mass autofix commit (reflog/blame/rev-list isolation). This pattern held:
   the `--count/--statistics` CI failure was fixed by `--fixup`+autosquash
   into commit A, keeping A/B clean.
+
+## Batch 5 outcomes (2026-09-02) — front Selenium flake hardened (#482)
+Fixed the recurring CI Full-test flake (`test_stp` stale-element +
+`test_duplication` `assert 50 == 0`) by converting config-commit + navigation
+clicks to a retrying `wait_and_click`.
+
+- **Two DISTINCT flake root causes, two fixes:**
+  1. **Stale-element clicks** — raw `find_element(...).click()` on config-submit
+     and navigation buttons. Fix: `wait_and_click` (re-finds each attempt).
+     Reviewer gate (round 1) caught that converting modal-INNER clicks to
+     driver-GLOBAL lookups is unsafe: inner ids (`#stp`, `#none`,
+     `#rstpConfigurationSubmit`, `#config_switch_vlan`, `#vlanConfigurationSubmit`)
+     are NOT globally unique — only the outer modal id is rewritten
+     (`RstpModal_<id>`/`VlanModal_<id>`, config_stp.js:11 / config_vlan.js:11)
+     and old modals persist in the DOM. Fix: optional `scope=` param on
+     `wait_and_click` (WebElement or `(by, selector)` tuple; container re-found
+     each retry), used by the STP/RSTP/VLAN config-commit clicks.
+  2. **`assert 50 == 0`** — the edge-config form sets the in-memory JS `edges`
+     value BEFORE the save XHR (`POST /edge/save_config` →
+     `configurators.Edge._update_network_issue`) completes. A page RELOAD to
+     check server state is SELF-DEFEATING: navigation aborts the in-flight XHR,
+     so the server never persists (verified: reload-poll timed out 10× runs).
+     Fix: `_server_edge_duplicate()` in test_duplication.py polls the server
+     with an in-page `fetch(network.url)` (no navigation), regex-parses the
+     served `var edges = ...; var jobs` literal for `duplicate_percentage`,
+     `wait_for`-polled. The reviewer's "sound" concern about in-memory vs
+     server value was real; the reload fix was wrong, in-page fetch is right.
+- **Local harness facts (rootless podman):** host CANNOT reach container IPs
+  (bridge in private netns) — use `TEST_TARGET_HOST=<host LAN IP>
+  TEST_TARGET_PORT=8080` (rootlessport listens `*:8080`; the chrome container
+  reaches the app via gateway NAT; container→container `172.18.0.2:80` also
+  works). Login = POST `//auth/login.html` → 302 → `/home`. Grid = the repo's
+  OWN compose `front/tests/docker/docker-compose.yml` (authoritative; has
+  `shm_size: 2gb` + `GRID_TIMEOUT=60`). **Never hand-run the chrome node with
+  default /dev/shm (64MB) — chrome tabs crash (`tab crashed`) under load;
+  always use the CI compose or `--shm-size=2g`.**
+- **Full-suite local verification is host-memory-bound:** the session-scoped
+  `selenium` fixture is ONE browser for the whole ~6 min / 114-test run; when
+  the host is short on RAM (other tenants: desktop chrome ~5-6GB, opencode,
+  auto-restarting ipmininet VM) a tab dies mid-run and EVERY subsequent test
+  errors `tab crashed`/`invalid session id` — that is ONE incident, not N (see
+  §1a). Files all pass in isolation; both disjoint halves of the suite pass
+  clean (53 + 61 = 114). The ipmininet podman machine auto-restarts via Podman
+  Desktop — `podman machine stop ipmininet` before timing-sensitive runs.
+- **Gates:** pre-fix local repro 15 runs → 1 exact `assert 50 == 0` failure
+  (~7%); post-fix test_stp+duplication 8/8, packet_filters 5/5, both suite
+  halves clean. CI all green (Linter, 3 Pytest shards, Full test 6m18s, dep
+  review, auth test). Review-agent gate round 2: APPROVE (verified scope
+  container re-find, DOM nesting vs scope, template/edges regex format,
+  fetch-credential cookie domain). Merged as upstream `33636cf`.
