@@ -492,3 +492,40 @@ logs apart from memory addresses/timing: `6 passed, 24 errors in ~5s`.
   images define **no** Docker HEALTHCHECK (`image inspect` Healthcheck null) —
   readiness must be polled via `/status` or `/wd/hub/status` (identical JSON);
   `value.ready` is true only once a node has registered.
+
+## Batch 7 outcomes (2026-09-02) — reviewer-prompt v1 from history mining + CI-hardening PR #484
+- **Canonical reviewer prompt:** `docs/review_prompt.md` (v1) built from a
+  full-repo mining pass. Taxonomy classes (a)-(g): infra/readiness races,
+  single-PR isolation blindness, local-vs-CI divergence, silent-failure
+  plumbing, author-framing inheritance, test-quality gaps, toolchain gaps; plus
+  a pre-gate history check (`git log --oneline upstream/main -- <files>`), the
+  positive-control list that must never regress, and a changelog. AGENTS.md §4
+  now mandates: run the pre-gate history check, carry it into every per-PR
+  prompt, and add post-merge fixes as prompt feedback (v1.1 added the #484
+  double-writer + hidden-dir-artifact-no-op lessons under class (d)).
+- **PR #484 (merged upstream 07add40):** harden shard slicing — quoted bash
+  arrays replace unquoted `$slice` (glob/word-split silent drop), `set -euo
+  pipefail` atop both sudo blocks, find/sort failures fail loudly,
+  `-maxdepth 1` documented, back_test.yml captures a real log. **The v2 review
+  gate caught 2 author misses, both class (d), both proven via artifacts:**
+  1. `back/tests/pytest.ini` already sets `log_file = back_test.log` (mode 'w')
+     → the new `tee back_test.log` was a second independent file writer →
+     corrupted log (truncated header, mid-token clobber). Fixed single-writer:
+     `-o log_file=/dev/null -o log_cli=true -o log_cli_level=INFO ... | tee`.
+  2. `upload-artifact@v7` defaults `include-hidden-files: false` → the
+     `.tmp/*-shard-<n>.log` glob rooted in the hidden `.tmp` dir silently
+     uploaded NOTHING (and would also swallow the Capture-container-logs
+     output from the 742d79a amend). Fixed: `include-hidden-files: true`.
+     Literal paths match hidden files; globs rooted in a dot-dir do not.
+- **Also burned one CI cycle** the reviewer predicted under `set -u`: back_test
+  referenced `$PYTHONPATH` unset in CI → `unbound variable` all shards; fixed
+  with `${PYTHONPATH:-}`. (A `set -u` audit is now an explicit review probe.)
+- Local gates before CI: YAML parse + `bash -n` + slice-residue equivalence
+  (old `awk NR%n==s-1` vs new loop, n∈{2,3,5}, edge + real lists). Reviewer
+  note: a harness that compares `$(...)` (newline-stripped) output HIDES the
+  empty-input guard divergence — old code emitted a phantom blank record for
+  one shard (the #477 hazard); new code empties every shard uniformly.
+- CI green pre- and post-merge (Full test 3/3, Pytest 3/3, Linter, auth, CodeQL)
+  on 07add40. Fork `main` = upstream 07add40 + re-signed fork-local commits
+  (`dff3400`, `bc7e022`), force-pushed; fork-local triggers preserved on both
+  hardened workflows. Known-debt item 1 (back/front CI nits) closed.
