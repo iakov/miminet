@@ -219,5 +219,18 @@ Applies to any workflow or CI-harness edit:
 - **Verify a matrix actually expanded** (`gh run view <id> --json jobs`) and
   download + inspect artifacts (byte size misleads); do not trust a lone green
   run conclusion for a matrix job.
+- **Selenium e2e jobs must wait for grid readiness before pytest:** `docker
+  compose up -d` returns before the hub serves `/wd/hub` — poll
+  `localhost:4444/wd/hub/status` until `value.ready` AND a node reports
+  `availability` = `UP` (uppercase; images define no HEALTHCHECK). An
+  app-only `curl -f localhost` availability step does NOT cover the grid; a
+  first-session `ConnectionResetError` cascade (`N passed, many errors in ~5s`)
+  is this race, not a backend death (#483 e7fa2f8→742d79a).
+- **Capture container logs on job failure** (front + grid `docker compose logs
+  --tail=300` into the artifact) — one failed run's logs distinguish an infra
+  crash from a readiness race. In such sudo/capture blocks wrap `cd`s in
+  `( ... )` subshells so later `chmod`/`cat`/upload paths stay repo-root
+  relative. Test polling predicates + shell structure locally against a real
+  container before burning CI cycles.
 - Workflow-only changes need no heavy local e2e re-runs: the cheap local gates
   are slice-math reproduction + YAML parse; the CI matrix run IS the gate.

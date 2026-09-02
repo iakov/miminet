@@ -441,3 +441,48 @@ sharding (#477 / b968192). Merged.
   (`724e8c9`→`6fb5bd9`, `0f64e6f`→`0ed7d96`); rebase was conflict-free — the
   fork-local `on:` commit applies cleanly onto the matrix file because the two
   edits touch disjoint regions (`on:` vs `jobs.build`).
+
+### Post-merge upstream flake on e7fa2f8 → amended into upstream HEAD (742d79a)
+The first post-merge `Full test` push run (33654786983) failed on `build (3)`
+deterministically — twice (original + `--failed` rerun), byte-identical pytest
+logs apart from memory addresses/timing: `6 passed, 24 errors in ~5s`.
+
+- **Initial diagnosis was WRONG and must not be trusted:** the app backend is
+  NOT what dies. The 6 passes are pure-HTTP `test_pages_availability` GETs
+  (app up — `Check availability` curl also passes), and the 24 errors are every
+  browser-bound test ERRORing at setup on `POST /wd/hub/session` with
+  `ConnectionResetError`. The failure is the **Selenium grid**, not miminet/uwsgi.
+- **Root cause — grid-startup readiness race:** `docker compose up -d` returns
+  as soon as containers exist. On the failing runs the freshly-started
+  `selenium-hub`/`chrome` were ~1-4s old when pytest opened its first WebDriver
+  session → reset → whole slice collapses. `Check availability` only curls the
+  app (`localhost`), never `localhost:4444`. Same commit's shards 1-2 passed and
+  the identical 30-item slice passed on the PR-head run ~30 min earlier — timing,
+  not a #483/code regression (each runner boots its own grid; whether pytest's
+  first session lands inside the not-ready window is per-runner variance).
+- **Fix (amended into the upstream HEAD commit, e7fa2f8→742d79a):** two
+  `full_test.yml` steps — a pre-Run-tests `Wait for selenium grid` that polls
+  `localhost:4444/wd/hub/status` until `value.ready` AND ≥1 node has
+  `availability` = UP, and an `if: failure()` `Capture container logs` step
+  (`docker ps -a` + `docker compose logs --tail=300` for front + grid into
+  `.tmp/containers-shard-<n>.log`); artifact `path` widened to the glob
+  `.tmp/*-shard-<n>.log`. Re-verified green 3/3 with the wait engaging at
+  ~4-6s (inside the old race window).
+- **Two bugs found only by a local gating experiment** (never burn CI cycles on
+  logic you can test locally): (a) hub status JSON reports node
+  `"availability": "UP"` (uppercase) — the first predicate checked `"up"` and
+  timed out all 3 shards at 120s; (b) a `cd front/... && docker compose logs`
+  inside the capture step's sudo block changed cwd so the trailing `chmod`/
+  `cat .tmp/...` failed — wrap such `cd`s in `( ... )` subshells. Verified the
+  corrected predicate + capture structure against a locally-running hub before
+  re-amending.
+- After an **amend of upstream HEAD**, a plain `git rebase upstream/main` is
+  WRONG for the fork: git replays the old commit (e7fa2f8) that the amend
+  removed → content conflict with its equivalent (742d79a). Use
+  `git rebase --onto upstream/main <old-fork-base>` to re-apply only the
+  fork-local commits. Re-sync: `main` = upstream 742d79a + re-signed
+  fork-local commits (`8989a7d`, `0913e0a`), force-pushed to `origin`.
+- Known Selenium-grid facts learned: selenium/hub:4.37.0 + node-chrome:141.0
+  images define **no** Docker HEALTHCHECK (`image inspect` Healthcheck null) —
+  readiness must be polled via `/status` or `/wd/hub/status` (identical JSON);
+  `value.ready` is true only once a node has registered.
