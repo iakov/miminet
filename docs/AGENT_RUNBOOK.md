@@ -312,6 +312,12 @@ Root-caused + fixed the #457 deferral; the 26.04 base bump is now green.
 Ran the senior-reviewer subagent on #476 and #477. Verdicts: APPROVE + APPROVE
 (both with non-blocking nits; no must-fix on either).
 
+> **Canonical reviewer prompt:** since v1 (2026-09-02, from full-history
+> mining) the reusable prompt + taxonomy + changelog live in
+> `docs/review_prompt.md`; AGENTS.md §4 mandates the pre-gate history check and
+> that post-merge fixes feed the prompt. This section records the original
+> evaluation that motivated the gate.
+
 What it actually caught (ranked by value):
 - **#477 empty-slice guard** — a REAL latent bug I shipped: an empty slice
   would make `pytest $slice` silently run the entire suite (full-duplicate

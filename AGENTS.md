@@ -104,7 +104,14 @@ evidence needed to diagnose without guessing.
   a lint-coverage gap). Prompt the reviewer to hunt **edge cases and coverage
   gaps the author did not check** (empty inputs, name/id collisions, tool-behavior
   deltas, AST-identity of mass reformats) rather than re-verifying happy paths
-  the author already tested.
+  the author already tested. The canonical reviewer prompt lives in
+  `docs/review_prompt.md` — build every per-PR prompt from it.
+- **Always improve the reviewer prompt from experience.** Bugs fixed AFTER a
+  review are bugs that reviewer missed — treat every post-merge fix as prompt
+  feedback. Before any gate: run the pre-gate history check (§1 of
+  `docs/review_prompt.md`) on the PR's files; carry what their fix history
+  implies into the prompt. After any review-APPROVE'd change later needs a fix,
+  add the episode to the changelog and a prompt line that would have caught it.
 - Sign every commit with the SSH signing key
   (`-c commit.gpgsign=true -c gpg.format=ssh
    -c user.signingkey=/home/me/.ssh/id_signing_github.pub`),
