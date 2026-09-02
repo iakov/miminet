@@ -55,9 +55,16 @@ touch shared files: A → D → C → E.
   (pytest-timeout 900s). **Sharded across 3 matrix runners** (#477): each job
   runs a serial slice of `test_*.py` (round-robin `NR % 3 == shard-1`), with an
   empty-slice guard and per-shard `test-logs-shard-<n>` artifacts.
-- `Full test` + `auth test` are the flake signal; do not gate merges on them.
-- Full test now also runs nightly (`schedule: cron '0 2 * * *'`, merged from
-  PR A).
+- `Full test` (front Selenium e2e) + `auth test` are the flake signal; do not
+  gate merges on them. Full test runs nightly (`cron '0 2 * * *'`, PR A) and is
+  **sharded across 3 matrix runners** (#483): each runner boots its own
+  frontend + grid compose and runs a round-robin file slice of
+  `front/tests/test_*.py` (`find -maxdepth 1 | sort | awk NR % 3 == shard-1`,
+  8/9/8 files), empty-slice guard, `pipefail` + `tee` to
+  `.tmp/full-test-shard-<n>.log`, per-shard artifacts
+  (`full-test-logs-shard-<n>`). On the FORK this job additionally has a
+  fork-local `workflow_run: [Linter]` trigger + `workflow_dispatch` and runs
+  only when Linter succeeded (the `build.if:` gate) — never on fork push/PR.
 - dependency-review gates merges on CVEs in any changed manifest (incl.
   `uv.lock` and dev-group tools). Bumps that unblocked it: Pillow 12.3.0
   (11.x unfixable), Flask 3.1.3, requests 2.33.0, black 26.x
@@ -296,3 +303,42 @@ clicks to a retrying `wait_and_click`.
   review, auth test). Review-agent gate round 2: APPROVE (verified scope
   container re-find, DOM nesting vs scope, template/edges regex format,
   fetch-credential cookie domain). Merged as upstream `33636cf`.
+
+## Batch 6 outcomes (2026-09-02) — front Full test sharded (#483, upstream e7fa2f8)
+Converted the single serial ~6 min `Full test` job (114 tests / 25 files behind
+one session-scoped browser) to a 3-runner matrix mirroring the back-suite
+sharding (#477 / b968192). Merged.
+
+- **Change (`full_test.yml` only):** `fail-fast: false` + `matrix shard [1,2,3]`;
+  each runner boots its own frontend + grid compose stack (independent DB/grid,
+  no cross-runner coupling) and runs `find front/tests -maxdepth 1 -name
+  'test_*.py' | sort | awk 'NR % n == s-1'` (25 files → 8/9/8). Guards: empty
+  slice (`[ -n "$slice" ] || exit 1`, inside the sudo block), `set -o pipefail`
+  + `tee .tmp/full-test-shard-<n>.log` preserves pytest's exit code, per-shard
+  `upload-artifact` (`if: always()`, `if-no-files-found: ignore`). Kept upstream
+  `on: [push, pull_request]` + nightly cron; no fork-local `on:` leaked (the PR
+  touched only `jobs.build`).
+- **CI evidence:** all 3 shards green in parallel (62 + 22 + 30 = 114 passed;
+  shard1 heaviest — config_db/user_options/quiz skews file-based round-robin).
+  Artifacts contain real full `-vv` pytest logs; rootdir resolves to
+  `front/tests/pytest.ini` even when slicing from repo root.
+- **Review gate (APPROVE, no must-fix):** verified partition residue-completeness
+  for any file count ≥ 3, pipefail ordering, artifact permissions (sudo-created
+  `.tmp` log is 644, readable by the non-root upload step), no cross-file state
+  coupling (the 3 shards passing WITHOUT sibling files present is proof), and
+  that the matrix check rename `build (1|2|3)` breaks no branch protection
+  (required checks empty). Non-blocking nits (shared with back_test.yml #477 →
+  candidate follow-up, not a gate): unquoted `$slice` word-splits/globs (a glob
+  metachar filename that fails to self-match would be silently dropped from that
+  shard); no `set -euo pipefail` at the top of the sudo block; `-maxdepth 1`
+  permanently stops collecting a future `test_*.py` under a `front/tests/<subdir>/`
+  (old `pytest front/tests` recursed); file-based balance → shard1 = 62 tests vs
+  22/30 and adding a file reshuffles assignments; matrix triples runner cost.
+- **Local harness note:** this change is pure workflow logic — locally verifiable
+  gates are slice math + YAML parse only (the CI matrix run IS the gate); the
+  front e2e file-independence that makes sharding safe was already proven by the
+  Batch-5 two-disjoint-half runs (53 + 61).
+- Fork `main` re-synced to upstream e7fa2f8 + re-signed fork-local commits
+  (`724e8c9`→`6fb5bd9`, `0f64e6f`→`0ed7d96`); rebase was conflict-free — the
+  fork-local `on:` commit applies cleanly onto the matrix file because the two
+  edits touch disjoint regions (`on:` vs `jobs.build`).
