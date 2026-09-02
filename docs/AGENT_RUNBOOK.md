@@ -103,6 +103,105 @@ touch shared files: A → D → C → E.
   `port_forwarding_tcp` on re-run; shard2 18/18; shard3 3/3). Work preserved on
   fork branch `ci/back-parallel-suite`; PR #475 closed deferred.
 
+## What saves time next time
+Cross-batch practices (evidence in the Batch N sections below).
+- **CI-as-gate for workflow-only changes.** Pure workflow/CI edits have cheap
+  local gates — reproduce the slice math exactly (`find|sort|awk`, assert the
+  union is all files, no empty slice) and YAML-parse the file — then let the CI
+  matrix run BE the gate. Do not burn host-memory front-e2e re-runs for an
+  infra-only change (see §3 proportional risk).
+- **Verify CI structurally, not by conclusion.** A green run summary can hide a
+  non-expanded matrix or an overwritten artifact: `gh run view <id> --json jobs`
+  (confirm the parallel job set + timings), `gh run list --commit <sha>` to
+  scope by head, and download+inspect artifacts (`if-no-files-found: ignore` +
+  byte size both mislead — read the content). See §7.
+- **Prove fork-vs-upstream deltas before pushing:** `git diff upstream/main
+  <branch> -- <file>` shows exactly what an upstream PR would change; for fork
+  files it shows the intended fork-local layer.
+- **Await CI with targeted `gh` queries** (per-run status by workflow name,
+  `--commit` scoping) rather than broad polling loops.
+- **Re-sign recipes:** `git ... rebase --exec 'git commit --amend --no-edit
+  --no-verify' <new-base>` re-signs a rebased chain; then force-push. Fork-local
+  commits re-apply cleanly when they touch disjoint file regions from the
+  upstream edit (e.g. `on:` vs `jobs.build`) — batch 6 was conflict-free.
+- **Worktree hygiene:** `git worktree add .worktrees/<branch> upstream/main`,
+  delete branch + `git worktree remove` after merge, `git remote prune origin`.
+- **AGENTS dual-copy:** edit rules in the docs worktree (tracked on
+  `docs/agent-guardrails`), mirror to repo root, `cmp` to confirm identical —
+  the repo-root copy is what the session loader reads.
+- **Keep logs** (`.tmp/<run>.log`) until the run outcome is understood; a saved
+  log converts an unpredicted failure into diagnosis, not a blind re-run (§1a).
+
+## Prevention checklist (never / always)
+Distilled from review-gate catches and hard-won incidents. Always:
+- `tee` full test output to a repo-local `.tmp/` log and keep it; run verbose
+  (`-v/-vv/-s`), never `-q` (§1a).
+- Guard every sliced workflow against an empty slice; give per-shard logs
+  distinct artifact names; `pipefail` before any `pytest | tee` (§7).
+- Re-sign after any rebase; force-push fork `main` after each upstream merge.
+- Rebase PR branches onto `upstream/main` before pushing.
+
+Never:
+- Let an empty slice silently re-run the whole suite; let a later shard
+  overwrite an earlier shard's log.
+- Use an unquoted `$slice`/`find -maxdepth 1` in new CI code — both are
+  silent-coverage holes (#483 review nits, also latent in `back_test.yml`).
+- Leak fork-local workflow triggers (`on:`/`concurrency`/`build.if`) into an
+  upstream PR, or strip them from a fork workflow edit — fork CI silently stops.
+- Re-run a failed suite blind: distinguish fixture `ERROR`s from `FAILED`
+  assertions; a session-scoped driver death cascading `tab crashed`/`invalid
+  session id` is ONE incident, not N.
+- Hand-run a selenium chrome node with <2gb /dev/shm; run the full 114-test
+  front suite locally in one go while the host is memory-starved (§6).
+- Touch system `/tmp`; commit `back/Vagrantfile.txt`/`opencode.json`/`static/`;
+  create a PR for deferred or security-risky work (defer + record instead).
+- Squash a tooling commit with its mass-autofix commit (keep them separable).
+- Edit AGENTS.md rules in only one of its two copies.
+
+## Host hygiene & local-harness facts
+Consolidated from Batches 4-6 (each fully evidenced in its Batch section).
+- **NO_COLOR, not TERM=dumb:** iproute2 ≥6.19 colorizes `ip` output on a pty
+  (mininet spawns node shells on ptys) and breaks ipmininet's plain-text IP
+  parsing → empty captures. `NO_COLOR=1` fixes it; `TERM=dumb` does not (Batch 4).
+- **podman machine stop** REWRITES `~/.config/containers/storage.conf` to root
+  paths; restore `[storage] driver="overlay"` without graphroot/runroot. The
+  `ipmininet` VM auto-restarts via Podman Desktop and starves the host CPU —
+  `podman machine stop ipmininet` before timing-sensitive runs.
+- **Back pytest harness:** run from `back/tests` with
+  `PYTHONPATH=$PYTHONPATH:../src`; `pytest.ini log_file` path is read-only under
+  the harness — pass `-o log_file=/tmp/back_test.log`. Hand-rolled
+  `ip netns exec` fails under rootless podman (no /sys mount) — use mininet for
+  datapath probes. The podman harness is the ONLY thing that builds+runs the
+  back image; CI never exercises the Dockerfile.
+- **Front e2e:** CI-exact grid compose is `front/tests/docker/docker-compose.yml`
+  (shm 2gb, GRID_TIMEOUT 60); chrome needs ≥2gb /dev/shm or tabs crash. Under
+  rootless podman the host cannot reach container IPs → `TEST_TARGET_HOST=<host
+  LAN IP> TEST_TARGET_PORT=8080`; container→container `172.18.0.2:80` works.
+  Suite is host-memory-bound (session-scoped single browser) — verify with
+  disjoint slices/halves (proven independent: halves 53+61, matrix 62+22+30).
+
+## Known debt & candidate follow-ups
+Actionable leftovers with their unblock conditions, so the next session can
+pick up without re-deriving:
+1. **Joint CI hardening of `back_test.yml` + `full_test.yml`** (review-gate
+   batch-6 nits, APPROVE'd as non-blocking): use `mapfile`/arrays instead of
+   unquoted `$slice`, add `set -euo pipefail` at the top of the sudo block, and
+   comment/document the `-maxdepth 1` constraint (permanent coverage hole for a
+   future `test_*.py` under `front/tests/<subdir>/`). Small, locally verifiable
+   (slice math + YAML parse), CI matrix run is the gate.
+2. **`ty` strict-type swap** — deferred: 190 diagnostics vs mypy 0 (mypy skips
+   untyped function bodies). Unblock: a decision on strictness; then a tooling
+   commit separate from the type-fix sweep.
+3. **dependabot × uv.lock validity** — open question; can pip@`/` produce valid
+   workspace-lock PRs? Resolves only on the next monthly dependabot cycle.
+4. **`ci/back-parallel-suite` fork branch** — superseded by matrix sharding
+   (#477); preserved for the unshare/OVS negative experiment.
+5. **Flake-watch after #483:** confirm the first N nightly Full-test runs post-
+   sharding show no flake-profile shift (a shard boundary may now split a
+   previously-serial interaction; file independence is proven but watch once).
+6. **AGENTS dual-copy sync** — fixed this batch; rule in AGENTS header + §7 of
+   this runbook.
+
 ## Session outcomes (2026-09-01)
 - Merged upstream: #472 nightly flake signal (A), #474 uv workspace (D),
   #473 bench harness (E). Deferred: #475 back-test parallelism (C).
