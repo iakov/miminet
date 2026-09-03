@@ -305,6 +305,8 @@ pick up without re-deriving:
    back/tests); `front/tests` staged out of the gate. Follow-up: re-enable
    `front/tests` (~133 diagnostics, mostly untyped Selenium helpers) as its own
    phase, and watch ty version bumps (pre-1.0 at 0.0.77).
+   Follow-up **CLOSED by #486** — the `front/tests` staging override is removed;
+   `ty check front` now covers the whole Selenium e2e layer. See Batch 9.
 3. **dependabot × uv.lock validity** — open question; can pip@`/` produce valid
    workspace-lock PRs? Resolves only on the next monthly dependabot cycle.
 4. **`ci/back-parallel-suite` fork branch** — superseded by matrix sharding
@@ -885,3 +887,81 @@ this section carries the full reasoning.
   the flake verdicts. Review prompt v1.2 (see `review_prompt.md` changelog)
   adds the M3/M4 class: probe checker-coercion branches and guard-edit outcome
   re-routing even when the author says "already fixed".
+
+## Batch 9 outcomes (2026-09-03) — front/tests re-enabled in the ty gate (#486, upstream 9fb04a4)
+- **Decision executed:** the #485 follow-up. Removed the `[[tool.ty.overrides]]
+  include = ["front/tests"] all = "ignore"` staging block from root
+  `pyproject.toml`; `ty check front` now type-checks the entire Selenium e2e
+  layer (the gate was never meaningfully checking it — mypy skipped untyped defs).
+- **Systemic root cause, not a per-test sweep.** The bulk of the ~133
+  diagnostics lived in the test DSL: `Locator.__init__` stored untyped
+  None-defaulted `selector`/`xpath`/`text`/`device_class`, so every
+  class-constant `Location.*.selector` read inferred `Unknown | None` and leaked
+  into every helper call. Fix at the helper layer meant **zero changes to the 25
+  `test_*.py` files** — only 4 files touched:
+  - `front/tests/utils/locators.py` — fields stored privately
+    (`_selector`/`_xpath`/`_text`/`_device_class`) and exposed as typed
+    read-only properties that `assert ... is not None`. A read requesting a
+    strategy the locator does not carry fails loudly instead of flowing `None`
+    into a Selenium call. Behavior-identity audited: all 76 distinct
+    `Location.*` read sites (scripted over tests + utils + conftest +
+    module-level lists) resolve against locators built with the field they read;
+    no `**kwargs` construction can hit a read-only property (the four names are
+    bound params, never kwargs keys).
+  - `front/tests/utils/networks.py` — `NodeType` members annotated
+    `tuple[str, str]` (collapsed ~79 `add_node` call-site diagnostics at the
+    source); `NodeConfig` reads of `CommonDevice`'s `Optional[Locator]` base
+    fields (`name`/`default_gw`/`submit`/`__select_job`/`__check_config_open`)
+    narrowed via local + assert, mirroring the pre-existing
+    `assert self.__config_locator.MAIN_FORM` pattern. Review verified
+    `__config_locator` is only ever Host/Switch/Hub/Router/Server and the new
+    asserts fire only where the OLD code already crashed (`default_gw` on a
+    Switch/Hub has zero callers — previously `None.selector` → AttributeError).
+  - `front/tests/conftest.py` — **latent bug ty found** (a 6th real latent
+    issue for the ty process, on the TEST layer this time): `get_logs()` called
+    `self.get_log("browser")`, which does not exist on remote `WebDriver` in
+    Selenium 4.48 (only `ChromiumDriver` has it — verified via hasattr/MRO).
+    Dead path with no current callers, would have been `AttributeError`. Fixed to
+    `self.execute(Command.GET_LOG, {"type": "browser"})["value"]` — byte-identical
+    to `ChromiumDriver.get_log`'s own body, so a grid session actually returns logs.
+  - `pyproject.toml` — deleted the staging block + its comment only.
+- **Counts:** 138 raw diagnostics under a neutralized config → 0 under the real
+  gate. Diagnostics fell in two big collapses: NodeType typing killed the ~79
+  `add_node` family, the Locator property model killed the rest
+  (wait_*/select_*/dict-key `Unknown | None` leaks). 5 unresolved-imports
+  (`app`/`miminet_model`/`ai_generate`/`quiz.util.dto`) are suppressed by the
+  real config's `allowed-unresolved-imports = ["**"]` (test modules reach src
+  via conftest's `sys.path` append — same as the src layer's convention).
+- **Local gates:** `ty check front` + `ty check back` 0 errors; `ruff check` +
+  `ruff format --check` clean on the final tree; all 25 test modules import
+  cleanly. ty-config note reused: run with the repo venv
+  (`VIRTUAL_ENV=.../ty check`); a venv-less worktree invocation resolves the
+  wrong interpreter and spits spurious `unused-type-ignore-comment` warnings.
+- **CI:** pre-merge Linter (back+front ty gate), Pytest 3/3, Full test 3/3, auth
+  test, dependency-review all green on PR head `3042384`.
+- **Review gate (v1.2 prompt): APPROVE, no must-fix.** Reviewer independently
+  verified reachability of every Locator read, the `**kwargs`/read-only-property
+  collision impossibility, config base-field safety (incl. `default_gw` dead
+  path), the GET_LOG mechanism claim (probe-backed against installed selenium),
+  full coverage (ty traverses utils/checkers.py too), and AST identity. Nits
+  (non-blocking): `default_gw` assert is latent-only; get_logs remains
+  unreferenced (follow-up could exercise the wire path); fork push-event auth
+  red on missing BOT_TOKEN secret is unrelated (upstream auth test green on the
+  PR head).
+- **Post-merge:** one Full-test shard-3 failure on the merge commit `9fb04a4`
+  (`test_job_edit::test_edit_multiple_jobs_in_sequence` — "Unable to find link",
+  an ip/mask-field xpath render race in `fill_link`, i.e. the known front-e2e
+  modal/panel-open flake class on a file this PR does not touch); rerun on the
+  same head passed 3/3 → flake, not regression (rerun-first determinism). Fork
+  `main` resynced to upstream `9fb04a4` + re-signed fork-local commits
+  (`b3851ce`, `595b5f9`), force-pushed; fork-local layer verified intact
+  (auth_test/back_test/full_test/update_uv_lock + .gitignore only). Known-debt
+  #2 (both phases) closed.
+- **Rebase lesson re-learned (do NOT repeat):** `git rebase --onto
+  upstream/main c398710 main` when local `main` IS `c398710` hard-resets `main`
+  to upstream (the `<upstream>` argument == current HEAD means "nothing to
+  rebase", so it checks out the new base). The fork resync recipe that works:
+  `git reset --hard origin/main` (or `git rebase upstream/main` directly), then
+  re-sign with `rebase --exec 'git commit --amend --no-edit --no-verify'`. This
+  is why we always `git log --oneline` and `git diff upstream/main main --stat`
+  to prove the fork-local layer survived a force-push.
