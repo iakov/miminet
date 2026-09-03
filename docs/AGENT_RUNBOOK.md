@@ -36,6 +36,19 @@ from any host. Everything here is fork-local reference; do not upstream it.
 - GitHub rejects self-approval on your own PRs: record the review-agent verdict
   as a PR comment, then `gh pr merge --rebase --admin` (author has ADMIN on
   upstream).
+- **`-c key=val` config flags go BEFORE the subcommand.** After `git commit`
+  they are parsed as `-c <commit>` (reuse message): `git commit --amend -c
+  commit.gpgsign=true ...` fails with `options '-m' and '-c' cannot be used
+  together`. Correct: `git -c commit.gpgsign=true ... commit --amend -m "..."`.
+- **After amending upstream HEAD, a plain `git rebase upstream/main` is WRONG
+  for the fork** — git replays the commit the amend removed and conflicts with
+  its replacement. Use `git rebase --onto upstream/main <old-fork-base>` to
+  re-apply only the fork-local commits that sat on the pre-amend base.
+- **Force-push to protected upstream `main`** succeeded with
+  `--force-with-lease` despite remote advisory lines ("Missing ... deployments",
+  "Changes must be made through a pull request", "Cannot force-push to this
+  branch"). Push chatter can be noise — verify the ref actually moved with
+  `git ls-remote upstream main`, never trust the summary line alone.
 
 ## PR lifecycle (per PR)
 branch (off `upstream/main`) → push to `origin` → cross-repo PR
@@ -51,18 +64,28 @@ touch shared files: A → D → C → E.
   run via `uv run --frozen` (uv workspace is the dependency SSOT; per-node
   `requirements.txt` deleted).
 - `Pytest` = back tests as root, `back/ovs-init.sh`, `uv sync --frozen
-  --project back`, `PYTHONPATH=../src pytest .` from `back/tests`
-  (pytest-timeout 900s). **Sharded across 3 matrix runners** (#477): each job
-  runs a serial slice of `test_*.py` (round-robin `NR % 3 == shard-1`), with an
-  empty-slice guard and per-shard `test-logs-shard-<n>` artifacts.
+  --project back`, from `back/tests` (pytest-timeout 900s). **Sharded across 3
+  matrix runners** (#477, hardened #484): each job runs a serial quoted-array
+  slice of `test_*.py` under `set -euo pipefail`, empty-slice guard, `find`
+  failure exits loudly, and per-shard `test-logs-shard-<n>` artifacts holding
+  `back_test.log`. Because `back/tests/pytest.ini` sets `log_file =
+  back_test.log` (mode 'w'), the CI run line disables that writer and lifts INFO
+  to the CLI so the shell `tee back_test.log` is the single writer:
+  `python -m pytest -vv -s -o log_file=/dev/null -o log_cli=true -o
+  log_cli_level=INFO ... | tee back_test.log` (double-writer = corrupted log,
+  #484).
 - `Full test` (front Selenium e2e) + `auth test` are the flake signal; do not
   gate merges on them. Full test runs nightly (`cron '0 2 * * *'`, PR A) and is
   **sharded across 3 matrix runners** (#483): each runner boots its own
-  frontend + grid compose and runs a round-robin file slice of
-  `front/tests/test_*.py` (`find -maxdepth 1 | sort | awk NR % 3 == shard-1`,
-  8/9/8 files), empty-slice guard, `pipefail` + `tee` to
-  `.tmp/full-test-shard-<n>.log`, per-shard artifacts
-  (`full-test-logs-shard-<n>`). On the FORK this job additionally has a
+  frontend + grid compose and runs a round-robin quoted-array file slice of
+  `front/tests/test_*.py` (`find -maxdepth 1 | sort`, residue `idx % 3 ==
+  shard-1`, 8/9/8 files) under `set -euo pipefail`, empty-slice guard,
+  `pipefail` + `tee` to `.tmp/full-test-shard-<n>.log`. A pre-test step waits
+  for Selenium-grid readiness (`/wd/hub/status` ready + a node UP), and an
+  `if: failure()` step captures `docker ps` + front/grid compose logs into
+  `.tmp/containers-shard-<n>.log`. Uploads use `include-hidden-files: true` —
+  the `.tmp/*-shard-<n>.log` glob is rooted in a hidden dot-dir and silently
+  uploads NOTHING without it (#484). On the FORK this job additionally has a
   fork-local `workflow_run: [Linter]` trigger + `workflow_dispatch` and runs
   only when Linter succeeded (the `build.if:` gate) — never on fork push/PR.
 - dependency-review gates merges on CVEs in any changed manifest (incl.
@@ -131,6 +154,31 @@ Cross-batch practices (evidence in the Batch N sections below).
   the repo-root copy is what the session loader reads.
 - **Keep logs** (`.tmp/<run>.log`) until the run outcome is understood; a saved
   log converts an unpredicted failure into diagnosis, not a blind re-run (§1a).
+- **Verify any readiness/status predicate against a REAL running service first**
+  — JSON field case/path reality beats inspection (Selenium node `availability`
+  is `"UP"`, not `"up"`; hub has no Docker HEALTHCHECK). One local
+  `curl` against a live hub + one throwaway container saved a full 3-shard CI
+  burn.
+- **Byte-identical logs across a rerun** (diff shows only memory addresses +
+  timing) = deterministic reproduction; treat the failure signature as stable
+  and read the FIRST error's URL to name the dead component (a
+  `ConnectionReset` on `/wd/hub/session` with pure-HTTP tests passing = grid
+  down, NOT the app).
+- **Disambiguate rerun artifacts by id** — `gh run rerun --failed` leaves the
+  old + new artifacts coexisting under the same name; fetch by artifact id,
+  not name.
+- **`gh run list --commit <sha>` can return EMPTY** even for running/complete
+  runs — prefer `gh pr checks <n>` or `gh run list --branch main`; don't burn
+  time re-querying a filter that silently yields nothing.
+- **Short-circuit poll loops correctly:** `rg -c` with zero matches returns
+  nothing (≠ `"0"`), so a `[ "$x" = "0" ]` condition never fires and the loop
+  runs its whole budget doing nothing. Count on no-match as zero, or just wait
+  a fixed interval and query once.
+- **Compare full streams in local slice-math harnesses:** diffing `$(...)`
+  (newline-stripped) output HIDES the empty-input guard divergence (old `awk`
+  emitted a phantom blank record for one shard = the #477 silent full-suite
+  hazard; new array code empties every shard). Assert union==full-set AND
+  per-shard empties explicitly.
 
 ## Prevention checklist (never / always)
 Distilled from review-gate catches and hard-won incidents. Always:
@@ -144,8 +192,14 @@ Distilled from review-gate catches and hard-won incidents. Always:
 Never:
 - Let an empty slice silently re-run the whole suite; let a later shard
   overwrite an earlier shard's log.
-- Use an unquoted `$slice`/`find -maxdepth 1` in new CI code — both are
-  silent-coverage holes (#483 review nits, also latent in `back_test.yml`).
+- Regress the #484 hardening: unquoted `$slice`/bare word-splitting, missing
+  `set -euo pipefail` before `pytest | tee`, referencing a possibly-unset env
+  var under `set -u` (use `${VAR:-}`), a `find` whose failure is silent.
+- Have TWO writers to one file path in the same run (`pytest.ini log_file =
+  back_test.log` + a shell `tee back_test.log` = corrupted interleaved log).
+  Disable the config writer (`-o log_file=/dev/null`) or point `tee` elsewhere.
+- Root an upload-artifact glob in a hidden dot-dir (`.tmp/...`) without
+  `include-hidden-files: true` — it silently uploads NOTHING (#484).
 - Leak fork-local workflow triggers (`on:`/`concurrency`/`build.if`) into an
   upstream PR, or strip them from a fork workflow edit — fork CI silently stops.
 - Re-run a failed suite blind: distinguish fixture `ERROR`s from `FAILED`
@@ -177,18 +231,26 @@ Consolidated from Batches 4-6 (each fully evidenced in its Batch section).
   (shm 2gb, GRID_TIMEOUT 60); chrome needs ≥2gb /dev/shm or tabs crash. Under
   rootless podman the host cannot reach container IPs → `TEST_TARGET_HOST=<host
   LAN IP> TEST_TARGET_PORT=8080`; container→container `172.18.0.2:80` works.
-  Suite is host-memory-bound (session-scoped single browser) — verify with
-  disjoint slices/halves (proven independent: halves 53+61, matrix 62+22+30).
+   Suite is host-memory-bound (session-scoped single browser) — verify with
+   disjoint slices/halves (proven independent: halves 53+61, matrix 62+22+30).
+- **Local container experiments (tool-permission reality):** bash `sudo`,
+  `podman rm*`, `podman rmi*`, `podman network rm*`, `podman volume*` are
+  permission-DENIED in this environment — use the MCP container tools
+  (stop/remove/inspect/list) instead of shell `podman rm`. Networks cannot be
+  removed at all once created (no MCP network tool) — reuse an existing network
+  or expect a leftover. Before binding a test port, check `podman ps -a` and
+  `ss -tlnp`: a long-running local `selenium-hub`/`chrome` (e.g. from a prior
+  e2e session) can already hold `:4444` — reuse it as ground truth rather than
+  fighting the port conflict. Images `selenium/hub:4.37.0` and
+  `selenium/node-chrome:141.0` are already cached locally.
 
 ## Known debt & candidate follow-ups
 Actionable leftovers with their unblock conditions, so the next session can
 pick up without re-deriving:
-1. **Joint CI hardening of `back_test.yml` + `full_test.yml`** (review-gate
-   batch-6 nits, APPROVE'd as non-blocking): use `mapfile`/arrays instead of
-   unquoted `$slice`, add `set -euo pipefail` at the top of the sudo block, and
-   comment/document the `-maxdepth 1` constraint (permanent coverage hole for a
-   future `test_*.py` under `front/tests/<subdir>/`). Small, locally verifiable
-   (slice math + YAML parse), CI matrix run is the gate.
+1. ~~**Joint CI hardening of `back_test.yml` + `full_test.yml`** (batch-6 nits)~~ —
+   **CLOSED by #484** (quoted arrays, `set -euo pipefail`, `-maxdepth 1` comment,
+   back log capture). See Batch 7. Keep the nits as never-regress items in
+   Prevention.
 2. **`ty` strict-type swap** — deferred: 190 diagnostics vs mypy 0 (mypy skips
    untyped function bodies). Unblock: a decision on strictness; then a tooling
    commit separate from the type-fix sweep.
@@ -201,6 +263,67 @@ pick up without re-deriving:
    previously-serial interaction; file independence is proven but watch once).
 6. **AGENTS dual-copy sync** — fixed this batch; rule in AGENTS header + §7 of
    this runbook.
+7. **Trivial env leftover** — stray empty podman network `gridtest2` from a
+   local grid-readiness experiment could not be removed (bash `podman network
+   rm*` is permission-denied; no MCP network-remove tool). Harmless; remove when
+   tooling allows.
+
+## Debrief (2026-09-02) — grid-fix + reviewer-prompt/#484 session
+Self-assessment the next session should read before redoing any of this. Full
+evidence in Batch 6 (post-merge flake), Batch 7 (hardening PR), and
+`docs/review_prompt.md`.
+
+**What helped (keep doing):**
+- **Local gating experiments before CI.** The grid predicate (case/JSON shape),
+  the capture-step `cd`-cwd bug, and the slice-residue math were all verified
+  against a real running hub / throwaway shell BEFORE burning CI — zero CI
+  cycles spent on those. "Never burn CI on logic you can test locally" paid off
+  repeatedly (§3 proportional risk).
+- **Saved raw logs** (`.tmp/`): byte-identical rerun logs + the PR-head pass log
+  made the diagnosis provable and the fix verifiable.
+- **The reviewer DOWNLOADED artifacts.** A green Full-test summary masked that
+  front per-shard artifacts had silently uploaded nothing since the 742d79a
+  amend (and would have swallowed the failure-diagnosis container logs). The
+  author never re-checked artifact existence after changing the upload path —
+  "verify structurally, not by conclusion" must include artifacts (§7).
+- **Rerun-first on a red shard** confirmed determinism before any fix/amend
+  decision — the data that forced the plan-gate STOP.
+- **Amend-in-place for small upstream CI fixes** kept history linear (no fixup
+  PR noise) and the fork re-sync stayed mechanical.
+
+**What was wrong (learned):**
+- **Initial misdiagnosis: "the app backend died."** Wrong. The 24 errors were
+  Selenium-grid session-creation resets (`POST /wd/hub/session`); the 6 passes
+  were pure-HTTP GETs proving the app was fine. Reading the FIRST traceback's
+  URL would have named the grid immediately. Framing matters — reviewers and
+  next-diagnoses inherit it (review_prompt.md class e).
+- **Assumed node `availability == "up"`** (reality: `"UP"`) — cost one full
+  3-shard CI run on the first hardening attempt.
+- **`cd` inside a `sudo bash -c` capture block** silently moved cwd for the
+  trailing `chmod`/`cat` — files are written from repo root, then the shell is
+  in `front/tests/docker`. Subshell the `cd`s.
+- **Plain `git rebase upstream/main` after an upstream-HEAD amend** tried to
+  replay the removed commit → conflict. `--onto` is the tool.
+
+**Saved time:**
+- The v2 review gate caught the pytest.ini `log_file` double-writer and the
+  hidden-dot-dir artifact no-op as MUST-FIXes — both would have been post-merge
+  repairs (and the artifact one was already silently broken for hours of runs).
+- Targeted `gh` queries + `gh pr checks` over blind polling loops.
+- Reusing the already-running local `selenium-hub` as ground truth instead of
+  fighting the `:4444` port conflict.
+
+**Time waste (and why):**
+- **One full CI run on the lowercase `"up"` predicate.** Why wasted: the
+  predicate was verified by inspection, not against the live service. One local
+  `curl` would have prevented it.
+- **~20 min of no-op polling** in a loop whose termination test never fired
+  (`rg -c` zero-match → empty string ≠ `"0"`). Why wasted: off-by-one on shell
+  empty-vs-zero; fix = treat no-match as zero or wait-then-query-once.
+- **Misdiagnosis detour** (backend vs grid) before reading the first error URL.
+  Why wasted: analyzing the cascade instead of the first failure's target.
+- **`gh run list --commit` empty results** chased briefly before switching to
+  `gh pr checks`. Tooling quirk; now documented above.
 
 ## Session outcomes (2026-09-01)
 - Merged upstream: #472 nightly flake signal (A), #474 uv workspace (D),

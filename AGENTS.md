@@ -239,5 +239,12 @@ Applies to any workflow or CI-harness edit:
   `( ... )` subshells so later `chmod`/`cat`/upload paths stay repo-root
   relative. Test polling predicates + shell structure locally against a real
   container before burning CI cycles.
+- **Artifacts & log files fail silently — prove them:** an upload-artifact
+  `path` glob rooted in a hidden dot-dir (`.tmp/...`) uploads NOTHING unless
+  `include-hidden-files: true` (#484); never `tee` a file another writer already
+  opens this run (`pytest.ini log_file = X` + `tee X` = corrupted double-writer;
+  pass `-o log_file=/dev/null -o log_cli=true` instead); download + inspect
+  artifacts after a change, green conclusions mislead (byte size + "uploaded"
+  lines both lie).
 - Workflow-only changes need no heavy local e2e re-runs: the cheap local gates
   are slice-math reproduction + YAML parse; the CI matrix run IS the gate.
