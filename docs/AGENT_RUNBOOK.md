@@ -49,6 +49,17 @@ from any host. Everything here is fork-local reference; do not upstream it.
   "Changes must be made through a pull request", "Cannot force-push to this
   branch"). Push chatter can be noise — verify the ref actually moved with
   `git ls-remote upstream main`, never trust the summary line alone.
+- **`git commit --amend` targets HEAD unconditionally.** On a multi-commit
+  stack, amending to fix a lower commit silently folds the staged files into
+  the WRONG (top) commit. Only `--amend` when HEAD is the intended target;
+  otherwise `git rebase -i` the specific commit, or `git reset --soft <base>`
+  + re-stage per commit. Always verify boundaries with `git show --stat`
+  afterward (#485 session: pkt_parser change leaked into the front commit).
+- **Commit messages are shell text.** A `git commit -m "..."` string is
+  double-quoted: any backtick or `$(...)` in the message runs command
+  substitution — body chunks get silently mangled/dropped. Write messages with
+  `git commit ... -F - <<'MSG'` (quoted heredoc = literal), or strip
+  backticks/`$` from message text (#485 session: `fix(front)` body corrupted).
 
 ## PR lifecycle (per PR)
 branch (off `upstream/main`) → push to `origin` → cross-repo PR
@@ -221,6 +232,32 @@ Never:
   front suite locally in one go while the host is memory-starved (§6).
 - Touch system `/tmp`; commit `back/Vagrantfile.txt`/`opencode.json`/`static/`;
   create a PR for deferred or security-risky work (defer + record instead).
+- Invent runtime semantics to satisfy a checker. `ty`/mypy-unreachable branches
+  (a cast target that "can't happen") must be coercion-only (`cast(...)` = a
+  runtime no-op), never `str(x).encode()`/elaborate fallbacks that silently
+  manufacture wrong values where the original code raised loudly (#485 M3:
+  `_dhcp_opt_bytes` would have turned an impossible `str` DHCP option into a
+  garbage big-endian int). "Unreachable" means the loud TypeError was the
+  intended behavior — preserve it.
+- Edit an if/elif guard's input set without re-walking EVERY outcome of the
+  ORIGINAL guard (no-user / wrong-pass / missing-field / None / falsy). Moving
+  `password is not None` into a compound `if user and ...` silently re-routes
+  user-exists-but-missing-password into the "no such user" else branch
+  (#485 M4, caught in the reviewer-brief self-review, fixed pre-merge).
+- Push a PR branch before the FULL local gate set has passed on the exact
+  final tree: after every hunk, re-run `ruff check`, `ruff format --check`
+  (or format) AND the type checker on the touched files — a separate CI
+  "Format with ruff" step will fail a hand-edit `ruff check` did not catch
+  (#485 M5: one red CI run + an extra force-push).
+- Claim a precise mechanism ("fires whenever X") in a commit message or doc
+  without probe-backed proof. Lazy except-tuple matching / short-circuit /
+  getattr-default semantics must be verified (hasattr/MRO walk, minimal repro)
+  before writing (#485 M6: psutil ProcessLookupError claim over-stated; the
+  AttributeError fires only when an exception reaches the 3rd tuple member).
+- Rely on the FIRST pass of a mass-sweep being behavior-identical. Before any
+  "pure annotation" commit, do a forced behavior-identity read of every
+  non-annotation hunk (writing the reviewer brief IS that pass — #485 caught
+  M3+M4 exactly there, pre-merge).
 - Squash a tooling commit with its mass-autofix commit (keep them separable).
 - Edit AGENTS.md rules in only one of its two copies.
 
@@ -740,3 +777,111 @@ logs apart from memory addresses/timing: `6 passed, 24 errors in ~5s`.
   fork-local workflow layer verified preserved (`git diff upstream/main main --`
   shows only auth_test/back_test/full_test + update_uv_lock, NOT linter.yml/
   dependency_review.yml). Known-debt #2 closed.
+
+## Debrief (2026-09-03) — #485 session self-review: why the mistakes happened
+User directive: "step through all solutions you found, ask yourself why mistakes
+were made, save to docs triggers (what is wrong) and how to avoid." Root-cause
+each incident rather than just recording the fix. The prevention one-liners for
+M1-M6 live in `## Prevention checklist (never / always)` and `## Git quirks`;
+this section carries the full reasoning.
+
+- **M1 — commit body mangled by command substitution.** `fix(front)` was
+  written with `git commit -m "..."`; the message body contained a backticked
+  `$()`-style token, so the shell ran it and the stored body was corrupted
+  (unrelated binary/bytes text injected, intended lines dropped).
+  *Why:* a commit-message string inside double quotes is shell text; nothing in
+  the normal `-m` habit treats it as opaque. The message editor (heredoc `-F -`)
+  is the only literal path.
+  *Trigger:* `-m`/`-C` message contains backtick or `$(...)`.
+  *Avoid:* write multi-line bodies with `git commit ... -F - <<'MSG'` (quoted
+  heredoc) or strip backtick/`$` characters; verify with `git log -1 --format=%B`.
+- **M2 — `git commit --amend` folded a lower-commit change into the wrong
+  commit.** The back commit's pkt_parser fix was staged while HEAD was the
+  front commit and `--amend` was run → the change landed in the front commit.
+  *Why:* `--amend` targets HEAD unconditionally; on a 3-commit stack the
+  "fix the previous commit" reflex needs `rebase -i`, not amend. The staging
+  area carried the file from an earlier intent (back work) that HEAD no longer
+  matched.
+  *Trigger:* staging files, then `--amend`, when HEAD is not the commit those
+  files belong to.
+  *Avoid:* `--amend` only when HEAD IS the target; else `git rebase -i`, or
+  `reset --soft <base>` + re-stage per commit. Always end with
+  `git show --stat <each-commit>` to prove file/commit ownership. (Recovered
+  cleanly here with `reset --soft`; cost was one extra force-push cycle, M7.)
+- **M3 — invented runtime semantics to satisfy the checker.** First draft of
+  `_dhcp_opt_bytes` added `else str(value).encode()` so ty saw a `bytes`
+  return on every path — but a `str` DHCP option is impossible, so the original
+  code's loud TypeError was the *intended* behavior; the new arm would silently
+  manufacture a garbage big-endian int instead.
+  *Why:* the instinct "make every path type-correct" overrode "preserve the
+  failure mode of the impossible path". A checker-only branch must never change
+  runtime behavior of a path that cannot legally execute.
+  *Trigger:* writing a fallback/else arm for a branch annotated impossible or
+  unreachable.
+  *Avoid:* coercion-only `cast(...)` (a runtime no-op); if behavior must differ,
+  the value is reachable and needs a real decision, not a cast. Caught in the
+  reviewer-brief self-review (see meta-lesson).
+- **M4 — guard edit re-routed an input outcome.** `if user:` →
+  `if user and password is not None:` moved the user-exists-but-missing-password
+  case into the outer else ("no such user" message) — wrong creds would have
+  been reported as missing user.
+  *Why:* editing a compound guard by AND-ing a new term changes which branch
+  falsy/None inputs fall into; the author re-checked the happy path, not every
+  input class the original guard discriminated.
+  *Trigger:* adding a condition to an existing if/elif that separates distinct
+  user-visible outcomes.
+  *Avoid:* re-walk the full outcome matrix of the ORIGINAL guard (no-user /
+  wrong-pass / missing-field / None / falsy) after ANY guard edit; keep the
+  outer discriminator unchanged and gate deeper (`if user:` then inside,
+  `if password is not None:`). Caught in the reviewer-brief self-review.
+- **M5 — pushed before the full local gate set.** A hand-edit was `ruff check` +
+  `ty check` clean but not `ruff format --check`ed; the separate Linter
+  "Format with ruff" step failed → one red CI run + one extra force-push.
+  *Why:* the local gate habit (lint + type) predated the format-as-separate-job
+  CI design; a file can be check-clean and format-dirty at once.
+  *Trigger:* touching any Python file without running `ruff format --check`
+  (or formatting it) as the final gate.
+  *Avoid:* after every hunk run the FULL gate set on the final tree:
+  `ruff check` AND `ruff format --check` AND the type gate on touched files.
+- **M6 — over-claimed a mechanism in the commit message.** bench.py fix message
+  said the psutil error fired "whenever a process vanished"; reviewer proved
+  except-tuple members are matched lazily, so the `AttributeError` from the
+  missing `ProcessLookupError` member only fires when an exception reaches that
+  (3rd) member.
+  *Why:* the message described the plausible story, not the probed one; the
+  author reasoned from intent instead of Python's matching semantics.
+  *Trigger:* a commit message/doc asserting "fires whenever X" or "causes Y on
+  every Z" for a mechanism not probe-verified.
+  *Avoid:* prove mechanism claims (hasattr / MRO walk / minimal repro) before
+  writing them; phrase unproven claims as "the except tuple referenced a
+  missing member" (what the code literally says).
+- **M7 — four force-pushes on one PR.** Root cause is M1+M2+M5: each push
+  followed a mistake that should have been caught by a pre-push gate, not a
+  post-push correction. 4 commits (3 fixes + re-green churn) instead of the
+  intended clean chain.
+  *Why:* the gates existed piecemeal but were never run as a single exit
+  checklist before the first push.
+  *Trigger:* pushing before [full local gate set on final tree] AND
+  [boundary/ownership verification of every commit] AND [behavior-identity
+  read of every non-annotation hunk].
+  *Avoid:* the exit checklist IS the Prevention checklist; treat any force-push
+  as evidence a checklist item was skipped and re-run it for the next PR.
+- **Non-mistakes (handled right — evidence for flake-watch, known-debt #5):**
+  the one Full-test `test_stp` modal-open failure and the post-merge Pytest
+  shard-1 `vlan_with_vxlan` 900s timeout were BOTH re-run-green on the same
+  head — treated as flakes (topology-edit-adjacent capture/emulation timing),
+  not regressions, and NOT chased into the merged commits. Distinguishing
+  rule: rerun-first determinism (same head + same shard) before any code
+  investigation.
+- **Meta-lesson — the reviewer-brief self-review is a reusable pre-push
+  pass.** M3 and M4 were BOTH caught while writing the per-PR reviewer brief
+  (the behavior-identity re-read every non-annotation hunk forces), not by the
+  type checker or the author's own pass. A pre-merge "write the brief" step
+  (file-by-file: what does each non-annotation hunk now do differently?)
+  doubles as the author's cheapest defect finder. This run: 5 latent bugs
+  found by ty, 2 of the 7 incidents caught only by that forced self-review.
+- **What the reviewer added this round:** caught M6 (mechanism over-claim,
+  lazy except matching) which the author's self-review missed, and confirmed
+  the flake verdicts. Review prompt v1.2 (see `review_prompt.md` changelog)
+  adds the M3/M4 class: probe checker-coercion branches and guard-edit outcome
+  re-routing even when the author says "already fixed".

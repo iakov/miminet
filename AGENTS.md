@@ -248,3 +248,10 @@ Applies to any workflow or CI-harness edit:
   lines both lie).
 - Workflow-only changes need no heavy local e2e re-runs: the cheap local gates
   are slice-math reproduction + YAML parse; the CI matrix run IS the gate.
+- **Every touched Python file passes the FULL gate set before any push**:
+  `ruff check` AND `ruff format --check` (or format) AND the type gate on the
+  final tree — a hand-edit can be check-clean and format-dirty at once, and
+  CI's separate "Format with ruff" step will fail it (#485 M5: one red run +
+  extra force-push). Same exit-checklist logic underlies the #485 Debrief
+  M1/M2/M7 rules (commit bodies via heredoc, `--amend` only on HEAD, boundary
+  verify every commit).

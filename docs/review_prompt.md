@@ -1,4 +1,4 @@
-# Canonical review-agent prompt (v1)
+# Canonical review-agent prompt (v1.2)
 
 Standing purpose (read before every gate): the review agent exists because
 **bugs we later fix are bugs a reviewer missed**. Every post-merge fix in this
@@ -149,6 +149,23 @@ These caught real latent bugs; every future prompt keeps them:
 - Helper assumptions verified against the served template, not the intent
   (#482 round 2).
 - Fork-local leakage: `git diff upstream/main <branch> -- <file>` before push.
+- **Checker-coercion branches preserve the impossible path's failure mode**
+  (#485 M3): a cast/`# type: ignore`/annotated-unreachable arm must be a runtime
+  no-op or a faithful widening — never a new `else`/fallback that silently
+  manufactures a value where the original raised loudly. Flag any new runtime
+  behavior added "to satisfy the type checker" on a path the author calls
+  impossible.
+- **Guard edits re-route inputs** (#485 M4): whenever a diff ANDs/or-else a term
+  onto an existing `if`/`elif` that separates user-visible outcomes, re-derive
+  EVERY outcome class of the original guard (no-user / wrong-pass / missing
+  field / None / falsy) and check which branch each lands in now. A compound
+  `if user and password is not None:` moves missing-password into the
+  "no such user" else.
+- **Mechanism claims are probe-backed** (#485 M6): any commit-message/doc claim
+  of the form "fires whenever X" / "causes Y on every Z" must survive Python
+  semantics — lazy except-tuple matching, short-circuit, getattr defaults.
+  If the author cannot name the triggering condition precisely, the claim is an
+  over-statement.
 
 ## 5. Per-PR prompt body (instantiate with §1 findings)
 
@@ -171,6 +188,26 @@ These caught real latent bugs; every future prompt keeps them:
 
 ## 6. Changelog (why each prompt line exists)
 
+- **v1.2 (2026-09-03)** — evidence from PR #485's own gate (APPROVE, but the
+  reviewer caught an author over-claim the brief self-review missed, and the
+  session's post-mortem derived three new classes): (i) **checker-coercion
+  branches** — an `else str(value).encode()` added so ty saw a bytes return on
+  an impossible path would have silently mis-decoded a `str` DHCP option into a
+  garbage int where the original loud TypeError was the intended behavior;
+  prompt line: coercion arms must be runtime no-ops (`cast`) or faithful
+  widenings, never new fallback semantics on an "impossible" path (positive
+  control). (ii) **guard-edit outcome re-routing** — ANDing
+  `password is not None` onto `if user:` moved the user-exists-but-missing-
+  password case into the "no such user" else; prompt line: after ANY guard edit,
+  re-derive every outcome class of the original guard (positive control).
+  (iii) **mechanism over-claim** — the bench.py fix message said the psutil
+  error fired "whenever a process vanished"; reviewer proved except-tuple
+  members match lazily so the AttributeError only fires for exceptions reaching
+  the 3rd member; prompt line: mechanism claims must be probe-backed (positive
+  control). All three caught by the author's own reviewer-brief self-review
+  (M3/M4) or the reviewer (M6) — note in the standing-purpose section that
+  writing the brief is the author's cheapest pre-merge defect pass. Full
+  reasoning in `AGENT_RUNBOOK.md` → `## Debrief (2026-09-03)`.
 - **v1.1 (2026-09-02)** — evidence from PR #484's own gate (approved AFTER two
   review rounds; both round-1 must-fixes were author misses the prompt surfaced):
   (i) **file double-writer**: adding `tee <file>` where a config (`pytest.ini
