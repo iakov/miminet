@@ -60,9 +60,21 @@ commits), force-push, delete merged branch + worktree. Merge order when PRs
 touch shared files: A → D → C → E.
 
 ## CI facts
-- Linter = **ruff check + ruff format --check + mypy** (matrix back/front),
+- Linter = **ruff check + ruff format --check + ty** (matrix back/front),
   run via `uv run --frozen` (uv workspace is the dependency SSOT; per-node
-  `requirements.txt` deleted).
+  `requirements.txt` deleted). **Type gate swapped mypy → ty (#485).** ty
+  checks untyped function bodies unconditionally (mypy skipped them → the old
+  0-error gate was vacuous over a ~24%-annotated codebase). Invocation:
+  `ty check --no-progress ${{matrix.node}}`; `[tool.ty]` in the root
+  pyproject carries `allowed-unresolved-imports = ["**"]` (mypy
+  `--ignore-missing-imports` parity) and a `front/tests` staging override
+  (`all = "ignore"` — ~133 diagnostics, mypy never meaningfully checked those
+  untyped test files either; re-enable as its own phase). `back/tests` stays
+  ty-checked (clean). A scoped `unsupported-base = "ignore"` override covers
+  exactly the two `db.Model`-defining files (`miminet_model.py`,
+  `quiz/entity/entity.py`) — flask_sqlalchemy's dynamic base ty can't resolve
+  (was the mypy-era `# type: ignore[name-defined]`). ty is pinned by the lock
+  (0.0.77 at adoption; pre-1.0 — treat ty bumps as their own small PRs).
 - `Pytest` = back tests as root, `back/ovs-init.sh`, `uv sync --frozen
   --project back`, from `back/tests` (pytest-timeout 900s). **Sharded across 3
   matrix runners** (#477, hardened #484): each job runs a serial quoted-array
@@ -111,10 +123,10 @@ touch shared files: A → D → C → E.
   --frozen` installs all members + all dev groups; `--project back` installs
   back runtime + back dev group only.
 - Linter tooling: **ruff (lint+format) merged (#476)** replacing black/flake8;
-  mypy kept (type gate). `ty` swap deferred — `ty check .` = 190 diagnostics
-  vs mypy 0 (mypy skips untyped function bodies); the `[tool.ty]` config is now
-  schema-valid so the swap can be evaluated when someone wants the stricter
-  checks.
+  **type gate is now ty (#485)** replacing mypy (see CI facts — ty checks
+  untyped bodies, the mypy 0-error gate was vacuous). `front/tests` staged out
+  of the ty gate (mypy never checked them meaningfully either); mypy stays in
+  dev deps but is no longer run.
 - **Back test parallelism — SHARDING MERGED (#477), unshare proven negative.**
   ipmininet's py-unshare/run-tests-parallel (xdist `--dist=loadscope`,
   per-worker `unshare --mount --pid --net` isolation, `--timeout-method=thread`)
@@ -251,9 +263,11 @@ pick up without re-deriving:
    **CLOSED by #484** (quoted arrays, `set -euo pipefail`, `-maxdepth 1` comment,
    back log capture). See Batch 7. Keep the nits as never-regress items in
    Prevention.
-2. **`ty` strict-type swap** — deferred: 190 diagnostics vs mypy 0 (mypy skips
-   untyped function bodies). Unblock: a decision on strictness; then a tooling
-   commit separate from the type-fix sweep.
+2. ~~**`ty` strict-type swap**~~ — **CLOSED by #485**: decision was "adopt ty,
+   src-first staged". Gate is now `ty check` (Linter back/front green on src +
+   back/tests); `front/tests` staged out of the gate. Follow-up: re-enable
+   `front/tests` (~133 diagnostics, mostly untyped Selenium helpers) as its own
+   phase, and watch ty version bumps (pre-1.0 at 0.0.77).
 3. **dependabot × uv.lock validity** — open question; can pip@`/` produce valid
    workspace-lock PRs? Resolves only on the next monthly dependabot cycle.
 4. **`ci/back-parallel-suite` fork branch** — superseded by matrix sharding
@@ -652,3 +666,77 @@ logs apart from memory addresses/timing: `6 passed, 24 errors in ~5s`.
   on 07add40. Fork `main` = upstream 07add40 + re-signed fork-local commits
   (`dff3400`, `bc7e022`), force-pushed; fork-local triggers preserved on both
   hardened workflows. Known-debt item 1 (back/front CI nits) closed.
+
+## Batch 8 outcomes (2026-09-03) — ty strict-type gate adopted (#485, upstream 91496b4)
+- **Decision executed:** "adopt ty, src-first staged". The type gate is now **ty**
+  (astral, pre-1.0 0.0.77, already a dev dep) replacing mypy. mypy reported 0
+  errors only because it skips untyped function bodies (480 src defs, ~115
+  annotated) — the old gate was vacuous. ty checks untyped bodies unconditionally
+  → first real static pass over src.
+- **3 commits** (tooling / back / front, kept separable):
+  1. `ci(lint): gate with ty instead of mypy` — linter.yml mypy step →
+     `ty check --no-progress ${{matrix.node}}`; `[tool.ty]` staging override
+     `front/tests` → `all = "ignore"` (mypy never meaningfully checked them
+     either; ~133 diagnostics; re-enable later). Tooling only.
+  2. `fix(back)` — 3 latent issues (see below).
+  3. `fix(front)` — 2 latent bugs + guards (see below).
+- **Latent bugs ty found (the value):**
+  - `back/bench/bench.py` — `psutil.ProcessLookupError` does not exist
+    (psutil ships `py.typed` so ty resolved it where mypy's
+    `--ignore-missing-imports` hid the module). Except-tuple referencing a
+    missing member raised `AttributeError` for exceptions reaching that member.
+  - `front/src/miminet_network.py::get_emulation_queue_size` — absent
+    `time-filter` → `request.args.get(...) is None` → `None.replace` 500; the
+    intended 400 branch was dead code after an unreachable `if not time_filter`.
+    Guard activated the documented 400. Malformed-present values unchanged.
+  - `front/src/quiz/controller/image_controller.py::upload_image_endpoint` —
+    `file.filename` can be `None`; `== ""` check didn't cover it, so
+    `allowed_file(None)` hit `"." in None` → 500. Guard `if not filename`.
+  - `front/src/quiz/util/encoder.py::UUIDEncoder.default` param `obj` vs base `o`
+    (invalid override), fixed by rename.
+- **Sweep categories (front/back):** cross-method prepare-state asserts in
+  configurators (invariant holds: every `_configure` calls prepare first, prepare
+  raises `ConfigurationError` not None); `cast(User, current_user)` at
+  `@login_required` controller→service boundaries; `cast(Any, ...)` for
+  unannotated `db.relationship` attrs in `selectinload` (mirrors the pre-existing
+  `test_service.py` convention); widen genuinely-Optional `section_id`/
+  `session_question_id` params at the facade (they guard internally); scoped
+  `[tool.ty]` `unsupported-base = "ignore"` for exactly the two `db.Model`
+  files; `app.py` sitemap `rule.methods is not None` guard; yandex/tg json
+  None asserts (routes registered unconditionally); flask-admin `date` formatter
+  gained the `name` param (modern 3-arg call; 2-arg only tolerated via a
+  deprecated shim); dropped 3 dead mypy `# type: ignore`.
+- **Local gates:** `ty check back front` = 0 errors + 0 warnings (ty's default
+  `error-on-warning: true` makes warnings gate-failing — the 14 `unsupported-base`
+  warnings had to be resolved, not ignored globally); ruff format/check clean.
+  ty config discovery note: run with the repo venv set (local repro needs
+  `VIRTUAL_ENV=... ty check ...` from the repo root — CI's `uv run --frozen`
+  provides it). `front/tests` glob does NOT match `front/src/auth_tests` (those
+  stayed checked — tg_test needed a fix).
+- **Front e2e flake encountered:** one PR-head Full-test run failed `test_stp`
+  setup (`Modal dialog #RstpModal... wasn't opened`, a 5s modal-open wait in
+  `conftest.run_in_modal_context`) — the known front-e2e flake signal, NOT a
+  regression (this PR doesn't touch front/tests; identical shard passed the
+  rerun and the parallel run). Full test is not merge-gated.
+- **Review gate (v1.1 prompt): APPROVE, no must-fix.** Reviewer CONFIRMED all 3
+  claimed latent bugs, verified behavior-identity of the whole sweep (login 4-case
+  message matrix, no external `.addLink` caller — ipmininet builds via
+  `net.addLink` never `topo.addLink`, asserts can't fire on legit paths, all casts
+  are runtime no-ops under `@login_required`), and confirmed no dropped mypy
+  coverage (mypy was 0-error so nothing could be lost). Non-blocking nits: bench
+  commit-message mechanism wording (lazy except matching, not "whenever a process
+  vanishes"); one redundant configurators assert; malformed-present
+  `time-filter` still 500s (pre-existing); residual dead mypy-era ignores.
+- **Self-caught mid-review** (author fixed before merge): login else-binding
+  message (password-None must show "wrong creds" not "no such user" — fixed by
+  gating the hash check inside `if user:`); `_dhcp_opt_bytes` `str.encode()`
+  fallback would silently mis-decode an impossible-str option → replaced with a
+  cast-only helper (cast is a runtime no-op, str still fails loudly); ruff format
+  compliance on the auth edit (caught by the Linter Format step).
+- **CI green pre- and post-merge** on 91496b4 (Linter back+front ty gate, Pytest
+  3/3, Full test 3/3, auth test, CodeQL, dependency-review). One Full-test shard
+  needed a rerun (the test_stp flake above). Fork `main` resynced to upstream
+  91496b4 + re-signed fork-local commits (`8b22312`, `c398710`), force-pushed;
+  fork-local workflow layer verified preserved (`git diff upstream/main main --`
+  shows only auth_test/back_test/full_test + update_uv_lock, NOT linter.yml/
+  dependency_review.yml). Known-debt #2 closed.
