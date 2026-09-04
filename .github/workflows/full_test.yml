@@ -1,10 +1,11 @@
 name: Full test
 
+# W5 fork-experiment (NEVER merge): this branch exists only to measure front/src
+# branch coverage exercised by the Selenium e2e suite. `on:` is trimmed to
+# workflow_dispatch so the ONE instrumented run is fired manually on the fork
+# instead of on every push.
 on:
-  push:
-  pull_request:
-  schedule:
-    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -98,6 +99,25 @@ jobs:
             python -m pytest -vv -s "${slice[@]}" 2>&1 | tee .tmp/full-test-shard-$SHARD.log
           '
 
+      # W5 fork-experiment (NEVER merge): collect branch-coverage data from the
+      # app before the runner is torn down. SIGTERM makes each uwsgi worker
+      # flush (coverage [run] sigterm=true in /app/.coveragerc); celery prefork
+      # children cannot flush on TERM, so we only wait out one saver interval
+      # (their at-fork thread calls coverage.save() every 10s). Files appear in
+      # the bind-mounted front/.tmp/covout.
+      - name: Flush coverage data from app containers
+        if: always()
+        run: |
+          sudo bash -c '
+            docker exec miminet pkill -TERM -x uwsgi || true
+            sleep 15
+            chmod -R a+rX front/.tmp/covout
+            n=$(find front/.tmp/covout -name ".coverage.*" | wc -l)
+            echo "Coverage files flushed from miminet: $n"
+            ls -la front/.tmp/covout
+            [ "$n" -gt 0 ] || { echo "ERROR: no coverage data flushed from miminet" >&2; exit 1; }
+          '
+
       - name: Capture container logs
         if: failure()
         run: |
@@ -124,5 +144,88 @@ jobs:
         with:
           name: full-test-logs-shard-${{ matrix.shard }}
           path: .tmp/*-shard-${{ matrix.shard }}.log
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+      # W5 fork-experiment (NEVER merge): per-shard coverage data. The mounted
+      # dir front/.tmp/covout is hidden, hence include-hidden-files.
+      - name: Upload coverage data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: front-cov-shard-${{ matrix.shard }}
+          path: front/.tmp/covout/.coverage*
+          include-hidden-files: true
+          if-no-files-found: warn
+
+  coverage:
+    name: Front coverage report
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --project back
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v7
+        with:
+          pattern: front-cov-shard-*
+          path: .tmp/frontcov
+          merge-multiple: true
+
+      # W5 fork-experiment (NEVER merge): combine the three shards into a
+      # whole-suite front/src report. Measured paths are /app/... (container);
+      # [paths] remaps them to the checkout's front/src so the report/JSON
+      # carry repo-relative names and statement counts.
+      - name: Combine and report
+        run: |
+          source .venv/bin/activate
+          cd .tmp/frontcov
+          files=$(find . -name ".coverage.*" | sort) || { echo "ERROR: find failed" >&2; exit 1; }
+          [ -n "$files" ] || { echo "ERROR: no coverage data collected" >&2; exit 1; }
+          echo "Combining:"
+          printf '%s\n' "$files"
+          cat > .coveragerc <<EOF
+          [paths]
+          source =
+              ${GITHUB_WORKSPACE}/front/src
+              /app
+          EOF
+          # shellcheck disable=SC2086
+          python -m coverage combine $files
+          python -m coverage report
+          python -m coverage json -o coverage.json
+          echo "front/src e2e coverage summary:"
+          python - <<'PY'
+          import json
+          d = json.load(open("coverage.json"))
+          t = d["totals"]
+          print(
+              "TOTAL  {pc}%  ({cl}/{ns} lines, {cb}/{nb} branches, {nf} files)".format(
+                  pc=t["percent_covered_display"],
+                  cl=t["covered_lines"],
+                  ns=t["num_statements"],
+                  cb=t["covered_branches"],
+                  nb=t["num_branches"],
+                  nf=len(d["files"]),
+              )
+          )
+          PY
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: front-cov-report
+          path: .tmp/frontcov/coverage.json
           include-hidden-files: true
           if-no-files-found: ignore

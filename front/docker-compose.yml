@@ -23,8 +23,15 @@ services:
       - ./src/static/pcaps:/app/static/pcaps
       - ./src/static/assets:/app/static/assets
       - ./src/static/quiz_images:/app/static/quiz_images
+      # W5 fork-experiment (NEVER merge): coverage data out of the container.
+      - ./.tmp/covout:/app/.covout
     environment:
       - RABBITMQ_URL=amqp://rabbitmq:5672
+      # W5 fork-experiment (NEVER merge): enable branch-coverage collection in
+      # uwsgi workers + celery children; data is written to /app/.covout
+      # (bind-mounted to ./.tmp/covout on the host for artifact upload).
+      - COVERAGE_PROCESS_START=/app/.coveragerc
+      - W5_COV_FLUSH=1
     depends_on:
       postgres:
         condition: service_healthy
