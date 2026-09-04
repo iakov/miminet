@@ -125,6 +125,30 @@ and re-mapping already-surveyed terrain.
 - **Close-out ordering:** persist + commit + push docs (Tier 2) FIRST, then tear
   down temp branches/worktrees — never the reverse.
 
+## 1d. Remembered user directives (user-mandated, "remember to remember")
+The user frequently says "remember <X>" / "remember this trick". Those are
+durable instructions, not session chat. Each must be (a) **saved to a file
+immediately** in the right tier and (b) **applied whenever it is useful** in
+later work. When a directive arrives:
+1. Restate the directive as a terse rule.
+2. Place it: a cross-batch rule → this AGENTS.md (both copies, §mirror rule);
+   batch-specific knowledge/outcomes → `docs/AGENT_RUNBOOK.md` batch block;
+   a measurement/recipe/valuation → `docs/experiments/<name>/`. State where it
+   was saved in the reply.
+3. Apply it this session and in every later session where it is relevant.
+Standing directives in force (add to this list as new ones arrive):
+- **Reviewers (and study/valuation subagents) report ONLY a file path.** All
+  findings/ideas are written to files; the subagent's final message contains
+  nothing except the file name(s). The authoring agent reads the files and is
+  responsible for committing the docs. (Batch 12 user directive.)
+- **Document required experiments as deferred tasks** with their unblock-chain
+  (what must be true/available first) and the aim, so they are resumable and
+  their intent is never re-derived. (Batch 12 user directive.)
+- **Before betting on a framework/architecture, run a strict review.** When the
+  server may be mis-fit for its use (e.g. Flask as the API server for a future
+  non-browser client), a business/system-architecture/tooling review gates any
+  large coverage or rewrite investment. (Batch 12 user directive.)
+
 ## 2. Deferral policy (user-mandated)
 - **Defer, don't guess.** If you are biased or unsure, and experiments cannot
   prove that one of the competing alternatives is *definitely* best, defer the
