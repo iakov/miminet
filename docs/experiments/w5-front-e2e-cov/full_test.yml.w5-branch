@@ -1,0 +1,231 @@
+name: Full test
+
+# W5 fork-experiment (NEVER merge): this branch exists only to measure front/src
+# branch coverage exercised by the Selenium e2e suite. `on:` is trimmed to
+# workflow_dispatch so the ONE instrumented run is fired manually on the fork
+# instead of on every push.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Start frontend
+        run: |
+          cd front/
+          sed -i 's/MODE=prod/MODE=dev/' .env
+          sed -i '/^BASE_DOMAIN/d' .env
+          sed -i '/^ALLOWED_HOSTS/d' .env && printf "\nALLOWED_HOSTS=http://localhost,http://172.18.0.2,http://172.18.0.3" >> .env
+          docker compose up -d
+
+      - name: Start selenium
+        run: |
+          cd front/tests/docker
+          docker compose up -d
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen
+
+      - name: Check availability
+        run: |
+          docker ps
+          curl -f localhost
+
+      - name: Wait for selenium grid
+        run: |
+          for i in $(seq 1 60); do
+            status=$(curl -sf http://localhost:4444/wd/hub/status 2>/dev/null) || true
+            ready=$(printf '%s' "$status" | python3 -c 'import json,sys; v=json.load(sys.stdin).get("value",{}); print(1 if v.get("ready") and any(str(n.get("availability","")).upper()=="UP" for n in (v.get("nodes") or [])) else 0)' 2>/dev/null || echo 0)
+            if [ "$ready" = "1" ]; then
+              echo "Selenium grid ready after ~$((i * 2))s:"
+              printf '%s\n' "$status"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ERROR: selenium grid (localhost:4444) not ready after 120s" >&2
+          docker ps
+          exit 1
+
+      - name: Run tests
+        env:
+          SHARD: ${{ matrix.shard }}
+          N_SHARDS: 3
+        run: |
+          sudo SHARD="$SHARD" N_SHARDS="$N_SHARDS" bash -c '
+            set -euo pipefail
+            source .venv/bin/activate
+            mkdir -p .tmp
+            # -maxdepth 1: only flat front/tests/test_*.py files participate in
+            # sharding. A future test file under front/tests/<subdir>/ will NOT
+            # be collected; revisit the shard partition if sub-suite discovery
+            # is ever wanted.
+            files=$(find front/tests -maxdepth 1 -name "test_*.py" | sort) || { echo "ERROR: find/sort failed" >&2; exit 1; }
+            slice=()
+            idx=0
+            while IFS= read -r f; do
+              [ -n "$f" ] || continue
+              idx=$((idx + 1))
+              if [ $((idx % N_SHARDS)) -eq $((SHARD - 1)) ]; then
+                slice+=("$f")
+              fi
+            done <<<"$files"
+            [ "${#slice[@]}" -gt 0 ] || { echo "ERROR: shard $SHARD/$N_SHARDS got an empty slice" >&2; exit 1; }
+            echo "Shard $SHARD/$N_SHARDS (${#slice[@]} files)"
+            printf '%s\n' "${slice[@]}"
+            python -m pytest -vv -s "${slice[@]}" 2>&1 | tee .tmp/full-test-shard-$SHARD.log
+          '
+
+      # W5 fork-experiment (NEVER merge): collect branch-coverage data from the
+      # app before the runner is torn down. SIGTERM makes each uwsgi worker
+      # flush (coverage [run] sigterm=true in /app/.coveragerc); celery prefork
+      # children cannot flush on TERM, so we only wait out one saver interval
+      # (their at-fork thread calls coverage.save() every 10s). Files appear in
+      # the bind-mounted front/.tmp/covout.
+      - name: Flush coverage data from app containers
+        if: always()
+        run: |
+          sudo bash -c '
+            docker exec miminet pkill -TERM -x uwsgi || true
+            sleep 15
+            chmod -R a+rX front/.tmp/covout
+            n=$(find front/.tmp/covout -name ".coverage.*" | wc -l)
+            echo "Coverage files flushed from miminet: $n"
+            ls -la front/.tmp/covout
+            [ "$n" -gt 0 ] || { echo "ERROR: no coverage data flushed from miminet" >&2; exit 1; }
+          '
+
+      - name: Capture container logs
+        if: failure()
+        run: |
+          sudo bash -c '
+            mkdir -p .tmp
+            log=".tmp/containers-shard-${{ matrix.shard }}.log"
+            {
+              echo "=== docker ps -a ==="
+              docker ps -a
+              echo
+              echo "=== front compose logs ==="
+              (cd front && docker compose logs --tail=300 2>&1)
+              echo
+              echo "=== grid compose logs ==="
+              (cd front/tests/docker && docker compose logs --tail=300 2>&1)
+            } > "$log" 2>&1
+            chmod 644 "$log"
+            cat "$log"
+          '
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: full-test-logs-shard-${{ matrix.shard }}
+          path: .tmp/*-shard-${{ matrix.shard }}.log
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+      # W5 fork-experiment (NEVER merge): per-shard coverage data. The mounted
+      # dir front/.tmp/covout is hidden, hence include-hidden-files.
+      - name: Upload coverage data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: front-cov-shard-${{ matrix.shard }}
+          path: front/.tmp/covout/.coverage*
+          include-hidden-files: true
+          if-no-files-found: warn
+
+  coverage:
+    name: Front coverage report
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --project back
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v7
+        with:
+          pattern: front-cov-shard-*
+          path: .tmp/frontcov
+          merge-multiple: true
+
+      # W5 fork-experiment (NEVER merge): combine the three shards into a
+      # whole-suite front/src report. Measured paths are /app/... (container);
+      # [paths] remaps them to the checkout's front/src so the report/JSON
+      # carry repo-relative names and statement counts.
+      - name: Combine and report
+        run: |
+          source .venv/bin/activate
+          cd .tmp/frontcov
+          files=$(find . -name ".coverage.*" | sort) || { echo "ERROR: find failed" >&2; exit 1; }
+          [ -n "$files" ] || { echo "ERROR: no coverage data collected" >&2; exit 1; }
+          echo "Combining:"
+          printf '%s\n' "$files"
+          cat > .coveragerc <<EOF
+          [paths]
+          source =
+              ${GITHUB_WORKSPACE}/front/src
+              /app
+          EOF
+          # shellcheck disable=SC2086
+          python -m coverage combine $files
+          python -m coverage report
+          python -m coverage json -o coverage.json
+          echo "front/src e2e coverage summary:"
+          python - <<'PY'
+          import json
+          d = json.load(open("coverage.json"))
+          t = d["totals"]
+          print(
+              "TOTAL  {pc}%  ({cl}/{ns} lines, {cb}/{nb} branches, {nf} files)".format(
+                  pc=t["percent_covered_display"],
+                  cl=t["covered_lines"],
+                  ns=t["num_statements"],
+                  cb=t["covered_branches"],
+                  nb=t["num_branches"],
+                  nf=len(d["files"]),
+              )
+          )
+          PY
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: front-cov-report
+          path: .tmp/frontcov/coverage.json
+          include-hidden-files: true
+          if-no-files-found: ignore

@@ -1,0 +1,6 @@
+[run]
+source = /app
+branch = True
+parallel = True
+sigterm = True
+data_file = /app/.covout/.coverage

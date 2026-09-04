@@ -1036,10 +1036,14 @@ scratch in `.tmp/`; defer (don't guess) any decision experiments cannot settle.
   `include-hidden-files`, combine job remaps `/app`→`${GITHUB_WORKSPACE}/front/src`
   via `[paths]`. Full-test workflow trimmed to `workflow_dispatch` on the temp
   branch so the ONE run was manually budgeted; collateral fork runs from the
-  push (back Pytest/auth) were cancelled. Branch + worktree deleted after the
-  measurement. Follow-ups if ever re-run: verify `.pth` activation in the real
-  image (largest residual risk; the flush guard fails red if not) and that
-  tracing overhead doesn't flake the timing-sensitive suite.
+  push (back Pytest/auth) were cancelled. Branch + worktree were deleted after
+  the measurement and later recovered from the dangling commit object `62fd169`
+  → archived verbatim under `docs/experiments/w5-front-e2e-cov/` (helpers +
+  `coverage.rc` byte-identical, `w5-full-diff.patch`, branch
+  `experiments/w5-front-e2e-cov` + tag `w5/front-e2e-cov-2026-09-04` on `origin`
+  as cross-check refs). Follow-ups if ever re-run: verify `.pth` activation in
+  the real image (largest residual risk; the flush guard fails red if not) and
+  that tracing overhead doesn't flake the timing-sensitive suite.
 - **Reviewer-gate mechanics used this batch (4 PRs):** reviewer role run as a
   `general` subagent per `docs/review_prompt.md` v1.2 (no dedicated reviewer
   subagent type exists — only `explore`/`general`); verdicts recorded as PR
@@ -1061,7 +1065,22 @@ scratch in `.tmp/`; defer (don't guess) any decision experiments cannot settle.
   no-merge discussion PR was not authored this batch (valuation study's detailed
   writeup was not persisted to disk; recreating the full port would be a large
   unverifiable-in-CI effort). Unblock = recover/re-run the valuation study
-  (R1: pilot trio `test_job_edit`/`test_stp`/ping-copy, DSL core ~400 lines,
+  (pilot trio `test_job_edit`/`test_stp`/ping-copy, DSL core ~400 lines,
   selectors/fixtures/comparator transfer 1:1, no `time.sleep` left) and budget a
   Playwright pilot run. AGENTS §1b (async/parallel execution) added + mirrored
   to the repo-root AGENTS.md.
+- **Close-out (persistence lesson, AGENTS §1c added + mirrored):** the R1
+  valuation study was NOT on disk after the batch; the W5 patch was recovered
+  only because the commit object had not been gc'd. Rules now enforced: always
+  persist to a file tiered by value (Tier 0 `.tmp` → Tier 2 docs commit+push);
+  subagents write studies/recipes/long verdicts to files as part of the task;
+  task-id ledger kept in the runbook batch block; exact-bytes archiving of
+  measurements; close-out ordering = docs first, teardown second. The W5 and
+  Playwright-valuation artifacts live under `docs/experiments/`.
+- **Subagent ledger (Batch 10):** `ses_f96b7f0c3ffeNwDpULcgYdMWPM` W2 #487
+  reviewer (APPROVE-with-nits); `ses_f96b7d318ffeeUVydqT9rJGDfN` W3 #488
+  reviewer (APPROVE-with-nits); `ses_f969e3774ffeJ1y9RSwh4LK0yT` #489 reviewer
+  (APPROVE-with-nits); `ses_f94df45f6ffeePDFDbPL78G67r` #490 reviewer (APPROVE);
+  `ses_f968a5d50ffeSjMnDHCrD2Mhwf` W5-prep (recipe → executed, archived);
+  `ses_f94bc4c3affeIzkP1qR3RbqNTx` R1 valuation re-run (→
+  `docs/experiments/playwright-valuation/`).

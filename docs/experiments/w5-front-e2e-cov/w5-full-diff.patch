@@ -1,0 +1,176 @@
+diff --git a/.github/workflows/full_test.yml b/.github/workflows/full_test.yml
+index 0e5e241..f045df8 100644
+--- a/.github/workflows/full_test.yml
++++ b/.github/workflows/full_test.yml
+@@ -1,10 +1,11 @@
+ name: Full test
+ 
++# W5 fork-experiment (NEVER merge): this branch exists only to measure front/src
++# branch coverage exercised by the Selenium e2e suite. `on:` is trimmed to
++# workflow_dispatch so the ONE instrumented run is fired manually on the fork
++# instead of on every push.
+ on:
+-  push:
+-  pull_request:
+-  schedule:
+-    - cron: '0 2 * * *'
++  workflow_dispatch:
+ 
+ concurrency:
+   group: ${{ github.workflow }}-${{ github.ref }}
+@@ -98,6 +99,25 @@ jobs:
+             python -m pytest -vv -s "${slice[@]}" 2>&1 | tee .tmp/full-test-shard-$SHARD.log
+           '
+ 
++      # W5 fork-experiment (NEVER merge): collect branch-coverage data from the
++      # app before the runner is torn down. SIGTERM makes each uwsgi worker
++      # flush (coverage [run] sigterm=true in /app/.coveragerc); celery prefork
++      # children cannot flush on TERM, so we only wait out one saver interval
++      # (their at-fork thread calls coverage.save() every 10s). Files appear in
++      # the bind-mounted front/.tmp/covout.
++      - name: Flush coverage data from app containers
++        if: always()
++        run: |
++          sudo bash -c '
++            docker exec miminet pkill -TERM -x uwsgi || true
++            sleep 15
++            chmod -R a+rX front/.tmp/covout
++            n=$(find front/.tmp/covout -name ".coverage.*" | wc -l)
++            echo "Coverage files flushed from miminet: $n"
++            ls -la front/.tmp/covout
++            [ "$n" -gt 0 ] || { echo "ERROR: no coverage data flushed from miminet" >&2; exit 1; }
++          '
++
+       - name: Capture container logs
+         if: failure()
+         run: |
+@@ -126,3 +146,86 @@ jobs:
+           path: .tmp/*-shard-${{ matrix.shard }}.log
+           include-hidden-files: true
+           if-no-files-found: ignore
++
++      # W5 fork-experiment (NEVER merge): per-shard coverage data. The mounted
++      # dir front/.tmp/covout is hidden, hence include-hidden-files.
++      - name: Upload coverage data
++        if: always()
++        uses: actions/upload-artifact@v7
++        with:
++          name: front-cov-shard-${{ matrix.shard }}
++          path: front/.tmp/covout/.coverage*
++          include-hidden-files: true
++          if-no-files-found: warn
++
++  coverage:
++    name: Front coverage report
++    needs: build
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v7
++
++      - name: Install uv
++        uses: astral-sh/setup-uv@v7
++        with:
++          enable-cache: true
++          cache-dependency-glob: uv.lock
++
++      - name: Install dependencies
++        run: |
++          uv sync --frozen --project back
++
++      - name: Download coverage data
++        uses: actions/download-artifact@v7
++        with:
++          pattern: front-cov-shard-*
++          path: .tmp/frontcov
++          merge-multiple: true
++
++      # W5 fork-experiment (NEVER merge): combine the three shards into a
++      # whole-suite front/src report. Measured paths are /app/... (container);
++      # [paths] remaps them to the checkout's front/src so the report/JSON
++      # carry repo-relative names and statement counts.
++      - name: Combine and report
++        run: |
++          source .venv/bin/activate
++          cd .tmp/frontcov
++          files=$(find . -name ".coverage.*" | sort) || { echo "ERROR: find failed" >&2; exit 1; }
++          [ -n "$files" ] || { echo "ERROR: no coverage data collected" >&2; exit 1; }
++          echo "Combining:"
++          printf '%s\n' "$files"
++          cat > .coveragerc <<EOF
++          [paths]
++          source =
++              ${GITHUB_WORKSPACE}/front/src
++              /app
++          EOF
++          # shellcheck disable=SC2086
++          python -m coverage combine $files
++          python -m coverage report
++          python -m coverage json -o coverage.json
++          echo "front/src e2e coverage summary:"
++          python - <<'PY'
++          import json
++          d = json.load(open("coverage.json"))
++          t = d["totals"]
++          print(
++              "TOTAL  {pc}%  ({cl}/{ns} lines, {cb}/{nb} branches, {nf} files)".format(
++                  pc=t["percent_covered_display"],
++                  cl=t["covered_lines"],
++                  ns=t["num_statements"],
++                  cb=t["covered_branches"],
++                  nb=t["num_branches"],
++                  nf=len(d["files"]),
++              )
++          )
++          PY
++
++      - name: Upload coverage report
++        if: always()
++        uses: actions/upload-artifact@v7
++        with:
++          name: front-cov-report
++          path: .tmp/frontcov/coverage.json
++          include-hidden-files: true
++          if-no-files-found: ignore
+diff --git a/front/Dockerfile b/front/Dockerfile
+index b62053f..f213c0f 100644
+--- a/front/Dockerfile
++++ b/front/Dockerfile
+@@ -9,6 +9,18 @@ COPY back/pyproject.toml /app/back/pyproject.toml
+ COPY front/pyproject.toml /app/front/pyproject.toml
+ RUN uv sync --frozen --no-dev --project front
+ ENV PATH="/app/.venv/bin:$PATH"
++
++# W5 fork-experiment (NEVER merge): Selenium-e2e branch coverage of front/src.
++# coverage 7.16's a1_coverage.pth auto-starts a tracer in every interpreter
++# that uses /app/.venv when COVERAGE_PROCESS_START points at /app/.coveragerc,
++# so each uwsgi worker and celery child is measured. w5_cov.pth imports
++# w5_cov_flush.py, which registers an at-fork child hook that periodically
++# saves coverage data (needed because celery prefork children exit via
++# os._exit and never run atexit). Data lands in the bind-mounted /app/.covout.
++RUN /app/.venv/bin/pip install --no-cache-dir "coverage==7.16.0"
++COPY front/w5/cov_flush.py /app/.venv/lib/python3.12/site-packages/w5_cov_flush.py
++COPY front/w5/w5_cov.pth /app/.venv/lib/python3.12/site-packages/w5_cov.pth
++COPY front/w5/coverage.rc /app/.coveragerc
+ RUN mkdir -p /app/.postgresql && \
+     wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" -O /app/.postgresql/root.crt && \
+     chmod 0600 /app/.postgresql/root.crt
+diff --git a/front/docker-compose.yml b/front/docker-compose.yml
+index 3e4c463..4995397 100644
+--- a/front/docker-compose.yml
++++ b/front/docker-compose.yml
+@@ -23,8 +23,15 @@ services:
+       - ./src/static/pcaps:/app/static/pcaps
+       - ./src/static/assets:/app/static/assets
+       - ./src/static/quiz_images:/app/static/quiz_images
++      # W5 fork-experiment (NEVER merge): coverage data out of the container.
++      - ./.tmp/covout:/app/.covout
+     environment:
+       - RABBITMQ_URL=amqp://rabbitmq:5672
++      # W5 fork-experiment (NEVER merge): enable branch-coverage collection in
++      # uwsgi workers + celery children; data is written to /app/.covout
++      # (bind-mounted to ./.tmp/covout on the host for artifact upload).
++      - COVERAGE_PROCESS_START=/app/.coveragerc
++      - W5_COV_FLUSH=1
+     depends_on:
+       postgres:
+         condition: service_healthy

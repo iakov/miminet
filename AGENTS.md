@@ -88,6 +88,43 @@ plus the W5 instrumented-e2e measurement) ran entirely this way; see
   re-syncs (rebase + re-sign the 2 fork-local commits) happen once per batch by
   one agent at close-out, never concurrently.
 
+## 1c. Persistence & subagent artifacts (user-mandated, Batch 10 close-out)
+Loss lesson: Batch 10 lost the R1/R2 subagent study/recipe (returned only as
+final messages — one-line paraphrases survived context compaction) and nearly
+lost the W5 patch (temp branch torn down before archival; recovered from a
+dangling commit object, then archived under `docs/experiments/w5-front-e2e-cov/`).
+Budget waste this must prevent: re-deriving lost studies/recipes, blind CI
+re-runs from lost run parameters, unaddressable (id-less) subagent sessions,
+and re-mapping already-surveyed terrain.
+- **Always persist to file; choose the tier by artifact value and reusability,
+  not by habit:**
+  - **Tier 0 — `.tmp/` scratch:** one-shot diagnostics, logs of understood
+    runs. Freely deleted once the outcome is recorded.
+  - **Tier 1 — local branch commit:** in-flight or pre-validated work, resumable
+    via task id. Promote on validation.
+  - **Tier 2 — docs worktree commit + push (`origin docs/agent-guardrails`):**
+    the durable sink that survives context compaction — batch records, recipes,
+    measurements, valuations, rule changes, verdict texts. Anything a future
+    session would otherwise re-derive is promoted here in the SAME batch,
+    before cleanup/close-out.
+  - **Tier 3 — upstream PR:** code meant to land.
+  - `docs/experiments/<name>/` is the home for measurement/valuation artifacts
+    (model: `docs/experiments/w5-front-e2e-cov/`, `playwright-valuation/`).
+- **Subagent file-sink rule (mandatory).** Any deliverable that is a valuation
+  study, recipe, measurement harness, or a long (>~1500-word) verdict is WRITTEN
+  to a specified repo file as part of the task — never only returned as the
+  final message. State the required path in the subagent prompt.
+- **Task-ID ledger (mandatory).** Record every subagent `ses_...` id + a
+  one-line deliverable pointer in the runbook batch block at launch time, so
+  sessions stay resumable and losses are discoverable.
+- **Exact-bytes archiving (measurements/experiments).** Recipes archive the
+  exact workflow/Dockerfile/`.rc`/command inputs + artifact names + one results
+  line at run time (promote to Tier 2), never prose-only.
+- **Verdict-to-file.** Long reviewer verdicts also land in the batch notes (the
+  PR comment stays the primary durable record) to avoid truncation round-trips.
+- **Close-out ordering:** persist + commit + push docs (Tier 2) FIRST, then tear
+  down temp branches/worktrees — never the reverse.
+
 ## 2. Deferral policy (user-mandated)
 - **Defer, don't guess.** If you are biased or unsure, and experiments cannot
   prove that one of the competing alternatives is *definitely* best, defer the
