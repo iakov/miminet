@@ -1061,14 +1061,15 @@ scratch in `.tmp/`; defer (don't guess) any decision experiments cannot settle.
   Reviewer subagents' long verdict messages can truncate at the tail when read
   back — resume the subagent session and ask it to restate the verdict rather
   than acting on a partial view.
-- **Deferred (see after-batch report):** W6 Playwright migration — the single
-  no-merge discussion PR was not authored this batch (valuation study's detailed
-  writeup was not persisted to disk; recreating the full port would be a large
-  unverifiable-in-CI effort). Unblock = recover/re-run the valuation study
-  (pilot trio `test_job_edit`/`test_stp`/ping-copy, DSL core ~400 lines,
-  selectors/fixtures/comparator transfer 1:1, no `time.sleep` left) and budget a
-  Playwright pilot run. AGENTS §1b (async/parallel execution) added + mirrored
-  to the repo-root AGENTS.md.
+- **W6 Playwright migration — CLOSED by decision (2026-09-04).** After a value
+  re-evaluation, no wholesale Selenium→Playwright port: keep the hardened
+  Selenium stack; targeted Playwright adoption only (interception/downloads/
+  multi-tab). See `docs/experiments/playwright-valuation/07-recommendation.md`
+  for the cons rationale (sunk-cost asymmetry, session-model against Playwright
+  grain, strict-mode flake swap, canvas drag, infra swap, dual-runner drift,
+  ty/review-gate burden, no runtime win, opportunity cost). AGENTS §6 carries a
+  standing bullet. The valuation studies remain the reference for any future
+  targeted adoption; a Phase-0 spike is the gate if ever revisited.
 - **Close-out (persistence lesson, AGENTS §1c added + mirrored):** the R1
   valuation study was NOT on disk after the batch; the W5 patch was recovered
   only because the commit object had not been gc'd. Rules now enforced: always

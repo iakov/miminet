@@ -265,6 +265,12 @@ and re-mapping already-surveyed terrain.
   Desktop and starves the host); `podman machine stop` REWRITES
   `~/.config/containers/storage.conf` to root paths — restore
   `[storage] driver="overlay"` without graphroot/runroot.
+- **Selenium e2e stack stays (decision 2026-09-04):** no wholesale
+  Selenium→Playwright port — the hardened suite's dominant flake classes are
+  driver-agnostic (emulation/timing, host memory, session-tab state). Targeted
+  Playwright adoption only (interception/downloads/multi-tab). Rationale:
+  `docs/experiments/playwright-valuation/07-recommendation.md` (fork docs
+  branch). A Phase-0 spike is the gate if ever revisited.
 
 ## 7. Infra/CI change guardrails (cross-batch distilled)
 Applies to any workflow or CI-harness edit:

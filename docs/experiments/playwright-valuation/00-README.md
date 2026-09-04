@@ -25,6 +25,9 @@ How to use this study:
   one amendment).
 - `05-risks-and-ci.md` — migration + CI/workflow risk register.
 - `06-sequencing.md` — phased plan with per-phase gates.
+- `07-recommendation.md` — decision (2026-09-04): keep Selenium, no wholesale
+  port; targeted Playwright adoption only. The W6 pilot idea was superseded by
+  this decision note.
 
 Task id / context: re-run of the Playwright-migration valuation (prior result
 lost to a non-persisted final message). Read-only research; the only writes are
