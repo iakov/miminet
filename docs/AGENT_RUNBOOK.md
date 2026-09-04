@@ -1085,3 +1085,53 @@ scratch in `.tmp/`; defer (don't guess) any decision experiments cannot settle.
   `ses_f968a5d50ffeSjMnDHCrD2Mhwf` W5-prep (recipe → executed, archived);
   `ses_f94bc4c3affeIzkP1qR3RbqNTx` R1 valuation re-run (→
   `docs/experiments/playwright-valuation/`).
+
+## Batch 11 outcomes (2026-09-04) — back per-file unit-coverage series #491–#494, green-only merges (upstream 31878ff)
+Continuation batch. User standing decisions: **green-only auto-merge for the
+back test-only per-file coverage series** — the review-agent gate is WAIVED for
+PRs that only ADD `back/tests/test_*.py` (recorded as a deliberate deviation
+from AGENTS §4; the reviewer gate still applies to source/CI changes). Series
+targets chosen "easiest first" from the whole-suite baseline coverage map.
+- **#491 test(back): unit-cover pkt_parser classifiers and pcap loop → `c0e0641`.**
+  `back/tests/test_pkt_parser.py` (29 tests): classifier dispatch over
+  IP/ARP/DHCP/LLC/unknown + the pcapng read loop. pkt_parser 72% → **91%**
+  (measured on the merged-tree run artifact).
+- **#492 test(back): unit-cover vlan config helpers' linux-bridge paths → `f41737f`.**
+  `back/tests/test_vlan.py` (12 tests): br-{name} bridge handling,
+  `setup_vlans`/`clean_bridges`, trunk/tagged/untagged parsing. vlan 82% → **99%**.
+- **#493 test(back): unit-cover jobs validators, filters and handlers → `6b62187`.**
+  `back/tests/test_jobs.py` (40 tests) targeting the largest remaining gap.
+  jobs 46% → **97%**. CI note: the head's `Full test` build(1) went red on the
+  Yandex cert fetch (`storage.yandexcloud.net/CA.pem` connection timeout) —
+  pure infra flake; `gh run rerun --failed` regreened. Pytest run of the same
+  SHA was already green, so no code re-push was needed.
+- **#494 test(back): unit-cover tasks filtering, retries and worker callback → `31878ff`.**
+  `back/tests/test_tasks.py` (16 tests): `_filter_unknown_nodes`,
+  `_has_meaningful_packets` (incl. protocol-aware DHCP), `get_network_schema`
+  caching, `run_miminet` retry/exception/empty-exhaustion paths with the
+  emulator mocked, and `mininet_worker`'s result-forwarding. tasks 73% → **99%**.
+  Authoring notes: `mininet_worker.run("{}")` invokes the bound celery task so
+  `self.request` is a getter-only property — monkeypatching `.request` fails
+  (`property has no setter`); use `T.mininet_worker.push_request(headers=...,
+  id=...)` + `pop_request()` around the call instead (validated locally).
+- **Whole-suite `back/src` weighted cover: 80% → 93%** (gate #490 is 75%).
+  Remaining modules are mininet/OVS-runtime-coupled (emulator 84%,
+  network_topology 89%, network 90%, celery_app 95%): their uncovered lines sit
+  in `start`/`stop`/`__settle`/emulation paths that need a real netns, so a
+  further unit PR means mocking `IPNet` — heavy and fragile for ~5pp. **Series
+  CLOSED**; deferred unblock condition: only worth reopening if those runtime
+  paths get factored into injectable helpers or a netns-capable local env.
+- **CI infra flakes this batch (not code):** Yandex cert fetch timeout on a
+  matrix build step (#493, regreened); the readiness/OVS flakes from Batch 10
+  remain the standing Full-test watch.
+- **Process notes:** two GitHub `build (N)`/workflow runs can exist on one PR
+  head (push-event + pull_request-event); a red run on one event shadows a
+  green twin in `gh pr checks` — resolve by rerunning the red run before
+  concluding. Cross-repo PR create needs `--head iakov:<branch>` (bare branch
+  name resolves against the base repo). Full gate set (ruff check + ruff format
+  + `ty check back`) plus rootless pytest from `back/tests` with
+  `PYTHONPATH=../src` ran locally before each push; no subagents were needed
+  this batch (small, mechanical, locally-verifiable PRs).
+- **Close-out:** fork `main` re-synced to `31878ff` with the 2 fork-local
+  commits re-signed (`170d77e`, `d30a3f1`) and force-pushed. Docs (this entry)
+  committed + pushed FIRST, then merged-PR worktrees are torn down.
