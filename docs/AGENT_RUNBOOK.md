@@ -1135,3 +1135,70 @@ targets chosen "easiest first" from the whole-suite baseline coverage map.
 - **Close-out:** fork `main` re-synced to `31878ff` with the 2 fork-local
   commits re-signed (`170d77e`, `d30a3f1`) and force-pushed. Docs (this entry)
   committed + pushed FIRST, then merged-PR worktrees are torn down.
+
+## Batch 12 outcomes (2026-09-05) — architecture/business/tooling review gates the 85% front-API aim (docs-only batch)
+Strategy batch: the user set a strict **business-analysis / system-architecture
+/ tooling review** as a gate BEFORE investing in the earlier-stated aim of 85%
+browser-free front-API coverage (motivation: a future non-browser/Android
+client needs a stable server API). User also asked "probably Flask is not the
+best solution for the current server" be evaluated. **Docs-only** (review
+artifacts on `docs/agent-guardrails`); NO upstream PRs, NO code changes.
+- **New role file:** `docs/architecture_review_role.md` (v1.0) — the
+  architecture/business counterpart to `docs/review_prompt.md` (that one stays
+  the small-PR merge gate). Carries the same file-sink rule; its taxonomy
+  probes framework-fit, coupling/import-graph, testability seams, product
+  direction, tooling posture, deploy topology.
+- **3 parallel lens reviewers** (file-sink, read-only; reported only file
+  paths, per AGENTS §1d):
+  - `ses_f9450111cffeDK6EbbeV3LFN12` → lens-A-business (product/API/client).
+  - `ses_f944ff4f5ffe6PnhKqNUpbDnBg` → lens-B-architecture (whole-stack map).
+  - `ses_f944fd3b4ffeRUYEQmI32JpoSr` → lens-C-tooling (Flask-vs-ASGI, coverage).
+- **Artifacts** in `docs/experiments/architecture-review-2026-09-05/`:
+  `lens-A-business.md`, `lens-B-architecture.md`, `lens-C-tooling.md`,
+  `00-recommendation.md` (my synthesis).
+- **Verdict — KEEP Flask.** All three lenses converge: long work is already on
+  celery, the HTTP mix is CRUD+pages+enqueue/poll, no recorded load problem
+  exists, and a migration (79 routes, Jinja, dual auth, flask-admin 820 LOC,
+  celery↔Flask import coupling) costs weeks for zero measured gain. The real
+  fixes a future Android client needs are **framework-agnostic**: bearer JWT
+  (`JWT_TOKEN_LOCATION=["cookies","headers"]`, `app.py:131`), one error
+  envelope, JSON reads, schema validation, route versioning via a thin
+  `/api/v1` facade. FastAPI migration DEFERRED behind lens-C E2 (load harness +
+  target QPS first). Full reasoning in `00-recommendation.md`.
+- **The literal "85% of front/src" aim was miscast** (lens A/B): ~10k lines,
+  most browser-only (Jinja, editor chrome, flask-admin) and already e2e-gated.
+  Correct gate = **85% line over the declared API/controller+service file set +
+  unit coverage of the grading engine**. Highest-ROI first:
+  `quiz/service/check_host_service.py` (706 LOC @ ~2%), `check_practice_service.py`,
+  `session_question_service.answer_*`, `check_network_service.py`,
+  `network_upload_service.py`, plus ~10 unrouted quiz controller functions
+  (free unit targets). W5's 27%-branch baseline is per-e2e, not the unit target.
+- **MUST-FIX seams that gate the coverage work** (cheapest-first, lens-B
+  ordering): (1) app-construction seam — env `SQLALCHEMY_DATABASE_URI` override
+  at `app.py:238` or thin `create_app()` (~0.5-1 d; model layer verified
+  sqlite-portable, all 14 tables create_all); (2) celery-boundary test seam
+  (patch `app.send_task`/`create_emulation_task` at ~5 call sites); (3)
+  filesystem-root seam — CWD-relative `static/pcaps` etc → `STORAGE_ROOT`;
+  (4) DB migrations gap — flask-migrate wired but no `migrations/` dir (manual
+  ALTER on prod today); (5) auth/contract additive work.
+- **Prod-risk flag (deferred, lens A D1):** MODE=prod sets
+  `JWT_COOKIE_CSRF_PROTECT=True` and no `X-CSRF-TOKEN` is ever sent by the JS —
+  under that reading every cookie-JWT write should fail in prod yet the product
+  works. Verify with a local MODE=prod compose before any auth-contract work.
+- **Deferred experiments recorded with unblock-chains** (in the lens files +
+  `00-recommendation.md`): D1 prod-CSRF reality; D2 mobile-MVP product scope
+  (fixes the 85% file set); D3 practice-check latency budget vs the 60 s nginx
+  timeout; E1 85% file set+baseline+fail-under (measure→gate at baseline−1, back
+  precedent 76.15→75); E2 FastAPI-vs-uwsgi (needs a load harness + target QPS);
+  E3 `/ai/generate-task` fix (celery-offload vs workers — offload preferred, the
+  blocking LLM call can exceed harakiri 300); E4 dual-stack cost spike; E5 uwsgi
+  reproducibility; E6 bearer-vs-cookie auth transport.
+- **Process notes (per AGENTS §1d "remember" protocol, newly codified this
+  batch):** three user "remember"-style directives were persisted — reviewers
+  report ONLY file paths; required experiments documented as deferred tasks
+  with unblock-chains + aim; strict architecture review gates framework bets.
+  Rule text lives in AGENTS.md §1d (both copies byte-identical via mirror).
+- **Hygiene:** stale `back/requirements.txt` + `front/requirements.txt` in the
+  docs worktree tree (leftovers of the pre-uv `docs/agent-guardrails` fork)
+  deleted; prod/CI installs are all `uv sync --frozen` already. Untracked
+  `/tmp/opencode/wip-tree` copies are outside the project dir (untouchable).
