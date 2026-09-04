@@ -60,6 +60,34 @@ evidence needed to diagnose without guessing.
   `ERROR` at fixture setup ≠ `FAILED` assertion; session-scoped fixture death
   (e.g. `tab crashed` → cascade of `invalid session id`) is one incident, not N.
 
+## 1b. Async/parallel execution (user-mandated, validated in Batch 10)
+A standing preference for how the repo's workstreams are run. Batch 10 (#487–#490
+plus the W5 instrumented-e2e measurement) ran entirely this way; see
+`docs/AGENT_RUNBOOK.md` Batch 10 for the worked example and cost/benefit notes.
+- **Author the next branch while the previous one's CI runs.** The CI wait is
+  the free slot, not the bottleneck. Do not idle on a green check; start the
+  next PR's worktree + commit and push it right after, so multiple PRs are in
+  flight and their CI pipelines overlap.
+- **Parallel PR CIs are fine.** Upstream/fork runners are independent (GitHub
+  matrix runners per job); overlapping upstream PR pipelines do not contend for
+  host resources. Watch CI-economy (§3/§7): one deliberate push per branch, no
+  blind ping-pong re-pushes, cancel collateral fork runs triggered by a temp
+  branch's push.
+- **Use parallel subagents for independent tracks:** exploration/valuation,
+  the review gate (one reviewer subagent per PR), and mechanical/experimental
+  prep (e.g. W5's instrumented-run recipe authoring). Run the review-agent role
+  as a `general` subagent driven by `docs/review_prompt.md` v1.2 (no dedicated
+  `reviewer` subagent type exists in this environment; `explore` is read-only).
+  Record each verdict as a PR comment, then auto-merge green+reviewed PRs
+  (author has ADMIN on upstream; self-approval is rejected by GitHub).
+- **CI-economy still applies to async runs.** "Async" means more throughput,
+  not more CI. One instrumented/measurement run is budgeted and deliberate; a
+  red run is diagnostic evidence (capture + read the logs), not an invitation
+  to fire again blind.
+- **Single committer for fork `main`.** Parallel PRs are fine; fork `main`
+  re-syncs (rebase + re-sign the 2 fork-local commits) happen once per batch by
+  one agent at close-out, never concurrently.
+
 ## 2. Deferral policy (user-mandated)
 - **Defer, don't guess.** If you are biased or unsure, and experiments cannot
   prove that one of the competing alternatives is *definitely* best, defer the

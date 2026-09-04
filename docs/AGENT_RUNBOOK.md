@@ -965,3 +965,103 @@ this section carries the full reasoning.
   re-sign with `rebase --exec 'git commit --amend --no-edit --no-verify'`. This
   is why we always `git log --oneline` and `git diff upstream/main main --stat`
   to prove the fork-local layer survived a force-push.
+
+## Batch 10 outcomes (2026-09-04) — async/parallel batch #487–#490 + W5 e2e-coverage measurement (upstream 0c20696)
+The first batch run fully async/parallel (validates AGENTS §1b): multiple PRs
+in flight with overlapping CIs, reviewer subagents running in parallel with the
+next branch's authoring, and a fork-temp instrumented run budgeted as one
+deliberate CI measurement. User standing decisions for the batch: reviewer gate
+per PR is mandatory; auto-merge every green+reviewed PR (author has ADMIN on
+upstream); no CI burning (one deliberate push per branch, cancel collateral
+fork runs, red run = diagnostic evidence not a blind re-push); experiments and
+scratch in `.tmp/`; defer (don't guess) any decision experiments cannot settle.
+- **#487 test(front): cover MiminetTester log helpers browser-free → `39d7287`.**
+  New `front/tests/test_get_logs.py` (4 browser-free tests) pins the #486
+  GET_LOG latent-bug fix: remote `WebDriver` has no `get_log` in Selenium 4.48;
+  the conftest helper now runs `self.execute(Command.GET_LOG, {"type": "browser"})`
+  directly. The stub test pins the exact command tuple and fails LOUDLY against
+  the pre-#486 code (`AttributeError`), so the regression cannot silently pass.
+  Placed top-level (like existing pure tests) so Full-test shard slices collect
+  it (confirmed interleaved in shard-2 log, 65 passed). Reviewer APPROVE-with-nits
+  (3 nits: filtered-to-empty branch, empty input, no-filter `list()` copy).
+- **#488 test(front): de-flake fill_link config-panel render race → `53cb911`.**
+  `front/tests/utils/networks.py`: `fill_link` now waits for the ip field to
+  appear (`wait_until_appear`) then clears + fills ip/mask via a re-find loop
+  (`__fill_link_field`) retrying NoSuchElement/Stale, and the outer catch was
+  narrowed from bare `except Exception` to `except TimeoutException` (preserving
+  the "Maybe you forgot to add edges." message for genuinely-absent rows). This
+  was the post-#486 shard-3 flake (`test_job_edit`, render race). Reviewer
+  APPROVE-with-nits: mechanism-agnostic fix is correct; nits = per-field
+  `wait_until_value` read-back still open (residual window), retry tuple omits
+  `ElementNotInteractableException` (currently unreachable), no-edge failure now
+  ~20s slower, and only ONE green Full matrix (62/22/30) so far → confirm the
+  de-flake across repeated/nightly Full-test greens before declaring it closed.
+- **#489 ci(back): collect back/src branch coverage (report-only) → `a448669`.**
+  `coverage>=7.16.0` added to the `back` dev group; `back_test.yml` shards now
+  run under `coverage run --branch --source=../src --data-file=.coverage.shard<N>`
+  (flags preserved: `pipefail`, empty-slice guard, `-o log_file=/dev/null -o
+  log_cli=true`); hidden dotfile uploads carry `include-hidden-files: true`; a
+  new `coverage` job downloads `back-coverage-shard-*`, combines the explicit
+  3-file list, `coverage report` + `coverage json`. Measured whole-suite
+  `back/src`: **weighted cover 76.15%, statements 79.63% (1286 stmts), branches
+  66.22% (450)**. NOTE: `coverage report`'s Cover column after `--branch` is the
+  branch-AWARE weighted % (statements+branches), not "statement coverage" — the
+  W4a/W4b numbers and wording must refer to that metric. Reviewer APPROVE-with-nits.
+- **#490 ci(back): gate back/src coverage at 75% → `0c20696`.** `--fail-under=75`
+  on the combine/report step (baseline rounded down to next 5%) + assert exactly
+  `N_SHARDS` data files before combining so a partial merge can't silently
+  understate. Reviewer APPROVE (0 must-fix): gate fails rc=2 → red under
+  `bash -e -o pipefail`; count guard fail-closed (3 pass, 2 → loud trip);
+  real CI log confirms 76% on the head run. Nits: metric mislabeled as
+  "statements" (it is branch-aware; gate and baseline use the same metric so
+  correctness unaffected), buffer ~1.2pp over only 2 green samples (a flake
+  fails a shard → coverage job skipped, so no silent dip; treat a post-merge
+  gate trip on an all-green matrix as "re-measure baseline", not necessarily a
+  regression), and `N_SHARDS` duplicated in 3 places.
+- **W5 front/src e2e branch-coverage measurement (fork-temp, NEVER merged,
+  run `33845892656` — success).** Purpose: measure what the Selenium e2e suite
+  exercises of `front/src`. Result: **weighted cover 27% (statements 33.2% =
+  1596/4811; branches 7.7% = 119/1548; 36 of 39 src files executed)**. Low by
+  design — e2e only drives the editor/emulation paths; quiz modules are barely
+  hit (`check_host_service.py` 439 stmts @2%). Recipe (authoring delegated to a
+  prep subagent, validated against real uwsgi 2.0.31 + celery 5.6.3 prefork):
+  `coverage==7.16.0` pip-installed into the app venv at image build; coverage's
+  `a1_coverage.pth` auto-starts a tracer in every interpreter using `/app/.venv`
+  when `COVERAGE_PROCESS_START=/app/.coveragerc` (rc: `source=/app`,
+  `branch=true`, `parallel=true`, `sigterm=true`, `data_file=/app/.covout/.coverage`);
+  uwsgi workers flush on SIGTERM only WITH `sigterm=true` (proven both ways);
+  celery prefork children exit via `os._exit` so they need an at-fork periodic
+  saver (`front/w5/cov_flush.py` + `w5_cov.pth`, gated on `W5_COV_FLUSH=1`);
+  `.covout` bind-mounted to `front/.tmp/covout`, per-shard upload with
+  `include-hidden-files`, combine job remaps `/app`→`${GITHUB_WORKSPACE}/front/src`
+  via `[paths]`. Full-test workflow trimmed to `workflow_dispatch` on the temp
+  branch so the ONE run was manually budgeted; collateral fork runs from the
+  push (back Pytest/auth) were cancelled. Branch + worktree deleted after the
+  measurement. Follow-ups if ever re-run: verify `.pth` activation in the real
+  image (largest residual risk; the flush guard fails red if not) and that
+  tracing overhead doesn't flake the timing-sensitive suite.
+- **Reviewer-gate mechanics used this batch (4 PRs):** reviewer role run as a
+  `general` subagent per `docs/review_prompt.md` v1.2 (no dedicated reviewer
+  subagent type exists — only `explore`/`general`); verdicts recorded as PR
+  comments, then `gh pr merge --rebase --admin`. All four APPROVE(-with-nits)
+  with 0 must-fix; nits folded into this runbook + future prompts.
+- **Known-debt/flake watch:** fork back_test `build(1)` red on the #489 head was
+  the OVS 0-byte-pcap emulator infra flake (not the coverage change — a real
+  pytest failure correctly went red THROUGH the coverage wrapper); upstream runs
+  stayed green. Fork auth red on temp-branch pushes = missing BOT_TOKEN secret
+  (unrelated). Post-#488 fill_link de-flake still needs repeated-Full-test
+  confirmation (see #488 finding above).
+- **Process note:** `git add` of a tracked `.github/...` file prints the ignore
+  warning and breaks an `&&` chain even though the file gets staged — stage then
+  commit in separate commands (the W4a #489 quirk, identical to Batch 9's note).
+  Reviewer subagents' long verdict messages can truncate at the tail when read
+  back — resume the subagent session and ask it to restate the verdict rather
+  than acting on a partial view.
+- **Deferred (see after-batch report):** W6 Playwright migration — the single
+  no-merge discussion PR was not authored this batch (valuation study's detailed
+  writeup was not persisted to disk; recreating the full port would be a large
+  unverifiable-in-CI effort). Unblock = recover/re-run the valuation study
+  (R1: pilot trio `test_job_edit`/`test_stp`/ping-copy, DSL core ~400 lines,
+  selectors/fixtures/comparator transfer 1:1, no `time.sleep` left) and budget a
+  Playwright pilot run. AGENTS §1b (async/parallel execution) added + mirrored
+  to the repo-root AGENTS.md.
