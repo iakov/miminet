@@ -252,6 +252,20 @@ Standing directives in force (add to this list as new ones arrive):
   must include `pip` (front imports `pip._vendor.cachecontrol` in
   `miminet_auth.py`). Deploy uses `UV_PROJECT_ENVIRONMENT=venv` so the venv is
   at repo root (`miminet/venv`).
+- **ipmininet (fork) facts:** pinned `@v1.2.7` in `back/pyproject.toml` (uv.lock
+  rev `058d4ea`). miminet uses it as kernel-level L3 + captures ONLY: routers
+  are `config=RouterConfig` (ip_forward sysctls) with NO routing daemon ever
+  registered (zero `addDaemon`/`STATIC`/`zebra`/`OSPF`/`BGP` sites in
+  `back/src`; the `back` image installs no FRR) ⇒ v1.3.0's FRR 10.7.1/mgmtd
+  overhaul, ExaBGP 5.0.13 pip move and OpenR removal are IRRELEVANT to miminet.
+  Consumed APIs in 1.3.0 are unchanged or backward compatible
+  (`wait_until_capturing(..., strict=True)` identical; `IPTopo` now raises
+  typed `UnknownTopologyAttributeError`). miminet's `NO_COLOR=1` workaround
+  (emulator.py) STAYS — the fork only hardens the `ip` commands *it* parses
+  (`-color=never`); miminet shells its own `ip route get`/job reads. Capture-
+  restart/settle workarounds depend on the **mimidump** pin (`854a3b0`), not
+  ipmininet. Upgrade valuation: `docs/experiments/ipmininet-1.3.0-upgrade/00-valuation.md`
+  (deferred task DT-ipmininet-1.3.0: pin→lock→rootless back-suite gate).
 - **dependency-review gating:** blocks merges on CVEs in any changed manifest
   (including `uv.lock`, and dev-group tools like black/pytest). Known resolved
   bumps: Pillow 12.3.0 (11.x has unfixable high CVEs), Flask 3.1.3,

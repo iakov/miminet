@@ -1202,3 +1202,44 @@ artifacts on `docs/agent-guardrails`); NO upstream PRs, NO code changes.
   docs worktree tree (leftovers of the pre-uv `docs/agent-guardrails` fork)
   deleted; prod/CI installs are all `uv sync --frozen` already. Untracked
   `/tmp/opencode/wip-tree` copies are outside the project dir (untouchable).
+
+## Batch 13 outcomes (2026-09-06) — ipmininet 1.3.0 upgrade valuation (docs-only)
+Follow-up to Batch 12: mimi-net/ipmininet released **v1.3.0** (PRs #32–#50:
+FRR 10.7.1 + mgmtd config, ExaBGP 5.0.13 via pip, OpenR removed, Ubuntu 26.04
+container, coverage gate 84→90, zero-duplicate-code gate, test re-architecture).
+miminet pins the fork at v1.2.7. The user asked what improves, what code can be
+deleted, and what to reuse from the fork's PR history; then instructed "save
+all findings, update all docs, prepare for improvements, NO code changes".
+- **Verdict: v1.2.7 → v1.3.0 is a LOW-RISK pure-pin bump for miminet.** Reason:
+  miminet's routers are plain L3 kernel routers — `config=RouterConfig` sets
+  ip_forward sysctls only, and **no routing daemon is ever registered**
+  (zero `addDaemon`/`STATIC`/`zebra`/`OSPF`/`BGP` sites in `back/src`; the
+  `back` image installs no FRR). So the FRR-10.7.1/mgmtd overhaul, ExaBGP pip
+  move and OpenR removal do NOT touch miminet's emulation. Consumed APIs that
+  did change (`IPTopo` typed `UnknownTopologyAttributeError`, earlier OVS
+  namespace error, `start_captures`/`stop_captures` extraction) are all
+  backward compatible. `wait_until_capturing(strict=True)` is byte-identical.
+- **Code NOT deletable by this bump:** miminet's `NO_COLOR=1` workaround stays
+  (the fork hardens only the `ip` commands *it* parses; miminet still shells
+  `ip route get`/job `ip` reads); the capture-restart/settle hacks depend on
+  **mimidump** (separate repo, pin `854a3b0`), not ipmininet. Full findings:
+  `docs/experiments/ipmininet-1.3.0-upgrade/00-valuation.md`.
+- **Deferred task DT-ipmininet-1.3.0** (aim: keep the emulation fork current;
+  unblock chain: pin `v1.2.7`→`v1.3.0` in `back/pyproject.toml` → `uv lock` →
+  **rootless full back-suite run = the deciding gate** → confirm no test JSON
+  registers a daemon → small upstream pin+lock PR → merge + fork re-sync;
+  regression on the gate = capture + decide, never silent revert). Recorded in
+  the valuation doc; the run itself is a Tier-3 PR when released.
+- **Reuse ideas fed to the Batch 12 front-85% plan** (from fork PR history):
+  coverage-gate-at-baseline−1 + scenario tests for ~0% modules (#31/#41/#47 —
+  exact back precedent 76.15→75), zero-duplicate-code gate (#49),
+  shared `run_*`/`assert_*` test scaffolds (#49), poll-don't-sleep discipline
+  (#24/#26/#40/#38), `ip -color=never` on parsed commands as the robust
+  anti-colorization idiom. These belong in the front coverage-job + seam PRs
+  (Batch 12 MUST-FIX list) and any back duplication cleanup.
+- **Process notes:** the fork's public release notes (per-PR changelog) made
+  the impact assessment cheap — when the user asks about an upstream release,
+  pull `gh api repos/mimi-net/ipmininet/releases` + the merged-PR list, then
+  read only the consumed symbols' diff (do not re-derive the whole repo). The
+  /tmp clone of the fork used for the diff was a read-only scratch artifact in
+  `.tmp/ipmn-v130/` (repo-local, since removed).
