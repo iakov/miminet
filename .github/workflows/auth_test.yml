@@ -34,7 +34,20 @@ jobs:
       run: |
         source .venv/bin/activate
         cd front/src
-        python -m pytest -vv .
+        # Raw run under coverage so this lane contributes front/src data to
+        # the cross-lane merge. No gate here (auth lane is the flake signal);
+        # --source=. scopes measurement to front/src (not site-packages).
+        python -m coverage run --branch --source=. \
+          --data-file=".coverage.auth" -m pytest -vv .
       env:
           CLIENT_YANDEX: ${{ secrets.CLIENT_YANDEX }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+    - name: Upload auth coverage data
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: front-auth-coverage-data
+        path: front/src/.coverage.auth
+        include-hidden-files: true
+        if-no-files-found: ignore

@@ -1,0 +1,115 @@
+name: Coverage report (merged)
+
+# Aggregates the raw coverage data produced by every CI lane into one
+# whole-repo report (back/src + front/src) with per-area gates.
+#
+# Lane-local gates remain the per-PR gate (back 75% in Pytest, front 21% in
+# "Front browser-free coverage"). This workflow is the cross-lane merge: it
+# pulls the latest uploaded coverage-data artifact from each lane (back_test,
+# front browser-free, front auth) for the same default branch and reports the
+# combined picture. Running it only on schedule/dispatch/main keeps it off the
+# per-PR path and avoids cross-run artifact races.
+#
+# Artifact names each lane MUST upload (raw `.coverage`/`.coverage.*` data, not
+# just coverage.json):
+#   - Pytest (back_test):                 back-coverage-data
+#   - Front browser-free coverage:        front-browserfree-coverage-data
+#   - Yandex/Telegram auth tests:         front-auth-coverage-data
+# The list in the `lanes` job below is the single source of truth for which
+# artifacts to fetch and where to gate them.
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+
+  report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen
+
+      - name: Download latest lane coverage data
+        shell: bash
+        run: |
+          source .venv/bin/activate
+          mkdir -p .tmp/covreport
+          cd .tmp/covreport
+          # Fixed artifact names map to lane data; fetch the most recent
+          # instance of each (older runs keep the same name). The artifacts
+          # API filters by name server-side.
+          for name in back-coverage-data front-browserfree-coverage-data front-auth-coverage-data; do
+            run_id=$(gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100&name=$name" \
+              --jq "[.artifacts[] | select(.expired==false)] | sort_by(.created_at) | reverse | .[0].workflow_run.id" 2>/dev/null || true)
+            if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+              echo "== $name from run $run_id =="
+              if gh run download "$run_id" -n "$name" -D "$name" 2>/dev/null; then
+                echo "$name: OK"
+                echo "$name" >> lanes.txt
+              else
+                echo "$name: download failed (missing data)"
+              fi
+            else
+              echo "$name: no artifact found yet"
+            fi
+          done
+          [ -s lanes.txt ] || { echo "ERROR: no lane coverage data found for the merge" >&2; exit 1; }
+          echo "Fetched lanes:"; cat lanes.txt
+
+      - name: Combine and report
+        run: |
+          source .venv/bin/activate
+          cd .tmp/covreport
+          shopt -s nullglob
+          data_files=($(find . -name '.coverage*' -o -name 'coverage*.json'))
+          # Only raw coverage data files (.coverage/.coverage.*) can be merged
+          # by coverage combine; coverage.json summaries are skipped.
+          files=($(find . -name '.coverage*' ! -name '*.json' | sort))
+          [ "${#files[@]}" -gt 0 ] || { echo "ERROR: no raw coverage data files downloaded" >&2; exit 1; }
+          echo "Combining:"; printf '%s\n' "${files[@]}"
+          python -m coverage combine "${files[@]}"
+          echo "=== Whole-repo coverage (back/src + front/src) ==="
+          python -m coverage report --format=total --precision=1
+          python -m coverage json -o coverage.json
+          python -m coverage html -d htmlcov -q 2>/dev/null || true
+          # Per-area gates from the merged data. Statements, matching the
+          # back lane gate unit; the front lanes gate blended branches, so the
+          # front threshold here is informational (no hard fail) until a
+          # measured baseline is set.
+          echo "=== back/src gate (statements) ==="
+          python -m coverage report --format=total --precision=1 \
+            --include='*/back/src/*' --fail-under=75 || { echo "ERROR: back/src coverage below 75%" >&2; exit 1; }
+          echo "=== front/src (statements, informational) ==="
+          python -m coverage report --format=total --precision=1 \
+            --include='*/front/src/*' || true
+
+      - name: Upload merged coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: merged-coverage-report
+          path: |
+            .tmp/covreport/coverage.json
+            .tmp/covreport/htmlcov
+          include-hidden-files: true
+          if-no-files-found: ignore

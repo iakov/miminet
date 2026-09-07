@@ -181,3 +181,12 @@ jobs:
           path: .tmp/cov/coverage.json
           include-hidden-files: true
           if-no-files-found: ignore
+
+      - name: Upload merged coverage data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: back-coverage-data
+          path: .tmp/cov/.coverage
+          include-hidden-files: true
+          if-no-files-found: ignore

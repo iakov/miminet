@@ -63,3 +63,12 @@ jobs:
           path: front/tests/coverage.json
           include-hidden-files: true
           if-no-files-found: ignore
+
+      - name: Upload browser-free coverage data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: front-browserfree-coverage-data
+          path: front/tests/.coverage.browserfree
+          include-hidden-files: true
+          if-no-files-found: ignore

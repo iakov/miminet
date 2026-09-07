@@ -85,7 +85,17 @@ jobs:
             # sharding. A future test file under front/tests/<subdir>/ will NOT
             # be collected; revisit the shard partition if sub-suite discovery
             # is ever wanted.
-            files=$(find front/tests -maxdepth 1 -name "test_*.py" | sort) || { echo "ERROR: find/sort failed" >&2; exit 1; }
+            # The 4 browser-free files (test_config_db, test_get_logs,
+            # test_quiz_progress, test_ai_generate) are excluded: they run in
+            # the dedicated "Front browser-free coverage" job, so re-running
+            # them against the selenium grid wastes grid minutes and double-
+            # runs them. Keep this exclusion list in sync with the browser-free
+            # job file list.
+            files=$(find front/tests -maxdepth 1 -name "test_*.py" \
+              ! -name "test_config_db.py" \
+              ! -name "test_get_logs.py" \
+              ! -name "test_quiz_progress.py" \
+              ! -name "test_ai_generate.py" | sort) || { echo "ERROR: find/sort failed" >&2; exit 1; }
             slice=()
             idx=0
             while IFS= read -r f; do
