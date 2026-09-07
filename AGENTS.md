@@ -187,7 +187,8 @@ Standing directives in force (add to this list as new ones arrive):
   (base `mimi-net/miminet:main`, head `iakov:<branch>`) → CI green →
   **review-agent gate** (senior Python + networking reviewer; must-fix resolved
   or the PR is deferred; respect reasonable trade-offs) → rewrite history into a
-  clean signed commit chain → re-green → rebase-merge upstream.
+  clean signed commit chain → re-green → squash-merge upstream (per the
+  landing rule below).
 - **Review-agent prompting:** verified value (2 real latent bugs across 2 small
   PRs: an empty-slice silent-full-suite case, an artifact-name collision; plus
   a lint-coverage gap). Prompt the reviewer to hunt **edge cases and coverage
@@ -224,7 +225,32 @@ Standing directives in force (add to this list as new ones arrive):
 - Merge order matters when PRs touch the same files: A → D → C → E.
 - Review-gate approval cannot be given by the PR author on their own PR (GitHub
   rejects self-approval). Record the review-agent verdict as a PR comment, then
-  `gh pr merge --rebase --admin` (author has ADMIN on upstream).
+  `gh pr merge --squash --admin` (author has ADMIN on upstream).
+- **Upstream landing rule — TWO LANES (Batch 15/16):**
+  - **Normal lane (default, all PRs):** land with
+    `gh pr merge --squash --admin` — NEVER `--rebase`. Rebase-and-merge is
+    GitHub-documented as added "without commit signature verification": GitHub
+    re-creates the commit server-side (new SHA, committer
+    `iakov@users.noreply.github.com`) and discards the local signature even
+    from a signed, fast-forwardable head (proof: #495 head `fce5954` G=G, same
+    tree as landing `7fa6959`, yet `reason: unsigned`), so landings would lose
+    the GitHub "Verified" badge. Squash merges are created and GPG-signed by
+    GitHub's `web-flow` key (verify at `https://github.com/web-flow.gpg`) →
+    Verified. Upstream has rebase-merge DISABLED (repo setting), so squash is
+    the only PR path.
+  - **Emergency/hotfix lane (only):** direct push of locally-signed commits —
+    `git rebase` onto `upstream/main` re-signing per commit, then
+    `git push upstream <branch>:main` (force only if a revert/repair needs it).
+    Restricted to hotfixes where a PR/CI round-trip is unacceptable (prod
+    incident fix, blocked-branch unblock). Must still be SSH-signed and verify
+    `reason: valid`; requires a follow-up PR/issue reference. Non-hotfix work
+    must NEVER take this lane.
+- **Post-merge/post-push signature gate (mandatory before close-out):** after
+  every upstream landing, verify the badge via
+  `gh api repos/<owner>/<repo>/commits/<merge-sha>` and require
+  `verification.reason == "valid"` with committer `GitHub` (squash lane) or the
+  SSH signer (hotfix lane); a landing that reports `unsigned` is a process
+  failure — redo the landing or defer it, never close out silently.
 - **Linter/formatter migrations:** separate the tooling commit (workflow +
   dep pins + lock) from the mass autofix commit (`ruff check --fix` /
   `ruff format` sweep). Never squash them together — keeping them separate lets

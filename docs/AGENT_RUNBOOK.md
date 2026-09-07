@@ -1313,3 +1313,72 @@ auth-contract one-liner so the latter rebased onto it).
   `.tmp/review-498.md` (all verdicts also posted as PR comments = primary durable
   record). The #495 catch (half-wired seam) is the second verified reviewer
   value-add this month (after #495 empty-slice/artifact cases in #477/#483).
+
+## Batch 15 outcomes (2026-09-07) — unsigned upstream landings diagnosed; landing rule switched to squash (AGENTS.md §4)
+User reported that GitHub shows the agent-era upstream commits as NOT "Verified"
+("we deployed a lot of unsigned"). Investigation pinned the mechanism exactly;
+the AGENTS.md §4 landing rule was changed accordingly (both copies mirrored).
+
+- **Root cause:** all 43 agent-era upstream commits were landed with
+  `gh pr merge --rebase --admin`. GitHub's rebase-and-merge **re-creates each
+  commit server-side** (new SHA, committer `iakov@users.noreply.github.com`)
+  and never carries the local signature, even from a signed head. GitHub docs:
+  rebase-and-merge adds commits "without commit signature verification" because
+  GitHub "didn't truly create this commit" and won't sign it "as a generic
+  system user." Decisive proof: #495 head `fce5954` was signed (`G=G`, ED25519)
+  with a tree identical to the landing `7fa6959`, yet the landing reports
+  `reason: unsigned`. The head being signed is necessary but NOT sufficient —
+  the merge step itself strips the signature. (Same story for #496 `35df7ad`
+  G=G → landing `32819e8` unsigned.)
+- **What IS web-flow signed:** commits GitHub truly creates — web-UI merges and
+  **`gh pr merge --squash`** — are GPG-signed by GitHub's `web-flow` key
+  (committer `GitHub`, `reason: valid`), giving the green Verified badge
+  (evidence: `1ee490f` from #456). Direct SSH-signed local pushes also verify
+  with the user's own key (evidence: `742d79a`), but bypass PR bookkeeping.
+  cli/cli#1318 confirms UI squash is web-flow-signed and that GitHub will never
+  sign with the *user's* private key. ADR model for a verified linear history:
+  enable only squash merging (ref itsvasugrover.com/adr/git-merge-strategy).
+- **Rule change (AGENTS.md §4, both copies):** land PRs with
+  `gh pr merge --squash --admin`, NEVER `--rebase`; after every merge verify
+  `gh api .../commits/<sha>` → `verification.reason == "valid"` + committer
+  `GitHub` before close-out (`unsigned` = process failure). User chose
+  write-guardrail-now, confirm empirically via the first real merge's post-gate
+  check.
+- **Decision:** the 43 already-merged unsigned commits are left untouched
+  (user: prevent-forward-only; no history rewrite). No repo-settings change
+  (e.g. disabling rebase-merge) unless the user asks later.
+
+## Batch 15 addendum (2026-09-07) — two-lane landing policy + Tier 1 executed
+Follow-up to the Batch 15 signature entry: the user sharpened the landing
+policy into **two lanes** and approved disabling rebase-merge on upstream.
+- **Two-lane policy (now the AGENTS.md §4 rule, both copies):**
+  - Normal lane (default, all PRs): `gh pr merge --squash --admin` — NEVER
+    `--rebase` (rebase-and-merge is never GitHub-signed; squash is created and
+    GPG-signed by GitHub's `web-flow` key → Verified).
+  - Emergency/hotfix lane (ONLY): direct push of locally-signed commits — local
+    rebase onto `upstream/main` re-signing per commit, then push (force only
+    for revert/repair). Restricted to hotfixes where a PR round-trip is
+    unacceptable; must still verify `reason: valid`; requires a follow-up
+    PR/issue reference. Non-hotfix work must never take this lane.
+  - Post-merge/post-push signature gate applies to both lanes.
+- **Tier 1 EXECUTED:** `allow_rebase_merge=false` on mimi-net/miminet (PATCH).
+  With `allow_merge_commit` already false, squash is now the ONLY PR merge path
+  → every future PR landing (agent or contributor) is web-flow-signed. No
+  admin-bypass hole. Impact: 16 open contributor PRs lose the rebase-merge
+  option (squash only) — accepted.
+- **Tier 2 (require signed commits on main) and Tier 3 (required status
+  checks) DEFERRED** (user decision): Tier 2 without `enforce_admins` binds only
+  non-admin contributors yet blocks squash-merging PRs with unsigned head
+  commits (docs caveat) → contributor friction; with `enforce_admins` the
+  existing 1-approving-review rule binds the agent and GitHub rejects
+  self-approval → breaks autonomous self-merge. Tier 3 (CI checks required on
+  main, currently `contexts: []`) is a separate hardening axis, deferred.
+  Unblock note: revisit Tier 2 only if a second reviewer identity exists, or
+  contributors accept signing; Tier 3 anytime (pick Linter/Pytest/coverage as
+  the required contexts, mindful of the Full-test/auth flake signal).
+- **Reference model for the signed-commit mechanism:** GitHub docs
+  (about-commit-signature-verification: rebase-and-merge "without commit
+  signature verification", web-flow key at github.com/web-flow.gpg);
+  cli/cli#1318 (UI squash is web-flow-signed; user-key signing closed);
+  notes.itsvasugrover.com/adr/git-merge-strategy (squash-only for a verified,
+  linear history).
