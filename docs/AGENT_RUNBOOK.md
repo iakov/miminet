@@ -1382,3 +1382,60 @@ policy into **two lanes** and approved disabling rebase-merge on upstream.
   cli/cli#1318 (UI squash is web-flow-signed; user-key signing closed);
   notes.itsvasugrover.com/adr/git-merge-strategy (squash-only for a verified,
   linear history).
+
+## Batch 16 record — coverage-merge architecture fork-branch check (ci/coverage-merge)
+User directive: NO upstream PR for CI restructuring; validate on a fork branch.
+Fork branch `ci/coverage-merge` commit `23ee9f5` (SSH-signed, G=G).
+Architecture goal (user's words): coverage info + gate control, test containers
++ raw runs, gather coverage from different CIs and merge.
+
+- **Lane-local gates stay the per-PR gate** (back >=75% stmts in Pytest;
+  front >=21% blended in "Front browser-free coverage"). New `coverage_report.yml`
+  is the CROSS-LANE merge (schedule 04:00 UTC / dispatch / main-push ONLY — kept
+  off the per-PR path to avoid cross-run artifact races).
+- **Artifact convention (each lane uploads RAW .coverage data, not just json):**
+  - Pytest (back_test): `back-coverage-data` (merged, from the existing coverage job)
+  - Front browser-free coverage: `front-browserfree-coverage-data` (NEW upload)
+  - Yandex/Telegram auth tests: `front-auth-coverage-data` (NEW: auth lane now
+    runs its front/src pytest under `coverage run --source=.`)
+  Aggregator downloads latest instance of each by name, `coverage combine`, then
+  per-area gates (`--include='*/back/src/*' --fail-under=75`; front informational).
+- **Burn cut (full_test.yml):** e2e matrix now excludes the 4 browser-free files
+  (test_config_db, test_get_logs, test_quiz_progress, test_ai_generate) which
+  run in the browser-free job; 26->22 files, shards 7/8/7 proven, empty-slice
+  guard intact. Fork-local on:/workflow_run/build.if blocks preserved.
+- **GOTCHA discovered (empirical):** on the FORK, workflow_run-chained lanes
+  (Pytest/Full test/auth) run the workflow file from the fork DEFAULT branch
+  (main), NOT the pushed branch — the auth/Pytest/Full runs head was `5f57774`
+  (fork main) and executed the OLD workflow. Only push/PR-triggered lanes
+  (Linter, Front browser-free coverage) honor the branch file. To validate
+  workflow_run-chained workflow EDITS on a branch, dispatch them manually:
+  `gh workflow run "Pytest" -R iakov/miminet --ref ci/coverage-merge` (workflow_dispatch
+  honors the ref's file). Upstream is unaffected (runs everything on push/PR).
+- **CI results (fork, branch file where dispatched):**
+  - Front browser-free coverage: SUCCESS, uploaded `front-browserfree-coverage-data` + report.
+  - Full test (dispatched @23ee9f5): SUCCESS, 3 shards 7/8/7; the 4 excluded
+    files ran NOWHERE in the matrix (log-only comments). 95 items collected.
+  - Pytest (dispatched @23ee9f5): shard 2 flaked first run (`test_miminet_work[router]`
+    900s pytest-timeout, empty-pcap emulation flake, NOT related to the additive
+    workflow change); shard-2 rerun + Backend coverage report job PASSED.
+    `back-coverage-data` (33KB) artifact uploaded. ALL FOUR LANES GREEN.
+  - `coverage_report.yml` merge NOT dispatchable from a branch (GitHub resolves
+    workflow_dispatch against the default branch; the workflow file only exists
+    on ci/coverage-merge). Mechanics validated LOCALLY against the two real lane
+    artifacts (combine -> 51 files, per-area `--include='*/back/src/*'` gate
+    reproduces the back lane number; `[paths]` remap needed only because the
+    local checkout path differs from the CI runner path — in-runner combine needs
+    no remap). The workflow will run on schedule/04:00 UTC + main push once its
+    file lands on a default branch.
+  - GOTCHA corollary: new (branch-only) workflows canNOT be pre-flighted on a
+    fork branch via dispatch — only default-branch workflows are dispatchable.
+    Branch CI therefore validates EDITS to existing workflows; brand-new workflow
+    files are validated statically + locally until they reach a default branch.
+- **Deferred (spike, unblock chain):** container-instrumented e2e coverage (uwsgi
+  inside the miminet container) to capture front/src lines exercised only by the
+  selenium suite — NOT attempted: needs front image to ship `coverage`, a
+  sitecustomize/COVERAGE_PROCESS_START hook, per-shard `.coverage*` export from
+  the container, and path-remapping ([paths] in a .coveragerc) before combine.
+  Unblock: build a test-only front image variant w/ coverage; verify single-shard
+  container coverage collection locally/CI; then add to full_test shards.
