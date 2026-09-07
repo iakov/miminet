@@ -1243,3 +1243,73 @@ all findings, update all docs, prepare for improvements, NO code changes".
   read only the consumed symbols' diff (do not re-derive the whole repo). The
   /tmp clone of the fork used for the diff was a read-only scratch artifact in
   `.tmp/ipmn-v130/` (repo-local, since removed).
+
+## Batch 14 outcomes (2026-09-07) — front seam #495 + ipmininet #496 merged, D1 prod-CSRF verdict, auth/coverage PRs #497/#498
+
+Execution batch for the Batch 12 lens-B/C must-fixes, scoped by the user to
+**steps 2/3/5/6 + D1** (strict; excluded: grading-engine tests = step 1, endpoint
+coverage = step 4; `/api/v1` facade deferred behind D2). Order A→D1→C serial,
+B/D async. All four PRs base off `upstream/main`; merged in order #495 → #496 →
+#497 → #498 (coherent-unit rule; the app.py-touching seam merged before the
+auth-contract one-liner so the latter rebased onto it).
+- **PR #495 merged** (`batch14/app-seam`): app-construction seam —
+  `SQLALCHEMY_DATABASE_URI` env override honored in `front/src/app.py` (lazy
+  `os.getenv(...) or get_database_uri(MODE)`). **Reviewer gate (ses_f875e93b7ffe)
+  returned MUST-FIX → half-wired seam:** `miminet_model.init_db` re-derived the
+  DB from MODE env and probed/auto-created the REAL dev/prod postgres even with
+  the override active. Fixed by gating `ensure_db_exists` on override-absence
+  (same `os.getenv` truth test as app.py) and verified at runtime (MODE=dev +
+  unreachable POSTGRES_* + sqlite override → clean schema create, no reach-out).
+  This review caught a genuine 2-file latent trap — the exact class of catch
+  the gate exists for; log-line: **half-wired seams are a recurring reviewer
+  finding — when adding an env override, audit the provisioning/consumer path
+  that re-derives the same config from the old env vars.**
+- **PR #496 merged** (`batch14/ipmininet-130`): the DT-ipmininet-1.3.0 pin
+  v1.2.7→v1.3.0 (`back/pyproject.toml` + `uv.lock`, rev
+  `058d4ea`→`d3ce3258`). Reviewer (ses_f875aea4effe) **APPROVED** with strong
+  evidence: every consumed symbol exists compatibly in 1.3.0 (table in the
+  review), "no daemon registered" structurally + empirically true, the 139-pass
+  suite log is attributable to the exact PR lock (mtime 7 s before the bump
+  commit; container reports ipmininet 1.3.0 `d3ce3258`). No MUST-FIX.
+- **D1 experiment (prod-CSRF) verdict** — `docs/experiments/d1-prod-csrf/00-verdict.md`.
+  Staged MODE=prod app (front image `miminet-front:d1-prod` from the seam
+  branch, `SQLALCHEMY_DATABASE_URI="sqlite:////tmp/d1.sqlite"` throwaway, Flask
+  dev server on `127.0.0.1:18099`). **Result: the reviewer reading is CONFIRMED
+  at code level.** Under MODE=prod (`JWT_COOKIE_CSRF_PROTECT=True`) every
+  cookie-JWT write POST (editor saves via `/post_nodes_edges`/`/edge/save_config`
+  + the `/host/*_save_config` group; refresh via POST `/refresh_access`) fails
+  with 401/302 unless `X-CSRF-TOKEN` is sent; GET/safe-method and header-token
+  requests are exempt. No browser JS reads the csrf cookie or sends the header
+  (grep of all templates + static). The live stack only works because
+  `front/.env:35` sets `MODE=dev` (CSRF off) — prod-as-configured has never
+  been exercised via cookie-JWT writes. **Consequence: the auth fix for a
+  future non-browser client must NOT be a blind config flip; the safe additive
+  step is bearer transport** (headers location, CSRF-exempt by design) → PR #497.
+- **PR #497 open** (`batch14/auth-contract`): `JWT_TOKEN_LOCATION=["cookies"]`
+  → `["cookies","headers"]` in `front/src/app.py`. Reviewer (ses_f875633cbffe)
+  **APPROVED**: cookie-first short-circuit confirmed in flask_jwt_extended 4.7.1
+  source, CSRF only enforced on the cookie path, no current client sends both
+  cookie+header (browser never sets Authorization; server only delivers tokens
+  as httpOnly cookies), test fixtures build their own config. Forward risk
+  recorded: bearer client must be cookie-jar-free (a stale/expired cookie wins
+  over a fresh bearer header). Back-Pytest shard-2 flake (`vlan_with_stp` 900 s
+  timeout under 4-PR CI contention) re-run; not gated on.
+- **PR #498 open** (`batch14/front-coverage`): front browser-free coverage job
+  (lens-C F3). coverage≥7.16.0 → front dev group (uv.lock only), new
+  `.github/workflows/front_coverage.yml` (no matrix/compose/grid): 4
+  browser-free files (`test_get_logs`, `test_config_db`, `test_quiz_progress`,
+  `test_ai_generate`) under `coverage run --branch --source=../src` from
+  `front/tests`, explicit `--data-file=.coverage.browserfree` on run/report/json,
+  gate `--fail-under=21` (baseline 22.65% blended stmts+branches measured
+  2026-09-06 → floor 21), artifact `front-browserfree-coverage-report`.
+  Reviewer (ses_f85342716ffe) **APPROVED** after confirming no false-red vector
+  (front/.env tracked → CI has it; import app does no DB connect; wheels only,
+  no apt) — hardening applied per review: explicit `--data-file` (was relying
+  on implicit auto-combine), comment corrected to "blended". Local replica:
+  23 passed, gate exit 0.
+- **Process notes:** reviewer subagent ledgers — #495 ses_f875e93b7ffe →
+  verdict file `.tmp/review-495.md`; #496 ses_f875aea4effe → `.tmp/review-496.md`;
+  #497 ses_f875633cbffe → `.tmp/review-497.md`; #498 ses_f85342716ffe →
+  `.tmp/review-498.md` (all verdicts also posted as PR comments = primary durable
+  record). The #495 catch (half-wired seam) is the second verified reviewer
+  value-add this month (after #495 empty-slice/artifact cases in #477/#483).
