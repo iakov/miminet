@@ -1439,3 +1439,43 @@ Architecture goal (user's words): coverage info + gate control, test containers
   the container, and path-remapping ([paths] in a .coveragerc) before combine.
   Unblock: build a test-only front image variant w/ coverage; verify single-shard
   container coverage collection locally/CI; then add to full_test shards.
+
+## Batch 16 record — FINAL fork-branch validation results (ci/coverage-merge @ 23ee9f5)
+Final green round (all dispatched @ branch HEAD 23ee9f5):
+- Linter (push) SUCCESS, Front browser-free coverage (push) SUCCESS.
+- Full test (dispatch 34165821108) SUCCESS 3/3; Pytest (dispatch 34165819249)
+  SUCCESS 3/3 + Backend coverage report SUCCESS.
+- Fresh artifacts: `back-coverage-data` (33KB, run 34165819249),
+  `front-browserfree-coverage-data` (39KB, run 34162003223).
+- **Merge aggregator executed against real CI artifacts** (coverage combine over
+  the two lane data files; `[paths]` remap only needed because the local
+  checkout differs from the CI runner path — in-CI merge needs no remap):
+  - Whole repo (back/src + front/src, statements): **37.8%**
+  - back/src gate: **93.1%** statements (≥75 gate passes on merged data)
+  - front/src (browser-free slice only): **22.7%** statements
+  - back/src gaps surfaced by the merge: `emulator.py` only 84% (the flaky
+    900s-timeout core — coverage hole where the flakes live);
+    `jobs.py` 97%, `celery_app.py` 95% (statements).
+  - front/src gaps: `ai_generate.py` 45%, `app.py` 60%, `configurators.py` 26%,
+    `miminet_admin.py` 28% — these are the modules exercised mostly by the
+    e2e suite, which is NOT yet instrumented (container spike still deferred),
+    so browser-free statements understate them. Confirms the container-e2e
+    coverage spike's value and its unblock chain (recorded earlier).
+- **CI-burn finding (measured, honest):** the coverage-merge architecture is
+  CI-neutral on the per-PR path (merge runs schedule/dispatch/main-push only;
+  uploads add ~1s). The e2e matrix dedup (22 files, shards 7/8/7) removed 4
+  browser-free files that double-ran against the grid, but measured wall-time
+  saving is small (~7s aggregate across 3 parallel shards) because per-shard
+  cost is dominated by ~107s grid+frontend boot and the few big flow tests.
+  The architecture's value = coverage visibility + per-area gate control +
+  not duplicating grid work, NOT raw minute savings.
+- Test-duplication survey shipped: docs/experiments/test-cost-survey/
+  (00-survey.md). Finding: coverage subsumption is the wrong deletion criterion;
+  small tests are cheap. Real lever if CI burn is the goal: e2e infra boot
+  (~107s/shard) and the few big flow tests (test_job_limit 49s/3) + back
+  emulation shard (test_miminet_back 21 scenarios = whole back cost).
+- Branch state verified clean: exactly the 5 intended workflow files vs
+  origin/main; SSH-signed commit G=G.
+- Deferred (unchanged): container-instrumented e2e coverage spike;
+  per-test coverage attribution (dynamic contexts) as gate for any future
+  coverage-subsumption test deletion.

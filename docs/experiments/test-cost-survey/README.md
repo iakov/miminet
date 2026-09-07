@@ -17,3 +17,10 @@ TL;DR:
 
 Status: survey only. No test changes made. Deferred: per-test coverage
 attribution spike as the gate for any future coverage-subsumption deletion.
+
+Update (2026-09-08, merged-coverage validation): the cross-lane merge ran
+against real CI artifacts and confirms the survey's premise — the browser-free
+front slice understates modules that only the (uninstrumented) e2e suite
+exercises (configurators.py 26%, miminet_admin.py 28%, app.py 60%) while
+back/src is 93.1% merged with the gap at emulator.py (84%), exactly where the
+900s-timeout flakes live. Numbers and branch state in AGENT_RUNBOOK Batch 16.
